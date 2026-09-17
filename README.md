@@ -1,4 +1,4 @@
-# data-anonymization-toolkit
+# data-anonymization
 
 Sanitize data before it is sent to a publicly available AI model, and measure whether the sanitized output can still be traced back to a company or a person.
 
