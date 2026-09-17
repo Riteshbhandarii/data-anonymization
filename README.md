@@ -1,6 +1,8 @@
-# doc-anonymization-toolkit
+# data-anonymization-toolkit
 
-Sanitize documents before they are sent to a publicly available AI model, and measure whether the sanitized output can still be traced back to a company or a person.
+Sanitize data before it is sent to a publicly available AI model, and measure whether the sanitized output can still be traced back to a company or a person.
+
+Scope is not limited to office documents. Any data that a person might paste, upload or pipe into a public model is in scope: documents, spreadsheets, databases, images, audio, video, CAD, logs, code, telemetry, sensor data.
 
 Exploratory R&D. Not an official product.
 
@@ -16,7 +18,7 @@ Two problems are often confused and this toolkit keeps them apart:
 ## Pipeline
 
 ```
-  source document
+  source data
         |
         v
   [extract]  text + metadata + embedded objects
@@ -28,7 +30,7 @@ Two problems are often confused and this toolkit keeps them apart:
   [redact]   suppress / generalize / substitute / pseudonymize
         |
         v
-  output document
+  output data
         |
         v
   [eval]     can a public model still identify the company or person?
@@ -36,7 +38,9 @@ Two problems are often confused and this toolkit keeps them apart:
 
 ## Format matrix
 
-| Document type | Content type | Tool / process | Output type | AI re-identification test |
+One row per data type. The project owner's column structure, extended as new types are identified.
+
+| Data type | Content type | Tool / process | Output type | AI re-identification test |
 |---|---|---|---|---|
 | Word `.docx` | Body text, comments, tracked changes, author in docProps | python-docx or Tika extract, NER, surrogate replace, rebuild, strip docProps | `.docx` clean or `.txt` | Who wrote this, which company, which person |
 | Excel `.xlsx` | Tabular personal data, quasi-identifiers, hidden sheets, formulas | openpyxl, classify columns, generalize or suppress, k-anonymity check | `.xlsx` or `.csv` | Guess the organisation from column names, product codes, row patterns |
@@ -65,11 +69,11 @@ Two numbers, not one.
 ## Layout
 
 ```
-extract/   format to text, metadata, embedded objects
+extract/   source format to text, metadata, embedded objects
 detect/    identifier and secret detection
 redact/    suppression, generalization, substitution, pseudonymization
 eval/      detection metrics and the re-identification harness
-corpus/    public and synthetic test data only, never real documents
+corpus/    public and synthetic test data only, never real data
 docs/      techniques, evaluation protocol, open questions
 ```
 
