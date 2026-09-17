@@ -1,0 +1,16 @@
+# extraction
+python-docx
+openpyxl
+python-pptx
+pymupdf
+
+# detection
+presidio-analyzer
+presidio-anonymizer
+spacy
+
+# redaction / surrogates
+faker
+
+# eval
+pandas

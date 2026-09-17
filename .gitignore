@@ -1,0 +1,18 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+.DS_Store
+.idea/
+.vscode/
+
+# never commit real documents or evaluation outputs containing them
+corpus/real/
+corpus/internal/
+*.docx
+*.xlsx
+*.pptx
+*.pdf
+!corpus/synthetic/**
+eval/results/
