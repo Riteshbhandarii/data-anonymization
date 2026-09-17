@@ -17,6 +17,8 @@ Two problems are often confused and this toolkit keeps them apart:
 
 ## Pipeline
 
+![Document Anonymization Pipeline](docs/document-anonymization-pipeline.png)
+
 ```
   source data
         |
