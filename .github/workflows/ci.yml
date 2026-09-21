@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  corpus:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      # Only what the generator and the verifier need. requirements.txt also
+      # carries presidio and spacy for later stages, which would add minutes
+      # here for nothing.
+      - run: pip install faker reportlab python-docx python-pptx openpyxl pypdf ruff
+
+      - name: Lint
+        run: ruff check corpus/
+
+      - name: Generate a small corpus
+        run: python3 corpus/generate.py --out ./corpus-out --n 2
+
+      - name: Every labelled value is where its label says
+        run: python3 corpus/verify.py ./corpus-out
+
+      - name: Same seed, same corpus
+        run: |
+          python3 corpus/generate.py --out ./corpus-again --n 2
+          diff -r ./corpus-out/labels ./corpus-again/labels
