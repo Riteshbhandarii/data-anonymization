@@ -16,3 +16,6 @@ corpus/internal/
 *.pdf
 !corpus/synthetic/**
 eval/results/
+
+# generated Markdown may still contain residual sensitive information
+outputs/

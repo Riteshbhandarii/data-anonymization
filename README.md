@@ -20,27 +20,46 @@ Two problems are often confused and this toolkit keeps them apart:
 ![Document Anonymization Pipeline](docs/document-anonymization-pipeline.png)
 
 ```
-  source data
-        |
-        v
-  [extract]  text + metadata + embedded objects
-        |
-        v
-  [detect]   identifiers, quasi-identifiers, secrets
-        |
-        v
-  [redact]   suppress / generalize / substitute / pseudonymize
-        |
-        v
-  output data
-        |
-        v
-  [eval]     can a public model still identify the company or person?
+  local source file
+          |
+          v
+  [detect format]
+          |
+          v
+  [extract text or OCR]
+          |
+          v
+  [normalize as Markdown]
+          |
+          v
+  [anonymize twice]
+          |
+          v
+  outputs/<name>_anonymized.md
 ```
 
-## Format matrix
+The current pipeline runs locally and stops after writing anonymized Markdown. It does not send files or text to an external LLM. See [docs/pipeline.md](docs/pipeline.md) for supported formats, limitations, and the developer integration contract.
 
-One row per data type. The project owner's column structure, extended as new types are identified.
+## Quick start
+
+```bash
+python -m pip install -r requirements.txt
+streamlit run app.py
+```
+
+The same pipeline can run without the UI:
+
+```bash
+python -m pipeline path/to/input.pdf
+```
+
+OCR requires the Tesseract executable in addition to the Python requirements. Generated Markdown is saved under `outputs/`, which is ignored by Git.
+
+The built-in anonymizer is a demonstration baseline for structured identifiers. Connect the team's anonymizer before processing real data.
+
+## Longer-term format matrix
+
+This table records the wider research scope. The current implementation has intentionally chosen Markdown output instead of reconstructing each original format.
 
 | Data type | Content type | Tool / process | Output type | AI re-identification test |
 |---|---|---|---|---|
@@ -71,12 +90,15 @@ Two numbers, not one.
 ## Layout
 
 ```
-extract/   source format to text, metadata, embedded objects
-detect/    identifier and secret detection
-redact/    suppression, generalization, substitution, pseudonymization
-eval/      detection metrics and the re-identification harness
-corpus/    public and synthetic test data only, never real data
-docs/      techniques, evaluation protocol, open questions
+app.py      local Streamlit demo
+pipeline/   format detection, extraction/OCR, anonymization orchestration, Markdown output
+extract/    extraction notes
+detect/     identifier and secret detection notes
+redact/     anonymizer integration notes
+eval/       detection metrics and the re-identification harness
+corpus/     public and synthetic test data only, never real data
+docs/       pipeline guide, techniques, evaluation protocol, open questions
+outputs/    generated Markdown; ignored by Git
 ```
 
 ## Test data
@@ -95,15 +117,19 @@ Public and synthetic only. Nothing real enters this repository.
 ## Status
 
 - [ ] Format matrix agreed with the project owner
-- [ ] Output format decision: same-format rebuild or plain text. See [docs/open-questions.md](docs/open-questions.md)
+- [x] Current pipeline output is Markdown; original-format reconstruction is out of scope
+- [x] Local Streamlit demo and command-line entry point
+- [x] Text extraction and OCR pipeline with two anonymization passes
+- [ ] Connect the team's full anonymization module
 - [ ] Synthetic corpus generator
-- [ ] `extract` for docx, xlsx, pptx
+- [x] Initial `extract` support for DOCX, XLSX, PPTX, PDF, CSV, text, and images
 - [ ] Baseline detector and a first recall number
 - [ ] Re-identification harness
 - [ ] Quality-impact benchmark, raw against redacted against pseudonymized
 
 ## Docs
 
+- [docs/pipeline.md](docs/pipeline.md), running the pipeline and connecting team modules
 - [docs/techniques.md](docs/techniques.md), anonymization techniques and where each one breaks
 - [docs/evaluation.md](docs/evaluation.md), the re-identification test protocol
 - [docs/open-questions.md](docs/open-questions.md), decisions not yet made

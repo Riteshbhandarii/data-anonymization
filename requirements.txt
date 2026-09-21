@@ -3,6 +3,8 @@ python-docx
 openpyxl
 python-pptx
 pymupdf
+pillow
+pytesseract
 
 # detection
 presidio-analyzer
@@ -14,3 +16,6 @@ faker
 
 # eval
 pandas
+
+# local demo UI
+streamlit

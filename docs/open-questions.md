@@ -10,9 +10,9 @@ Decisions not yet made. Nothing here should be silently resolved in code.
 
 ## Output format, the biggest one
 
-- [ ] Must the output be the same format as the input, so people can keep working with the document, or is clean text enough because it is only ever fed to a model?
+- [x] The current implementation outputs Markdown only. Rebuilding the original file format is out of scope for the first version.
 
-Rebuilding a redacted `.docx` that still looks like a real document is roughly ten times the work of extracting to text. This decision shapes the whole `redact` stage and should be settled before any of it is written.
+Rebuilding a redacted `.docx` that still looks like a real document is roughly ten times the work of extracting to text. The team selected Markdown to keep extraction, storage, testing, and downstream use simple.
 
 ## Legal
 

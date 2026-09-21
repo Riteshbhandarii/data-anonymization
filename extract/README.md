@@ -1,3 +1,5 @@
 # extract
 
-Extract text, metadata and embedded objects from each source type. One module per format family. Not limited to office documents: images, audio, CAD, logs, database exports and telemetry all land here.
+Extract text from each supported source type and return a Markdown string. Files with a usable text layer are parsed directly; standalone images and scanned PDF pages use OCR.
+
+The current implementation is in `pipeline/extractors.py`. See `docs/pipeline.md` for the supported formats and the extractor integration contract.
