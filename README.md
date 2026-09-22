@@ -61,13 +61,6 @@ Existing readers support TXT, MD, CSV, DOCX, XLSX, PPTX, PDF, and common image f
 
 Generated Markdown is saved under `outputs/`, which is ignored by Git.
 
-<details>
-<summary>Earlier design diagram</summary>
-
-![Document Anonymization Pipeline](docs/document-anonymization-pipeline.png)
-
-</details>
-
 ## Longer-term format matrix
 
 This table records the wider research scope. The current implementation has intentionally chosen Markdown output instead of reconstructing each original format.
