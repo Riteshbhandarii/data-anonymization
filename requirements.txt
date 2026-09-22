@@ -11,8 +11,9 @@ presidio-analyzer
 presidio-anonymizer
 spacy
 
-# redaction / surrogates
+# corpus generation
 faker
+reportlab
 
 # eval
 pandas
