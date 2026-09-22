@@ -14,6 +14,8 @@ Decisions not yet made. Nothing here should be silently resolved in code.
 
 Rebuilding a redacted `.docx` that still looks like a real document is roughly ten times the work of extracting to text. This decision shapes the whole `redact` stage and should be settled before any of it is written.
 
+- [ ] The corpus generates Finnish identity codes with invalid checksums on purpose. Presidio's recognizer validates the checksum and rejects all of them. Generate valid codes, or disable validation for the benchmark?
+
 ## Legal
 
 - [ ] With no provider agreement, is there any lawful basis for sending personal data at all, or is the answer simply that it is not sent?
