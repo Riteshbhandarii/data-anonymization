@@ -22,7 +22,7 @@ def redact_csv(input_path, output_path, locale='en_US'):
             hashed_id = hashlib.sha256((str(row['personal_id']) + salt).encode()).hexdigest()
             row['personal_id'] = hashed_id[:10]
         
-        # 3. Surrogate Substitution (Seeded for Consistency across multiple fields)
+        # 3. Surrogate Substitution 
         if 'name' in row and not pd.isna(row['name']):
             original_name = str(row['name'])
             seed_number = int(hashlib.md5(original_name.encode()).hexdigest(), 16) % (10**8)
