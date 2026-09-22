@@ -19,6 +19,7 @@ documents must never end up in a tracked file.
 
 import collections
 import csv
+import hashlib
 import importlib.metadata
 import json
 import os
@@ -105,7 +106,8 @@ def main(root, baseline=False):
     # Driven from the manifest rather than the directory listing. A smaller --n
     # into a used output directory leaves older documents behind, and scoring
     # those against the new corpus.json describes two different corpora.
-    for stem in manifest(root):
+    stems = manifest(root)
+    for stem in stems:
         with open(os.path.join(root, "labels", f"{stem}.json"), encoding="utf-8") as f:
             doc = json.load(f)
         lang, fmt = doc["language"], doc["format"]
@@ -133,6 +135,14 @@ def main(root, baseline=False):
 
     with open(os.path.join(root, "corpus.json"), encoding="utf-8") as f:
         corpus = json.load(f)
+    actual = fingerprint(root, stems)
+    if actual != corpus.get("corpus_sha256"):
+        raise SystemExit(
+            f"Corpus does not match its own provenance.\n"
+            f"  corpus.json says {corpus.get('corpus_sha256')}\n"
+            f"  the scored files are {actual}\n"
+            f"Regenerate it; a result carrying the wrong digest is worse than none."
+        )
     report(counts, misses, corpus, baseline)
 
 
@@ -141,6 +151,21 @@ def manifest(root):
     with open(os.path.join(root, "index.csv"), encoding="utf-8") as f:
         return [os.path.splitext(os.path.basename(row["file"]))[0]
                 for row in csv.DictReader(f)]
+
+
+def fingerprint(root, stems):
+    """Recompute the corpus digest from the files actually about to be scored.
+
+    Deliberately a second implementation rather than a shared one. A hash the
+    verifier takes on trust from the thing it verifies proves nothing, and a
+    result carrying a digest that was never checked is decoration.
+    """
+    digest = hashlib.sha256()
+    for stem in stems:
+        for part in (f"labels/{stem}.json", f"text/{stem}.txt"):
+            with open(os.path.join(root, part), "rb") as f:
+                digest.update(f.read())
+    return digest.hexdigest()
 
 
 def totals(counts, *keys):
