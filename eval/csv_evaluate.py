@@ -43,7 +43,7 @@ def evaluate_csv_leakage(original_path, anonymized_path):
     else:
         print("\nNo original sensitive values found.")
 
-    # 4. Calculate Score (Matching xlsx_evaluate.py logic)
+    # 4. Calculate Score
     if len(leaks) == 0:
         score = 4
     elif len(leaks) == 1:
