@@ -229,10 +229,17 @@ def main():
     # same corpus, so the seed and size travel with the documents. The seed alone
     # does not pin them: new Faker data or an edited template changes every value
     # while the seed stays 42, so the labels are fingerprinted as well.
+    # Hashed from the manifest, not from whatever the directory happens to hold,
+    # or reusing an output directory with a smaller --n leaves older documents
+    # behind and the hash describes a corpus nobody generated. The saved text is
+    # included because that, not the label file, is what a detector reads: an
+    # edited template can keep every value and still change every detection.
     digest = hashlib.sha256()
-    for name in sorted(os.listdir(os.path.join(out, "labels"))):
-        with open(os.path.join(out, "labels", name), "rb") as f:
-            digest.update(f.read())
+    for entry in index:
+        stem = os.path.splitext(os.path.basename(entry["file"]))[0]
+        for part in ("labels/" + stem + ".json", "text/" + stem + ".txt"):
+            with open(os.path.join(out, part), "rb") as f:
+                digest.update(f.read())
     with open(os.path.join(out, "corpus.json"), "w", encoding="utf-8") as f:
         json.dump({"seed": args.seed, "n": args.n, "documents": len(index),
                    "identifiers": sum(i["entities"] for i in index),
