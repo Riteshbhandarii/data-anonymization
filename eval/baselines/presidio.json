@@ -17,7 +17,7 @@
     "documents": 250,
     "identifiers": 3250,
     "faker": "40.39.0",
-    "labels_sha256": "6ac5dc851b0551c3208e7d717ee4e5c1e10f96d551839c4e9dacc14a9fff2b2f"
+    "corpus_sha256": "6ac5dc851b0551c3208e7d717ee4e5c1e10f96d551839c4e9dacc14a9fff2b2f"
   },
   "scope": "body labels only, metadata/notes/hidden sheets need extraction. Template sentences with generated names, so these are an upper bound and real documents will score lower.",
   "counts": "covered means a detection held the whole value; partial left some of it",
