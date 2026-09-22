@@ -6,12 +6,15 @@ the detector on its own. Identifiers planted in metadata, speaker notes and
 hidden sheets are not in that text and are skipped here on purpose: they are an
 extraction question, and mixing the two hides which stage lost the value.
 
+    python3 -m spacy download en_core_web_sm
+    python3 -m spacy download fi_core_news_sm
     python3 corpus/generate.py --out ./bench --n 25
     python3 eval/bench.py ./bench
 
-Writes eval/baselines/presidio.json, which is committed. Results over the
-synthetic corpus hold invented values and are safe to publish; anything run
-over real documents belongs in eval/results/, which git ignores.
+Writes eval/results/, which git ignores. Pass --baseline to write the
+committed eval/baselines/presidio.json instead, which is only for runs over
+the synthetic corpus: its values are invented and safe to publish, and real
+documents must never end up in a tracked file.
 """
 
 import collections
@@ -53,12 +56,18 @@ def build_analyzer():
 
 
 def found(text, value, results):
-    """True when a detection of the right type overlaps this value in the text."""
+    """True when a detection of the right type overlaps this value in the text.
+
+    Every occurrence counts, not just the first. Company names in particular
+    repeat, and finding the second one is still finding it.
+    """
     start = text.find(value)
-    if start < 0:
-        return None  # not in the visible text, so not this benchmark's business
-    end = start + len(value)
-    return any(r.start < end and r.end > start for r in results)
+    while start >= 0:
+        end = start + len(value)
+        if any(r.start < end and r.end > start for r in results):
+            return True
+        start = text.find(value, start + 1)
+    return False
 
 
 def verdict(entity_type, planted, hit):
@@ -70,15 +79,15 @@ def verdict(entity_type, planted, hit):
     return "good" if hit / planted >= 0.95 else "weak"
 
 
-def main(root):
+def main(root, baseline=False):
     analyzer = build_analyzer()
-    counts = collections.defaultdict(lambda: [0, 0])  # (lang, type) -> [planted, hit]
+    counts = collections.defaultdict(lambda: [0, 0])  # (lang, fmt, type) -> [planted, hit]
     misses = []
 
     for name in sorted(os.listdir(os.path.join(root, "labels"))):
         with open(os.path.join(root, "labels", name), encoding="utf-8") as f:
             doc = json.load(f)
-        lang = doc["language"]
+        lang, fmt = doc["language"], doc["format"]
         with open(os.path.join(root, "text", f"{name[:-5]}.txt"), encoding="utf-8") as f:
             text = f.read()
 
@@ -87,34 +96,48 @@ def main(root):
         for r in results:
             by_type[TYPE_MAP.get(r.entity_type)].append(r)
 
+        # Body labels only. A value planted in metadata often appears in the body
+        # as well, and counting that copy would score extraction's job as this
+        # benchmark's and inflate the denominator.
         for e in doc["entities"]:
-            hit = found(text, e["value"], by_type[e["type"]])
-            if hit is None:
+            if e["location"] != "body":
                 continue
-            counts[(lang, e["type"])][0] += 1
-            counts[(lang, e["type"])][1] += hit
+            hit = found(text, e["value"], by_type[e["type"]])
+            counts[(lang, fmt, e["type"])][0] += 1
+            counts[(lang, fmt, e["type"])][1] += hit
             if not hit:
                 misses.append({"file": doc["file"], "type": e["type"], "value": e["value"]})
 
     with open(os.path.join(root, "corpus.json"), encoding="utf-8") as f:
         corpus = json.load(f)
-    report(counts, misses, corpus)
+    report(counts, misses, corpus, baseline)
 
 
-def report(counts, misses, corpus):
-    types = sorted({t for _, t in counts})
-    langs = sorted({lang for lang, _ in counts})
+def totals(counts, *keys):
+    """Planted and found, summed over whichever parts of the key are fixed."""
+    out = collections.defaultdict(lambda: [0, 0])
+    for key, (planted, hit) in counts.items():
+        picked = tuple(key[i] for i in keys)
+        out[picked][0] += planted
+        out[picked][1] += hit
+    return out
+
+
+def report(counts, misses, corpus, baseline):
+    by_lang_type = totals(counts, 0, 2)
+    types = sorted({t for _, _, t in counts})
+    langs = sorted({lang for lang, _, _ in counts})
+    order = ["no recognizer", "recognizer rejects all", "weak", "good", "not in corpus"]
     recall = {}
 
     print(f"{'type':<14}" + "".join(f"{lang:>14}" for lang in langs) + "   verdict")
     for t in types:
         row = f"{t:<14}"
         for lang in langs:
-            planted, hit = counts.get((lang, t), [0, 0])
+            planted, hit = by_lang_type.get((lang, t), [0, 0])
             recall[f"{lang}/{t}"] = {"planted": planted, "found": hit,
                                      "verdict": verdict(t, planted, hit)}
             row += f"{hit:>5}/{planted:<4}{hit / planted:>5.0%}" if planted else f"{'-':>14}"
-        order = ["no recognizer", "recognizer rejects all", "weak", "good", "not in corpus"]
         worst = min((recall[f"{lang}/{t}"]["verdict"] for lang in langs), key=order.index)
         print(f"{row}   {worst}")
 
@@ -122,17 +145,28 @@ def report(counts, misses, corpus):
     hits = sum(h for _, h in counts.values())
     print(f"\n{hits}/{total} body identifiers found, {hits / total:.0%} recall")
 
-    write(os.path.join("baselines", "presidio.json"), {
+    models = {p: importlib.metadata.version(p) for p in ("presidio-analyzer", "spacy")}
+    # The model weights are their own packages. Updating them changes every
+    # number while the spacy version stays put, so they are recorded too.
+    models.update({m: importlib.metadata.version(m) for m in MODELS.values()})
+
+    # ../docs/evaluation.md asks for recall per entity type and per document
+    # format. The table above is the readable cut; the format cut lives here.
+    by_fmt_type = totals(counts, 1, 2)
+    write(os.path.join("baselines" if baseline else "results", "presidio.json"), {
         "detector": "presidio-analyzer",
-        "versions": {p: importlib.metadata.version(p) for p in ("presidio-analyzer", "spacy")},
+        "versions": models,
         "models": MODELS,
         "score_threshold": THRESHOLD,
         "corpus": corpus,
         "scope": "body labels only, metadata/notes/hidden sheets need extraction",
         "recall": recall,
+        "recall_by_format": {f"{fmt}/{t}": {"planted": p, "found": h}
+                             for (fmt, t), (p, h) in sorted(by_fmt_type.items())},
     })
     # Every failure individually, which is what you read to decide what to fix.
     # It grows with the corpus and regenerates in seconds, so it stays untracked.
+    # The values are verbatim, so treat it like the documents it came from.
     write(os.path.join("results", "presidio-misses.json"), misses)
 
 
@@ -145,4 +179,5 @@ def write(name, payload):
 
 
 if __name__ == "__main__":
-    main(sys.argv[1] if len(sys.argv) > 1 else "./bench")
+    args = [a for a in sys.argv[1:] if a != "--baseline"]
+    main(args[0] if args else "./bench", baseline="--baseline" in sys.argv)
