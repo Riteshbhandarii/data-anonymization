@@ -32,7 +32,7 @@ def run_pipeline(
     ocr_language: str = "eng",
     progress: ProgressCallback | None = None,
 ) -> PipelineResult:
-    """Extract Markdown, call the supplied anonymizer once, and save its output.
+    """Extract Markdown, call the anonymization module, and save its output.
 
     ``anonymizer`` is required and receives the complete normalized Markdown
     string. Its returned string is saved unchanged as UTF-8 Markdown.
@@ -48,7 +48,7 @@ def run_pipeline(
         raise TypeError("anonymizer must be a callable accepting and returning str")
 
     _report(progress, "Detecting the file type and extracting text")
-    # A team extractor can replace the existing reader without changing the flow.
+    # A custom extractor can replace the existing reader without changing the flow.
     try:
         if extractor is None:
             markdown = extract_to_markdown(source, ocr_language=ocr_language)
@@ -65,7 +65,7 @@ def run_pipeline(
     _report(progress, "Normalizing extracted content as Markdown")
     markdown = normalize_markdown(markdown)
 
-    # Hand the complete Markdown to the team module and receive its output.
+    # Hand the complete Markdown to the anonymization module and receive its output.
     _report(progress, "Anonymizing Markdown")
     try:
         markdown = anonymizer(markdown)

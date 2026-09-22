@@ -9,6 +9,6 @@ def anonymize_markdown(markdown: str) -> str:
     ...
 ```
 
-Pass the function to `pipeline.run_pipeline` through its required `anonymizer` argument. The pipeline calls it once with the complete normalized Markdown. Return the complete processed Markdown string; the pipeline receives it, saves the file, and returns its path and text to the caller.
+Pass the function to `pipeline.run_pipeline` through its required `anonymizer` argument. The pipeline calls the anonymization module with the complete normalized Markdown. Return the complete processed Markdown string; the pipeline receives it, saves the file, and returns its path and text to the caller.
 
 See [the pipeline integration guide](../docs/pipeline.md#connect-an-anonymization-module) for import examples and wrappers for modules with different input/output formats.

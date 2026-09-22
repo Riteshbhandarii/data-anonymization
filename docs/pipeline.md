@@ -17,7 +17,7 @@ Extract text / OCR and build Markdown
 Normalize Markdown whitespace
     |
     v
-Call the supplied anonymization function once
+Call the anonymization module
     |
     v
 Receive the returned Markdown string
@@ -43,7 +43,7 @@ The extraction and anonymization modules exchange strings with the pipeline. The
 
 ## Setup
 
-Use Python 3.10 or newer and run the calling script from the repository root so Python can import `pipeline` and the team's modules.
+Use Python 3.10 or newer and run the calling script from the repository root so Python can import `pipeline` and your modules.
 
 The existing document readers use these packages:
 
@@ -61,16 +61,16 @@ The function supplied through `anonymizer` must accept one Markdown string and r
 
 ```python
 def anonymize_markdown(markdown: str) -> str:
-    ...  # Implement the team's detection and replacement logic here.
+    ...  # Implement detection and replacement logic here.
 ```
 
 The input is the complete document, including Markdown headings and table syntax. It is text, not a file path. The return value is the complete processed document, not a list of detections, a dictionary, a saved filename, or `None`.
 
-For example, if your function is defined in `redact/team_anonymizer.py`, the calling code is:
+For example, if your function is defined in `redact/anonymizer.py`, the calling code is:
 
 ```python
 from pipeline import run_pipeline
-from redact.team_anonymizer import anonymize_markdown
+from redact.anonymizer import anonymize_markdown
 
 result = run_pipeline(
     "documents/report.docx",
@@ -80,15 +80,15 @@ result = run_pipeline(
 print(result.output_path)
 ```
 
-`redact/team_anonymizer.py` is an example location for the module you provide. Replace the import with your actual module path. Pass the function itself (`anonymizer=anonymize_markdown`), without calling it in the argument.
+`redact/anonymizer.py` is an example location for the module you provide. Replace the import with your actual module path. Pass the function itself (`anonymizer=anonymize_markdown`), without calling it in the argument.
 
-The pipeline calls it exactly once after extraction and normalization. It then saves the returned string without further content processing. An anonymizer is required; the pipeline contains no built-in replacement algorithm.
+The pipeline calls the anonymization module after extraction and normalization. It then saves the returned string without further content processing. An anonymizer is required; the pipeline contains no built-in replacement algorithm.
 
 If your module uses additional arguments or returns a different structure, provide a small wrapper. For example, a module that returns `{"markdown": ...}` can be connected as follows:
 
 ```python
 from pipeline import run_pipeline
-from redact.team_anonymizer import process_document
+from redact.anonymizer import process_document
 
 def anonymize_for_pipeline(markdown: str) -> str:
     response = process_document(markdown)
@@ -120,7 +120,7 @@ def run_pipeline(
 | Argument | Expected value | Behavior |
 |---|---|---|
 | `input_path` | `str` or `pathlib.Path` | Path to one existing input file |
-| `anonymizer` | Required callable: `str -> str` | Receives normalized Markdown and returns processed Markdown; called once |
+| `anonymizer` | Required callable: `str -> str` | Receives normalized Markdown and returns processed Markdown |
 | `extractor` | Optional callable: `Path -> str` | Replaces built-in format selection and extraction; receives the input path and returns Markdown |
 | `output_dir` | `str` or `pathlib.Path` | Defaults to `outputs/` in the repository root |
 | `ocr_language` | `str` | Tesseract language code for the built-in reader; defaults to `eng` |
@@ -151,13 +151,13 @@ markdown = normalize_markdown(markdown)
 
 ## Connect another extraction module
 
-To use a team's reader without editing the pipeline, pass it as `extractor`. It receives a `pathlib.Path` and must return a Markdown string:
+To use a custom reader without editing the pipeline, pass it as `extractor`. It receives a `pathlib.Path` and must return a Markdown string:
 
 ```python
 from pathlib import Path
 from pipeline import run_pipeline
-from extract.team_reader import read_as_markdown
-from redact.team_anonymizer import anonymize_markdown
+from extract.reader import read_as_markdown
+from redact.anonymizer import anonymize_markdown
 
 def extract_for_pipeline(path: Path) -> str:
     return read_as_markdown(str(path))
@@ -169,7 +169,7 @@ result = run_pipeline(
 )
 ```
 
-The import paths above refer to modules provided by the team. This custom extractor takes over format routing, reading, and any OCR it needs. It can support extensions outside `SUPPORTED_EXTENSIONS`. The pipeline still normalizes its returned Markdown and passes it to the anonymizer. Configure OCR languages inside your custom reader or wrapper; `ocr_language` is only forwarded to the built-in reader.
+The import paths above are examples; replace them with your actual module paths. This custom extractor takes over format routing, reading, and any OCR it needs. It can support extensions outside `SUPPORTED_EXTENSIONS`. The pipeline still normalizes its returned Markdown and passes it to the anonymizer. Configure OCR languages inside your custom reader or wrapper; `ocr_language` is only forwarded to the built-in reader.
 
 To add a format to the existing dispatcher instead:
 

@@ -30,7 +30,7 @@ Two problems are often confused and this toolkit keeps them apart:
   [normalize as Markdown]
           |
           v
-  [call the supplied anonymizer once]
+  [call the anonymization module]
           |
           v
   [receive the returned Markdown]
@@ -39,13 +39,13 @@ Two problems are often confused and this toolkit keeps them apart:
   outputs/<name>_anonymized.md
 ```
 
-The pipeline reads an input file, builds Markdown, passes it to the team's anonymization function, and saves the returned Markdown. See [docs/pipeline.md](docs/pipeline.md) for function arguments, input/output contracts, and extraction/OCR integration instructions.
+The pipeline reads an input file, builds Markdown, passes it to the anonymization module, and saves the returned Markdown. See [docs/pipeline.md](docs/pipeline.md) for function arguments, input/output contracts, and extraction/OCR integration instructions.
 
 ## Pipeline integration
 
 ```python
 from pipeline import run_pipeline
-from redact.team_anonymizer import anonymize_markdown
+from redact.anonymizer import anonymize_markdown
 
 result = run_pipeline(
     "documents/report.docx",
@@ -55,7 +55,7 @@ result = run_pipeline(
 print(result.output_path)
 ```
 
-Replace `redact.team_anonymizer` with the module that provides your implementation. The required function accepts Markdown text and returns processed Markdown text (`str -> str`). It is called once. The pipeline creates the output directory and saves the result as UTF-8 Markdown.
+Replace `redact.anonymizer` with the module that provides your implementation. The required function accepts Markdown text and returns processed Markdown text (`str -> str`). The pipeline creates the output directory and saves the result as UTF-8 Markdown.
 
 Existing readers support TXT, MD, CSV, DOCX, XLSX, PPTX, PDF, and common image formats. The built-in OCR reader uses Tesseract. A custom reader can be supplied through `extractor=` as described in the [integration guide](docs/pipeline.md).
 
@@ -128,9 +128,9 @@ Public and synthetic only. Nothing real enters this repository.
 
 - [ ] Format matrix agreed with the project owner
 - [x] Pipeline reads files, prepares Markdown, and saves the returned result
-- [x] Single-call anonymizer interface (`str -> str`)
+- [x] Anonymization module interface (`str -> str`)
 - [x] Extractor replacement interface (`Path -> str`)
-- [ ] Connect the team's anonymization module
+- [ ] Connect the anonymization module
 - [ ] Synthetic corpus generator
 - [x] Initial `extract` support for DOCX, XLSX, PPTX, PDF, CSV, text, and images
 - [ ] Baseline detector and a first recall number
