@@ -10,9 +10,7 @@ Decisions not yet made. Nothing here should be silently resolved in code.
 
 ## Output format, the biggest one
 
-- [x] The current implementation outputs Markdown only. Rebuilding the original file format is out of scope for the first version.
-
-Rebuilding a redacted `.docx` that still looks like a real document is roughly ten times the work of extracting to text. The team selected Markdown to keep extraction, storage, testing, and downstream use simple.
+- [x] The pipeline saves the Markdown string returned by the anonymization module. See [the output contract](pipeline.md#output-contract) for paths, encoding, and the returned result.
 
 ## Legal
 

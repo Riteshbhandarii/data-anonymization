@@ -17,5 +17,5 @@ corpus/internal/
 !corpus/synthetic/**
 eval/results/
 
-# generated Markdown may still contain residual sensitive information
+# generated pipeline output
 outputs/

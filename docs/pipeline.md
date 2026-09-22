@@ -1,129 +1,207 @@
-# Local Markdown pipeline
+# Pipeline integration guide
 
-## Scope
+## Processing flow
 
-The pipeline prepares files locally before a person sends their content to any external service. It does not call an LLM, upload a file, or reconstruct the original document format.
-
-The current output is one UTF-8 Markdown file:
+`run_pipeline()` coordinates one file from input to Markdown output:
 
 ```text
-input file
-    -> detect format
-    -> extract text or run OCR
-    -> normalize as Markdown
-    -> anonymization pass 1
-    -> anonymization pass 2
-    -> outputs/<input-name>_anonymized.md
+Input file path
+    |
+    v
+Detect extension and select a reader
+    |
+    v
+Extract text / OCR and build Markdown
+    |
+    v
+Normalize Markdown whitespace
+    |
+    v
+Call the supplied anonymization function once
+    |
+    v
+Receive the returned Markdown string
+    |
+    v
+Save outputs/<input-stem>_anonymized.md
+    |
+    v
+Return PipelineResult to the caller
 ```
 
-Ordinary embedded images are ignored. Standalone images and PDF pages without a text layer are sent to OCR so that their visible text can be included.
+The extraction and anonymization modules exchange strings with the pipeline. They do not need to create output files. The pipeline handles the final filename, directory creation, and saving.
 
-## Running the pipeline
+## Files and responsibilities
 
-Install the Python dependencies:
-
-```bash
-python -m pip install -r requirements.txt
-```
-
-OCR also requires the Tesseract executable and the required language data to be installed on the computer. The default language is `eng`. For Finnish OCR, install Finnish language data and pass `fin`.
-
-Run the command-line interface:
-
-```bash
-python -m pipeline path/to/input.pdf
-python -m pipeline path/to/input.pdf --ocr-language fin
-```
-
-Run the local demo:
-
-```bash
-streamlit run app.py
-```
-
-Generated files are written to `outputs/`. The directory is ignored by Git because an anonymizer can miss sensitive data.
-
-## Supported input
-
-| Input | Extraction behavior |
+| File | Responsibility |
 |---|---|
-| `.md`, `.txt` | Read as UTF-8 text |
-| `.csv` | Convert rows to a Markdown table |
-| `.docx` | Extract paragraphs, headings, lists, and tables |
-| `.xlsx` | Convert each worksheet to a Markdown section and table |
-| `.pptx` | Convert each slide and its speaker notes to a Markdown section |
-| `.pdf` | Extract each page's text layer; use OCR for pages with no text |
-| `.png`, `.jpg`, `.jpeg`, `.tif`, `.tiff`, `.bmp` | Use OCR |
+| `pipeline/core.py` | Implements `run_pipeline()`, calls the supplied modules, and saves their output |
+| `pipeline/extractors.py` | Selects readers by extension, extracts content, calls OCR, and builds Markdown sections and tables |
+| `pipeline/normalization.py` | Normalizes line endings, trailing whitespace, and repeated blank lines before anonymization |
+| `pipeline/errors.py` | Defines exceptions for extraction and anonymization failures |
+| `pipeline/__init__.py` | Exports the public functions and result/error types |
 
-## Connecting the team's anonymizer
+## Setup
 
-The integration contract is intentionally one function:
+Use Python 3.10 or newer and run the calling script from the repository root so Python can import `pipeline` and the team's modules.
+
+The existing document readers use these packages:
+
+```bash
+python -m pip install python-docx openpyxl python-pptx pymupdf pillow pytesseract
+```
+
+They are also listed in the shared `requirements.txt`. Text, Markdown, and CSV reading use the Python standard library. Format-specific packages are imported only when that reader runs.
+
+The existing OCR reader requires the Tesseract executable on `PATH` and installed language data. Its default language is `eng`; set `ocr_language="fin"` when using Finnish language data.
+
+## Connect an anonymization module
+
+The function supplied through `anonymizer` must accept one Markdown string and return one Markdown string:
 
 ```python
 def anonymize_markdown(markdown: str) -> str:
-    """Return Markdown with sensitive information replaced."""
-    ...
+    ...  # Implement the team's detection and replacement logic here.
 ```
 
-Pass the function to the pipeline:
+The input is the complete document, including Markdown headings and table syntax. It is text, not a file path. The return value is the complete processed document, not a list of detections, a dictionary, a saved filename, or `None`.
+
+For example, if your function is defined in `redact/team_anonymizer.py`, the calling code is:
 
 ```python
 from pipeline import run_pipeline
-from team_anonymizer import anonymize_markdown
+from redact.team_anonymizer import anonymize_markdown
 
 result = run_pipeline(
-    "example.docx",
+    "documents/report.docx",
     anonymizer=anonymize_markdown,
 )
 
 print(result.output_path)
 ```
 
-`run_pipeline` calls the supplied function twice. The second call receives the output of the first call. The function must always return a string and should leave Markdown syntax intact where possible.
+`redact/team_anonymizer.py` is an example location for the module you provide. Replace the import with your actual module path. Pass the function itself (`anonymizer=anonymize_markdown`), without calling it in the argument.
 
-The built-in `baseline_anonymize` function exists only to keep the demo runnable while the team's detector is under development. It redacts email addresses, IPv4 addresses, Finnish personal identity codes, and IBAN-like values. It does not reliably detect names, organizations, addresses, or contextual identifiers and must not be treated as production anonymization.
+The pipeline calls it exactly once after extraction and normalization. It then saves the returned string without further content processing. An anonymizer is required; the pipeline contains no built-in replacement algorithm.
 
-To use the team's implementation in Streamlit, change the import and pass the function in `app.py`:
+If your module uses additional arguments or returns a different structure, provide a small wrapper. For example, a module that returns `{"markdown": ...}` can be connected as follows:
 
 ```python
-from team_anonymizer import anonymize_markdown
+from pipeline import run_pipeline
+from redact.team_anonymizer import process_document
+
+def anonymize_for_pipeline(markdown: str) -> str:
+    response = process_document(markdown)
+    return response["markdown"]
 
 result = run_pipeline(
-    input_path,
-    anonymizer=anonymize_markdown,
-    ocr_language=ocr_language,
-    progress=show_progress,
+    "documents/report.docx",
+    anonymizer=anonymize_for_pipeline,
 )
 ```
 
-## Connecting another extractor
+Initialize any model or configuration required by your module before calling `run_pipeline()`. The wrapper can use those already-initialized objects.
 
-Every extractor returns a Markdown string. Add a function to `pipeline/extractors.py`:
-
-```python
-def _extract_new_format(path: Path) -> str:
-    return "## Extracted content\n\n..."
-```
-
-Then add the extension to `SUPPORTED_EXTENSIONS` and dispatch it from `extract_to_markdown`. Keep format-specific dependencies inside the extractor function so other file types remain usable when an optional dependency is unavailable.
-
-## Python result
-
-`run_pipeline` returns a `PipelineResult`:
+## Function arguments
 
 ```python
-result.input_path   # original local path
-result.output_path  # saved Markdown path
-result.markdown     # anonymized Markdown string
+def run_pipeline(
+    input_path,
+    output_dir=DEFAULT_OUTPUT_DIR,
+    *,
+    anonymizer,
+    extractor=None,
+    ocr_language="eng",
+    progress=None,
+) -> PipelineResult:
+    ...
 ```
 
-The Streamlit application uses the same function as the command-line interface. UI code should not contain extraction or anonymization logic.
+| Argument | Expected value | Behavior |
+|---|---|---|
+| `input_path` | `str` or `pathlib.Path` | Path to one existing input file |
+| `anonymizer` | Required callable: `str -> str` | Receives normalized Markdown and returns processed Markdown; called once |
+| `extractor` | Optional callable: `Path -> str` | Replaces built-in format selection and extraction; receives the input path and returns Markdown |
+| `output_dir` | `str` or `pathlib.Path` | Defaults to `outputs/` in the repository root |
+| `ocr_language` | `str` | Tesseract language code for the built-in reader; defaults to `eng` |
+| `progress` | Optional callable: `str -> None` | Receives a short message when each processing stage starts; use `print` for console output |
 
-## Current limitations
+## Existing readers
 
-- Original document formatting is not preserved.
-- Embedded image content is ignored unless the whole input is an image or a PDF page has no text layer.
-- A PDF page containing both selectable text and an image is not OCRed.
-- OCR quality depends on the scan and installed Tesseract language data.
-- Running the same anonymizer twice reduces some residual misses but is not a safety guarantee.
-- Output must be reviewed and tested before it is sent outside the trusted environment.
+Extension matching is case-insensitive. All readers return Markdown strings through `extract_to_markdown()`.
+
+| Extension | Current conversion |
+|---|---|
+| `.txt`, `.md` | Read UTF-8 text, accepting an optional UTF-8 byte-order mark |
+| `.csv` | Read comma-separated rows and build a Markdown table; the first row becomes the header |
+| `.docx` | Read body paragraphs, headings, lists, and tables in document order |
+| `.xlsx` | Read worksheets, including hidden worksheets; build one section and table per sheet, including formula text |
+| `.pptx` | Build a section per slide with titles, text, tables, and speaker notes |
+| `.pdf` | Build a section per page; extract its text layer, or call OCR when the page has no text |
+| `.png`, `.jpg`, `.jpeg`, `.tif`, `.tiff`, `.bmp` | Read the image through OCR and return a text section |
+
+Extraction can also be called independently:
+
+```python
+from pipeline import extract_to_markdown, normalize_markdown
+
+markdown = extract_to_markdown("documents/report.pdf", ocr_language="eng")
+markdown = normalize_markdown(markdown)
+```
+
+## Connect another extraction module
+
+To use a team's reader without editing the pipeline, pass it as `extractor`. It receives a `pathlib.Path` and must return a Markdown string:
+
+```python
+from pathlib import Path
+from pipeline import run_pipeline
+from extract.team_reader import read_as_markdown
+from redact.team_anonymizer import anonymize_markdown
+
+def extract_for_pipeline(path: Path) -> str:
+    return read_as_markdown(str(path))
+
+result = run_pipeline(
+    "documents/report.docx",
+    extractor=extract_for_pipeline,
+    anonymizer=anonymize_markdown,
+)
+```
+
+The import paths above refer to modules provided by the team. This custom extractor takes over format routing, reading, and any OCR it needs. It can support extensions outside `SUPPORTED_EXTENSIONS`. The pipeline still normalizes its returned Markdown and passes it to the anonymizer. Configure OCR languages inside your custom reader or wrapper; `ocr_language` is only forwarded to the built-in reader.
+
+To add a format to the existing dispatcher instead:
+
+1. Implement a reader in `pipeline/extractors.py` that takes a `Path` and returns Markdown.
+2. Include the lowercase extension in the set used to build `SUPPORTED_EXTENSIONS`.
+3. Add a corresponding branch in `extract_to_markdown()` that calls the reader.
+4. Import additional format-specific dependencies inside the reader and list them in `requirements.txt`.
+
+The existing OCR calls share `_run_tesseract(image, ocr_language)`. An OCR developer can replace its implementation while keeping those arguments and returning recognized text as `str`. The image argument is a Pillow image. PDF rendering and Markdown section creation are handled by the surrounding readers.
+
+## Output contract
+
+`run_pipeline()` returns a `PipelineResult` after saving:
+
+| Field | Type | Meaning |
+|---|---|---|
+| `input_path` | `pathlib.Path` | The input path supplied by the caller |
+| `output_path` | `pathlib.Path` | Path to the saved Markdown file |
+| `markdown` | `str` | The exact text returned by the anonymization module |
+
+For `documents/report.docx`, the default output is `<repository>/outputs/report_anonymized.md`. The directory is created if needed. The output uses UTF-8 encoding. Repeating the same input stem in the same output directory overwrites that output file; for example, `report.docx` and `report.pdf` both produce `report_anonymized.md`. The `outputs/` directory is ignored by Git.
+
+The caller can use `result.markdown` directly or use `result.output_path` to read the saved file. To select an output directory, pass `output_dir="results"`; relative directories are resolved against the calling process's working directory.
+
+## Error handling
+
+| Exception | When it is raised |
+|---|---|
+| `UnsupportedFormatError` | The built-in reader does not support the extension |
+| `ExtractionError` | The input is missing, reading/OCR fails, or an extractor returns a non-string value |
+| `AnonymizationError` | The supplied anonymizer raises an exception or returns a non-string value |
+
+These exceptions inherit from `PipelineError`. The caller can catch `PipelineError` to report processing failures. Original module exceptions are retained as the exception cause. Filesystem errors when creating the output directory or writing the result propagate as `OSError`.
+
+Saving happens only after the anonymizer successfully returns a string. An extraction or anonymization failure leaves any existing output file unchanged.

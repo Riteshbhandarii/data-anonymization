@@ -17,6 +17,3 @@ reportlab
 
 # eval
 pandas
-
-# local demo UI
-streamlit

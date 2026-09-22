@@ -2,7 +2,7 @@
 
 
 class PipelineError(Exception):
-    """Base class for errors that can be shown directly in the demo UI."""
+    """Base class for extraction and anonymization integration errors."""
 
 
 class UnsupportedFormatError(PipelineError):

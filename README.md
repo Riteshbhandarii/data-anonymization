@@ -17,8 +17,6 @@ Two problems are often confused and this toolkit keeps them apart:
 
 ## Pipeline
 
-![Document Anonymization Pipeline](docs/document-anonymization-pipeline.png)
-
 ```
   local source file
           |
@@ -32,30 +30,43 @@ Two problems are often confused and this toolkit keeps them apart:
   [normalize as Markdown]
           |
           v
-  [anonymize twice]
+  [call the supplied anonymizer once]
+          |
+          v
+  [receive the returned Markdown]
           |
           v
   outputs/<name>_anonymized.md
 ```
 
-The current pipeline runs locally and stops after writing anonymized Markdown. It does not send files or text to an external LLM. See [docs/pipeline.md](docs/pipeline.md) for supported formats, limitations, and the developer integration contract.
+The pipeline reads an input file, builds Markdown, passes it to the team's anonymization function, and saves the returned Markdown. See [docs/pipeline.md](docs/pipeline.md) for function arguments, input/output contracts, and extraction/OCR integration instructions.
 
-## Quick start
+## Pipeline integration
 
-```bash
-python -m pip install -r requirements.txt
-streamlit run app.py
+```python
+from pipeline import run_pipeline
+from redact.team_anonymizer import anonymize_markdown
+
+result = run_pipeline(
+    "documents/report.docx",
+    anonymizer=anonymize_markdown,
+)
+
+print(result.output_path)
 ```
 
-The same pipeline can run without the UI:
+Replace `redact.team_anonymizer` with the module that provides your implementation. The required function accepts Markdown text and returns processed Markdown text (`str -> str`). It is called once. The pipeline creates the output directory and saves the result as UTF-8 Markdown.
 
-```bash
-python -m pipeline path/to/input.pdf
-```
+Existing readers support TXT, MD, CSV, DOCX, XLSX, PPTX, PDF, and common image formats. The built-in OCR reader uses Tesseract. A custom reader can be supplied through `extractor=` as described in the [integration guide](docs/pipeline.md).
 
-OCR requires the Tesseract executable in addition to the Python requirements. Generated Markdown is saved under `outputs/`, which is ignored by Git.
+Generated Markdown is saved under `outputs/`, which is ignored by Git.
 
-The built-in anonymizer is a demonstration baseline for structured identifiers. Connect the team's anonymizer before processing real data.
+<details>
+<summary>Earlier design diagram</summary>
+
+![Document Anonymization Pipeline](docs/document-anonymization-pipeline.png)
+
+</details>
 
 ## Longer-term format matrix
 
@@ -90,7 +101,6 @@ Two numbers, not one.
 ## Layout
 
 ```
-app.py      local Streamlit demo
 pipeline/   format detection, extraction/OCR, anonymization orchestration, Markdown output
 extract/    extraction notes
 detect/     identifier and secret detection notes
@@ -117,10 +127,10 @@ Public and synthetic only. Nothing real enters this repository.
 ## Status
 
 - [ ] Format matrix agreed with the project owner
-- [x] Current pipeline output is Markdown; original-format reconstruction is out of scope
-- [x] Local Streamlit demo and command-line entry point
-- [x] Text extraction and OCR pipeline with two anonymization passes
-- [ ] Connect the team's full anonymization module
+- [x] Pipeline reads files, prepares Markdown, and saves the returned result
+- [x] Single-call anonymizer interface (`str -> str`)
+- [x] Extractor replacement interface (`Path -> str`)
+- [ ] Connect the team's anonymization module
 - [ ] Synthetic corpus generator
 - [x] Initial `extract` support for DOCX, XLSX, PPTX, PDF, CSV, text, and images
 - [ ] Baseline detector and a first recall number
@@ -129,7 +139,7 @@ Public and synthetic only. Nothing real enters this repository.
 
 ## Docs
 
-- [docs/pipeline.md](docs/pipeline.md), running the pipeline and connecting team modules
+- [docs/pipeline.md](docs/pipeline.md), pipeline interfaces and module integration
 - [docs/techniques.md](docs/techniques.md), anonymization techniques and where each one breaks
 - [docs/evaluation.md](docs/evaluation.md), the re-identification test protocol
 - [docs/open-questions.md](docs/open-questions.md), decisions not yet made
