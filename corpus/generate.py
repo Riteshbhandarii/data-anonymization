@@ -27,9 +27,11 @@ templates, and nothing else.
 
 import argparse
 import csv
+import hashlib
 import json
 import os
 import random
+from importlib.metadata import version
 
 from faker import Faker
 
@@ -224,10 +226,18 @@ def main():
                               "hidden": sum(e["location"] != "body" for e in ents)})
 
     # Provenance. A recall number is only comparable against another run of the
-    # same corpus, so the seed and size travel with the documents.
+    # same corpus, so the seed and size travel with the documents. The seed alone
+    # does not pin them: new Faker data or an edited template changes every value
+    # while the seed stays 42, so the labels are fingerprinted as well.
+    digest = hashlib.sha256()
+    for name in sorted(os.listdir(os.path.join(out, "labels"))):
+        with open(os.path.join(out, "labels", name), "rb") as f:
+            digest.update(f.read())
     with open(os.path.join(out, "corpus.json"), "w", encoding="utf-8") as f:
         json.dump({"seed": args.seed, "n": args.n, "documents": len(index),
-                   "identifiers": sum(i["entities"] for i in index)}, f, indent=2)
+                   "identifiers": sum(i["entities"] for i in index),
+                   "faker": version("faker"), "labels_sha256": digest.hexdigest()},
+                  f, indent=2)
 
     with open(os.path.join(out, "index.csv"), "w", newline="", encoding="utf-8") as f:
         w = csv.DictWriter(f, fieldnames=["file", "language", "format", "entities", "hidden"])
