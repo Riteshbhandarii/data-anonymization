@@ -122,20 +122,26 @@ def report(counts, misses, corpus):
     hits = sum(h for _, h in counts.values())
     print(f"\n{hits}/{total} body identifiers found, {hits / total:.0%} recall")
 
-    out = os.path.join(os.path.dirname(__file__), "baselines", "presidio.json")
-    os.makedirs(os.path.dirname(out), exist_ok=True)
-    with open(out, "w", encoding="utf-8") as f:
-        json.dump({
-            "detector": "presidio-analyzer",
-            "versions": {p: importlib.metadata.version(p) for p in ("presidio-analyzer", "spacy")},
-            "models": MODELS,
-            "score_threshold": THRESHOLD,
-            "corpus": corpus,
-            "scope": "body labels only, metadata/notes/hidden sheets need extraction",
-            "recall": recall,
-            "misses": misses,
-        }, f, ensure_ascii=False, indent=2)
-    print(f"-> {out}")
+    write(os.path.join("baselines", "presidio.json"), {
+        "detector": "presidio-analyzer",
+        "versions": {p: importlib.metadata.version(p) for p in ("presidio-analyzer", "spacy")},
+        "models": MODELS,
+        "score_threshold": THRESHOLD,
+        "corpus": corpus,
+        "scope": "body labels only, metadata/notes/hidden sheets need extraction",
+        "recall": recall,
+    })
+    # Every failure individually, which is what you read to decide what to fix.
+    # It grows with the corpus and regenerates in seconds, so it stays untracked.
+    write(os.path.join("results", "presidio-misses.json"), misses)
+
+
+def write(name, payload):
+    path = os.path.join(os.path.dirname(__file__), name)
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(payload, f, ensure_ascii=False, indent=2)
+    print(f"-> {path}")
 
 
 if __name__ == "__main__":
