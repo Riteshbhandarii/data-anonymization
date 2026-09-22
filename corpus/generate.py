@@ -196,6 +196,8 @@ def main():
     out = os.path.expanduser(args.out)
     os.makedirs(os.path.join(out, "labels"), exist_ok=True)
 
+    os.makedirs(os.path.join(out, "text"), exist_ok=True)
+
     index = []
     for lang, locale in LANGS.items():
         fake = Faker(locale)
@@ -209,6 +211,10 @@ def main():
                 visible, extras = writer(os.path.join(out, fmt, f"{stem}.{fmt}"),
                                          title, body, note, r)
                 ents = build_labels(visible, extras, r)
+                # The visible text, saved plainly. A detector can be benchmarked
+                # against the body labels without an extraction layer in the way.
+                with open(os.path.join(out, "text", f"{stem}.txt"), "w", encoding="utf-8") as f:
+                    f.write("\n".join(visible))
                 rel = f"{fmt}/{stem}.{fmt}"
                 with open(os.path.join(out, "labels", f"{stem}.json"), "w", encoding="utf-8") as f:
                     json.dump({"file": rel, "language": lang, "format": fmt, "entities": ents},
@@ -216,6 +222,12 @@ def main():
                 index.append({"file": rel, "language": lang, "format": fmt,
                               "entities": len(ents),
                               "hidden": sum(e["location"] != "body" for e in ents)})
+
+    # Provenance. A recall number is only comparable against another run of the
+    # same corpus, so the seed and size travel with the documents.
+    with open(os.path.join(out, "corpus.json"), "w", encoding="utf-8") as f:
+        json.dump({"seed": args.seed, "n": args.n, "documents": len(index),
+                   "identifiers": sum(i["entities"] for i in index)}, f, indent=2)
 
     with open(os.path.join(out, "index.csv"), "w", newline="", encoding="utf-8") as f:
         w = csv.DictWriter(f, fieldnames=["file", "language", "format", "entities", "hidden"])
