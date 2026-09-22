@@ -56,32 +56,44 @@ def build_analyzer():
 
 
 def found(text, value, results):
-    """True when a detection of the right type overlaps this value in the text.
+    """How well a detection of the right type covers this value in the text.
 
-    Every occurrence counts, not just the first. Company names in particular
-    repeat, and finding the second one is still finding it.
+    Returns "covered" when a span holds the whole value, "partial" when one
+    overlaps but leaves part of it behind, and "" for nothing. Partial is not a
+    hit: Presidio returns only the city out of a full street address, and the
+    street, number and postcode still leak.
+
+    Every occurrence counts, not just the first. Company names repeat, and
+    finding the second one is still finding it.
     """
+    best = ""
     start = text.find(value)
     while start >= 0:
         end = start + len(value)
-        if any(r.start < end and r.end > start for r in results):
-            return True
+        for r in results:
+            if r.start <= start and r.end >= end:
+                return "covered"
+            if r.start < end and r.end > start:
+                best = "partial"
         start = text.find(value, start + 1)
-    return False
+    return best
 
 
-def verdict(entity_type, planted, hit):
+def verdict(entity_type, planted, covered, partial):
     """A word per type, so a future run is readable without reading the code."""
     if not planted:
         return "not in corpus"
-    if hit == 0:
+    if covered == 0:
+        if partial:
+            return "partial only"
         return "no recognizer" if entity_type not in TYPE_MAP.values() else "recognizer rejects all"
-    return "good" if hit / planted >= 0.95 else "weak"
+    return "good" if covered / planted >= 0.95 else "weak"
 
 
 def main(root, baseline=False):
     analyzer = build_analyzer()
-    counts = collections.defaultdict(lambda: [0, 0])  # (lang, fmt, type) -> [planted, hit]
+    # (lang, fmt, type) -> [planted, covered, partial]
+    counts = collections.defaultdict(lambda: [0, 0, 0])
     misses = []
 
     for name in sorted(os.listdir(os.path.join(root, "labels"))):
@@ -102,11 +114,13 @@ def main(root, baseline=False):
         for e in doc["entities"]:
             if e["location"] != "body":
                 continue
-            hit = found(text, e["value"], by_type[e["type"]])
+            how = found(text, e["value"], by_type[e["type"]])
             counts[(lang, fmt, e["type"])][0] += 1
-            counts[(lang, fmt, e["type"])][1] += hit
-            if not hit:
-                misses.append({"file": doc["file"], "type": e["type"], "value": e["value"]})
+            counts[(lang, fmt, e["type"])][1] += how == "covered"
+            counts[(lang, fmt, e["type"])][2] += how == "partial"
+            if how != "covered":
+                misses.append({"file": doc["file"], "type": e["type"],
+                               "value": e["value"], "detected": how or "nothing"})
 
     with open(os.path.join(root, "corpus.json"), encoding="utf-8") as f:
         corpus = json.load(f)
@@ -114,12 +128,12 @@ def main(root, baseline=False):
 
 
 def totals(counts, *keys):
-    """Planted and found, summed over whichever parts of the key are fixed."""
-    out = collections.defaultdict(lambda: [0, 0])
-    for key, (planted, hit) in counts.items():
+    """Planted, covered and partial, summed over the parts of the key kept."""
+    out = collections.defaultdict(lambda: [0, 0, 0])
+    for key, values in counts.items():
         picked = tuple(key[i] for i in keys)
-        out[picked][0] += planted
-        out[picked][1] += hit
+        for i, v in enumerate(values):
+            out[picked][i] += v
     return out
 
 
@@ -127,23 +141,28 @@ def report(counts, misses, corpus, baseline):
     by_lang_type = totals(counts, 0, 2)
     types = sorted({t for _, _, t in counts})
     langs = sorted({lang for lang, _, _ in counts})
-    order = ["no recognizer", "recognizer rejects all", "weak", "good", "not in corpus"]
+    order = ["no recognizer", "recognizer rejects all", "partial only", "weak",
+             "good", "not in corpus"]
     recall = {}
 
-    print(f"{'type':<14}" + "".join(f"{lang:>14}" for lang in langs) + "   verdict")
+    print(f"{'type':<13}" + "".join(f"{lang:>17}" for lang in langs) + "   verdict")
     for t in types:
-        row = f"{t:<14}"
+        row = f"{t:<13}"
         for lang in langs:
-            planted, hit = by_lang_type.get((lang, t), [0, 0])
-            recall[f"{lang}/{t}"] = {"planted": planted, "found": hit,
-                                     "verdict": verdict(t, planted, hit)}
-            row += f"{hit:>5}/{planted:<4}{hit / planted:>5.0%}" if planted else f"{'-':>14}"
+            planted, covered, partial = by_lang_type.get((lang, t), [0, 0, 0])
+            recall[f"{lang}/{t}"] = {"planted": planted, "covered": covered,
+                                     "partial": partial,
+                                     "verdict": verdict(t, planted, covered, partial)}
+            row += (f"{covered:>5}/{planted:<4}{covered / planted:>4.0%}{partial:>4}p"
+                    if planted else f"{'-':>17}")
         worst = min((recall[f"{lang}/{t}"]["verdict"] for lang in langs), key=order.index)
         print(f"{row}   {worst}")
 
-    total = sum(p for p, _ in counts.values())
-    hits = sum(h for _, h in counts.values())
-    print(f"\n{hits}/{total} body identifiers found, {hits / total:.0%} recall")
+    total = sum(p for p, _, _ in counts.values())
+    hits = sum(c for _, c, _ in counts.values())
+    part = sum(p for _, _, p in counts.values())
+    print(f"\n{hits}/{total} body identifiers fully covered, {hits / total:.0%}. "
+          f"{part} more were partly detected, which still leaks the rest.")
 
     models = {p: importlib.metadata.version(p) for p in ("presidio-analyzer", "spacy")}
     # The model weights are their own packages. Updating them changes every
@@ -159,10 +178,13 @@ def report(counts, misses, corpus, baseline):
         "models": MODELS,
         "score_threshold": THRESHOLD,
         "corpus": corpus,
-        "scope": "body labels only, metadata/notes/hidden sheets need extraction",
+        "scope": ("body labels only, metadata/notes/hidden sheets need extraction. "
+                  "Template sentences with generated names, so these are an upper "
+                  "bound and real documents will score lower."),
+        "counts": "covered means a detection held the whole value; partial left some of it",
         "recall": recall,
-        "recall_by_format": {f"{fmt}/{t}": {"planted": p, "found": h}
-                             for (fmt, t), (p, h) in sorted(by_fmt_type.items())},
+        "recall_by_format": {f"{fmt}/{t}": {"planted": p, "covered": c, "partial": q}
+                             for (fmt, t), (p, c, q) in sorted(by_fmt_type.items())},
     })
     # Every failure individually, which is what you read to decide what to fix.
     # It grows with the corpus and regenerates in seconds, so it stays untracked.
