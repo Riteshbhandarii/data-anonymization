@@ -18,6 +18,7 @@ documents must never end up in a tracked file.
 """
 
 import collections
+import csv
 import importlib.metadata
 import json
 import os
@@ -58,25 +59,30 @@ def build_analyzer():
 def found(text, value, results):
     """How well a detection of the right type covers this value in the text.
 
-    Returns "covered" when a span holds the whole value, "partial" when one
-    overlaps but leaves part of it behind, and "" for nothing. Partial is not a
-    hit: Presidio returns only the city out of a full street address, and the
-    street, number and postcode still leak.
+    Returns "covered" when every occurrence is held whole by a span, "partial"
+    when something was found but part of the value survives somewhere, and ""
+    for nothing.
 
-    Every occurrence counts, not just the first. Company names repeat, and
-    finding the second one is still finding it.
+    Both rules are strict for the same reason. Presidio returns only the city
+    out of a full street address, and one label stands for every occurrence of
+    that value, so a company name caught in the first row and missed in the
+    second is still readable in the second.
     """
-    best = ""
+    states = []
     start = text.find(value)
     while start >= 0:
         end = start + len(value)
-        for r in results:
-            if r.start <= start and r.end >= end:
-                return "covered"
-            if r.start < end and r.end > start:
-                best = "partial"
+        if any(r.start <= start and r.end >= end for r in results):
+            states.append("covered")
+        elif any(r.start < end and r.end > start for r in results):
+            states.append("partial")
+        else:
+            states.append("")
         start = text.find(value, start + 1)
-    return best
+
+    if states and all(s == "covered" for s in states):
+        return "covered"
+    return "partial" if any(states) else ""
 
 
 def verdict(entity_type, planted, covered, partial):
@@ -96,11 +102,14 @@ def main(root, baseline=False):
     counts = collections.defaultdict(lambda: [0, 0, 0])
     misses = []
 
-    for name in sorted(os.listdir(os.path.join(root, "labels"))):
-        with open(os.path.join(root, "labels", name), encoding="utf-8") as f:
+    # Driven from the manifest rather than the directory listing. A smaller --n
+    # into a used output directory leaves older documents behind, and scoring
+    # those against the new corpus.json describes two different corpora.
+    for stem in manifest(root):
+        with open(os.path.join(root, "labels", f"{stem}.json"), encoding="utf-8") as f:
             doc = json.load(f)
         lang, fmt = doc["language"], doc["format"]
-        with open(os.path.join(root, "text", f"{name[:-5]}.txt"), encoding="utf-8") as f:
+        with open(os.path.join(root, "text", f"{stem}.txt"), encoding="utf-8") as f:
             text = f.read()
 
         results = analyzer.analyze(text=text, language=lang, score_threshold=THRESHOLD)
@@ -125,6 +134,13 @@ def main(root, baseline=False):
     with open(os.path.join(root, "corpus.json"), encoding="utf-8") as f:
         corpus = json.load(f)
     report(counts, misses, corpus, baseline)
+
+
+def manifest(root):
+    """The document stems this corpus actually declares, in index.csv order."""
+    with open(os.path.join(root, "index.csv"), encoding="utf-8") as f:
+        return [os.path.splitext(os.path.basename(row["file"]))[0]
+                for row in csv.DictReader(f)]
 
 
 def totals(counts, *keys):
