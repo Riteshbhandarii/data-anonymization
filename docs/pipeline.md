@@ -23,7 +23,7 @@ Call the anonymization module
 Receive the returned Markdown string
     |
     v
-Save outputs/<input-stem>_anonymized.md
+Save outputs/<filename.ext>_anonymized.md
     |
     v
 Return PipelineResult to the caller
@@ -40,6 +40,8 @@ The extraction and anonymization modules exchange strings with the pipeline. The
 | `pipeline/normalization.py` | Normalizes line endings, trailing whitespace, and repeated blank lines before anonymization |
 | `pipeline/errors.py` | Defines exceptions for extraction and anonymization failures |
 | `pipeline/__init__.py` | Exports the public functions and result/error types |
+| `pipeline/validation.py` | Compares extracted content with generated corpus labels and writes recall reports |
+| `tests/` | Checks extraction gaps, generated-corpus recall, and output filename collisions |
 
 ## Setup
 
@@ -53,7 +55,7 @@ python -m pip install python-docx openpyxl python-pptx pymupdf pillow pytesserac
 
 They are also listed in the shared `requirements.txt`. Text, Markdown, and CSV reading use the Python standard library. Format-specific packages are imported only when that reader runs.
 
-The existing OCR reader requires the Tesseract executable on `PATH` and installed language data. Its default language is `eng`; set `ocr_language="fin"` when using Finnish language data.
+The existing OCR reader requires the Tesseract executable on `PATH` and installed language data. Its default language is `eng`; set `ocr_language="fin"` when using Finnish language data. This dependency also applies to PDF pages that have both selectable text and embedded images, since their image regions are passed to OCR.
 
 ## Connect an anonymization module
 
@@ -64,7 +66,7 @@ def anonymize_markdown(markdown: str) -> str:
     ...  # Implement detection and replacement logic here.
 ```
 
-The input is the complete document, including Markdown headings and table syntax. It is text, not a file path. The return value is the complete processed document, not a list of detections, a dictionary, a saved filename, or `None`.
+The input is the complete extracted document, including Markdown headings and table syntax. Metadata, headers, footers, notes, and hidden worksheet content are included in the same string when supplied by the reader, so the anonymizer should process those sections too. It is text, not a file path. The return value is the complete processed document, not a list of detections, a dictionary, a saved filename, or `None`.
 
 For example, if your function is defined in `redact/anonymizer.py`, the calling code is:
 
@@ -134,11 +136,17 @@ Extension matching is case-insensitive. All readers return Markdown strings thro
 |---|---|
 | `.txt`, `.md` | Read UTF-8 text, accepting an optional UTF-8 byte-order mark |
 | `.csv` | Read comma-separated rows and build a Markdown table; the first row becomes the header |
-| `.docx` | Read body paragraphs, headings, lists, and tables in document order |
-| `.xlsx` | Read worksheets, including hidden worksheets; build one section and table per sheet, including formula text |
-| `.pptx` | Build a section per slide with titles, text, tables, and speaker notes |
-| `.pdf` | Build a section per page; extract its text layer, or call OCR when the page has no text |
+| `.docx` | Read core metadata, body paragraphs/headings/lists/tables, and primary/first-page/even-page headers and footers |
+| `.xlsx` | Read core metadata and all worksheets, including hidden worksheets; build one section and table per sheet using saved computed formula values |
+| `.pptx` | Read core metadata and build a section per slide with titles, text, tables, and speaker notes |
+| `.pdf` | Read document metadata and build a section per page; extract native text and OCR embedded image regions, or OCR the full page when it has no text |
 | `.png`, `.jpg`, `.jpeg`, `.tif`, `.tiff`, `.bmp` | Read the image through OCR and return a text section |
+
+Core metadata is emitted under `## Document metadata`, followed by the document content sections. DOCX and PPTX properties include author, last modified by, title, subject, keywords, comments, and other core text properties. XLSX includes the equivalent workbook properties, and PDF includes its document information fields. Shared Word headers and footers are emitted once per defining part, including their paragraphs and tables.
+
+XLSX extraction reads the cached result saved by a spreadsheet application; it does not calculate formulas. A formula with a missing cache or an error value raises `ExtractionError` identifying the workbook, sheet, and cell. Recalculate and save the workbook in Excel or LibreOffice, then retry. A valid cached empty string is accepted.
+
+For mixed PDF pages, OCR text supplements the selectable text. Exact duplicate lines are removed after whitespace normalization. Pages with selectable text and no images are read without OCR.
 
 Extraction can also be called independently:
 
@@ -190,7 +198,16 @@ The existing OCR calls share `_run_tesseract(image, ocr_language)`. An OCR devel
 | `output_path` | `pathlib.Path` | Path to the saved Markdown file |
 | `markdown` | `str` | The exact text returned by the anonymization module |
 
-For `documents/report.docx`, the default output is `<repository>/outputs/report_anonymized.md`. The directory is created if needed. The output uses UTF-8 encoding. Repeating the same input stem in the same output directory overwrites that output file; for example, `report.docx` and `report.pdf` both produce `report_anonymized.md`. The `outputs/` directory is ignored by Git.
+The current pipeline outputs Markdown. For `documents/report.docx`, the default output is `<repository>/outputs/report.docx_anonymized.md`. The directory is created if needed, and the output uses UTF-8 encoding. The full input filename, including its extension, is retained so different source formats stay distinguishable.
+
+| Input | Saved filename |
+|---|---|
+| `report.docx` | `report.docx_anonymized.md` |
+| `report.pdf` | `report.pdf_anonymized.md` |
+| `report.docx` when its first output already exists | `report.docx_anonymized_2.md` |
+| Another `report.docx` when both names exist | `report.docx_anonymized_3.md` |
+
+The pipeline creates output files exclusively and tries the next available number if a name is occupied. This also prevents simultaneous runs from overwriting each other. The returned `output_path` always identifies the file created for that run. The `outputs/` directory is ignored by Git.
 
 The caller can use `result.markdown` directly or use `result.output_path` to read the saved file. To select an output directory, pass `output_dir="results"`; relative directories are resolved against the calling process's working directory.
 
@@ -199,9 +216,15 @@ The caller can use `result.markdown` directly or use `result.output_path` to rea
 | Exception | When it is raised |
 |---|---|
 | `UnsupportedFormatError` | The built-in reader does not support the extension |
-| `ExtractionError` | The input is missing, reading/OCR fails, or an extractor returns a non-string value |
+| `ExtractionError` | The input is missing, reading/OCR fails, a formula has no usable saved result, or an extractor returns a non-string value |
 | `AnonymizationError` | The supplied anonymizer raises an exception or returns a non-string value |
 
 These exceptions inherit from `PipelineError`. The caller can catch `PipelineError` to report processing failures. Original module exceptions are retained as the exception cause. Filesystem errors when creating the output directory or writing the result propagate as `OSError`.
 
 Saving happens only after the anonymizer successfully returns a string. An extraction or anonymization failure leaves any existing output file unchanged.
+
+## Validate extraction changes
+
+Run the regression tests and labelled-corpus evaluation when changing a reader or output handling. The evaluator checks extraction before anonymization, so it can run before an anonymization module is connected. It writes a format table, a location table, and per-label evidence showing what was returned or missed.
+
+See [extraction validation](extraction-validation.md) for the commands, recorded results, matching rules, and GitHub Actions report locations. Reader changes that alter the metadata, notes, or worksheet headings should also update the evaluator's section mapping in `pipeline/validation.py`.

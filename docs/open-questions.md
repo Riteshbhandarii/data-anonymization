@@ -10,7 +10,7 @@ Decisions not yet made. Nothing here should be silently resolved in code.
 
 ## Output format, the biggest one
 
-- [x] The pipeline saves the Markdown string returned by the anonymization module. See [the output contract](pipeline.md#output-contract) for paths, encoding, and the returned result.
+The current pipeline outputs Markdown. See [the output contract](pipeline.md#output-contract) for paths, encoding, and the returned result.
 
 ## Legal
 

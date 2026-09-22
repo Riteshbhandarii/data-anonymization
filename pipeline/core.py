@@ -39,6 +39,8 @@ def run_pipeline(
     ``extractor`` optionally replaces the built-in format routing and OCR; it
     receives a Path and returns Markdown text. ``ocr_language`` applies only to
     the built-in extractor. ``progress`` receives a message at each stage.
+    Output names retain the input extension and gain a numbered suffix when a
+    file with the same output name already exists.
     """
     source = Path(input_path)
     destination_dir = Path(output_dir)
@@ -76,14 +78,29 @@ def run_pipeline(
 
     _report(progress, "Saving anonymized Markdown")
     destination_dir.mkdir(parents=True, exist_ok=True)
-    output_path = destination_dir / f"{source.stem}_anonymized.md"
-    output_path.write_text(markdown, encoding="utf-8")
+    output_path = _save_markdown(destination_dir, source.name, markdown)
 
     return PipelineResult(
         input_path=source,
         output_path=output_path,
         markdown=markdown,
     )
+
+
+def _save_markdown(destination_dir: Path, source_name: str, markdown: str) -> Path:
+    """Save UTF-8 output without overwriting a previous or concurrent run."""
+    base_name = f"{source_name}_anonymized"
+    sequence = 1
+    while True:
+        suffix = "" if sequence == 1 else f"_{sequence}"
+        output_path = destination_dir / f"{base_name}{suffix}.md"
+        try:
+            # Exclusive creation also protects against simultaneous pipeline runs.
+            with output_path.open("x", encoding="utf-8", newline="\n") as output:
+                output.write(markdown)
+            return output_path
+        except FileExistsError:
+            sequence += 1
 
 
 def _report(progress: ProgressCallback | None, message: str) -> None:

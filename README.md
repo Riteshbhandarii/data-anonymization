@@ -36,7 +36,7 @@ Two problems are often confused and this toolkit keeps them apart:
   [receive the returned Markdown]
           |
           v
-  outputs/<name>_anonymized.md
+  outputs/<filename.ext>_anonymized.md
 ```
 
 The pipeline reads an input file, builds Markdown, passes it to the anonymization module, and saves the returned Markdown. See [docs/pipeline.md](docs/pipeline.md) for function arguments, input/output contracts, and extraction/OCR integration instructions.
@@ -59,11 +59,13 @@ Replace `redact.anonymizer` with the module that provides your implementation. T
 
 Existing readers support TXT, MD, CSV, DOCX, XLSX, PPTX, PDF, and common image formats. The built-in OCR reader uses Tesseract. A custom reader can be supplied through `extractor=` as described in the [integration guide](docs/pipeline.md).
 
-Generated Markdown is saved under `outputs/`, which is ignored by Git.
+Generated Markdown is saved under `outputs/`, which is ignored by Git. Output names retain the input extension: `report.docx` becomes `report.docx_anonymized.md`. If that name already exists, the pipeline adds `_2`, `_3`, and so on without overwriting previous results.
+
+Extraction is checked against the generator's JSON labels before anonymization. See [the extraction validation report](docs/extraction-validation.md) for results, commands, and CI checks.
 
 ## Longer-term format matrix
 
-This table records the wider research scope. The current implementation has intentionally chosen Markdown output instead of reconstructing each original format.
+This table records the wider research scope. The current pipeline outputs Markdown.
 
 | Data type | Content type | Tool / process | Output type | AI re-identification test |
 |---|---|---|---|---|
@@ -95,6 +97,7 @@ Two numbers, not one.
 
 ```
 pipeline/   format detection, extraction/OCR, anonymization orchestration, Markdown output
+tests/      extraction recall, extraction gap, and output naming regression tests
 extract/    extraction notes
 detect/     identifier and secret detection notes
 redact/     anonymizer integration notes
@@ -133,6 +136,7 @@ Public and synthetic only. Nothing real enters this repository.
 ## Docs
 
 - [docs/pipeline.md](docs/pipeline.md), pipeline interfaces and module integration
+- [docs/extraction-validation.md](docs/extraction-validation.md), extraction recall results and validation commands
 - [docs/techniques.md](docs/techniques.md), anonymization techniques and where each one breaks
 - [docs/evaluation.md](docs/evaluation.md), the re-identification test protocol
 - [docs/open-questions.md](docs/open-questions.md), decisions not yet made

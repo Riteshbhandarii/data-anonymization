@@ -67,15 +67,44 @@ def _extract_csv(path: Path) -> str:
 
 def _extract_docx(path: Path) -> str:
     from docx import Document
+
+    document = Document(path)
+    parts = _office_metadata(document.core_properties)
+    parts.append("## Document content")
+    parts.extend(_docx_blocks(document.element.body, document))
+
+    # Linked sections reuse an earlier story; only extract its defining part.
+    seen_parts: set[str] = set()
+    for index, section in enumerate(document.sections, start=1):
+        for name in (
+            "header", "first_page_header", "even_page_header",
+            "footer", "first_page_footer", "even_page_footer",
+        ):
+            story = getattr(section, name)
+            if story.is_linked_to_previous:
+                continue
+            part_name = str(story.part.partname)
+            if part_name in seen_parts:
+                continue
+            seen_parts.add(part_name)
+            blocks = _docx_blocks(story._element, story)
+            if blocks:
+                label = name.replace("_", " ").capitalize()
+                parts.append(f"## {label} (section {index})")
+                parts.extend(blocks)
+
+    return "\n\n".join(parts)
+
+
+def _docx_blocks(element: Any, parent: Any) -> list[str]:
+    """Read paragraphs and tables in body, header, or footer order."""
     from docx.table import Table
     from docx.text.paragraph import Paragraph
 
-    document = Document(path)
     parts: list[str] = []
-
-    for child in document.element.body.iterchildren():
+    for child in element.iterchildren():
         if child.tag.endswith("}p"):
-            paragraph = Paragraph(child, document)
+            paragraph = Paragraph(child, parent)
             text = paragraph.text.strip()
             if not text:
                 continue
@@ -90,27 +119,60 @@ def _extract_docx(path: Path) -> str:
             else:
                 parts.append(text)
         elif child.tag.endswith("}tbl"):
-            table = Table(child, document)
+            table = Table(child, parent)
             rows = [[cell.text for cell in row.cells] for row in table.rows]
             parts.append(_rows_to_markdown(rows, empty_message="_Empty table._"))
 
-    return "\n\n".join(parts)
+    return parts
 
 
 def _extract_xlsx(path: Path) -> str:
     from openpyxl import load_workbook
 
     workbook = load_workbook(path, read_only=True, data_only=False)
-    parts: list[str] = []
     try:
-        for sheet in workbook.worksheets:
-            parts.append(f"## Sheet: {sheet.title}")
-            rows = [
-                ["" if value is None else str(value) for value in row]
-                for row in sheet.iter_rows(values_only=True)
-            ]
-            rows = [row for row in rows if any(cell.strip() for cell in row)]
-            parts.append(_rows_to_markdown(rows, empty_message="_Empty sheet._"))
+        cached_workbook = load_workbook(path, read_only=True, data_only=True)
+        try:
+            properties = workbook.properties
+            parts = _metadata_section({
+                "Author": properties.creator,
+                "Last modified by": properties.lastModifiedBy,
+                "Title": properties.title,
+                "Subject": properties.subject,
+                "Description": properties.description,
+                "Keywords": properties.keywords,
+                "Category": properties.category,
+                "Identifier": properties.identifier,
+                "Language": properties.language,
+                "Content status": properties.contentStatus,
+                "Version": properties.version,
+            })
+            for sheet in workbook.worksheets:
+                parts.append(f"## Sheet: {sheet.title}")
+                cached_sheet = cached_workbook[sheet.title]
+                rows: list[list[str]] = []
+                for source_row, cached_row in zip(sheet.iter_rows(), cached_sheet.iter_rows()):
+                    values = []
+                    for source_cell, cached_cell in zip(source_row, cached_row):
+                        value = cached_cell.value
+                        # An explicitly stored empty string is a valid formula
+                        # result; an untyped missing numeric cache is not.
+                        missing_result = value is None and cached_cell.data_type != "str"
+                        if source_cell.data_type == "f" and (
+                            missing_result or cached_cell.data_type == "e"
+                        ):
+                            raise ExtractionError(
+                                f"Formula in '{path.name}', sheet '{sheet.title}', "
+                                f"cell {source_cell.coordinate} has no usable cached result. "
+                                "Recalculate and save the workbook in a spreadsheet "
+                                "application before extraction."
+                            )
+                        values.append("" if value is None else str(value))
+                    if any(value.strip() for value in values):
+                        rows.append(values)
+                parts.append(_rows_to_markdown(rows, empty_message="_Empty sheet._"))
+        finally:
+            cached_workbook.close()
     finally:
         workbook.close()
     return "\n\n".join(parts)
@@ -120,7 +182,7 @@ def _extract_pptx(path: Path) -> str:
     from pptx import Presentation
 
     presentation = Presentation(path)
-    parts: list[str] = []
+    parts = _office_metadata(presentation.core_properties)
 
     for index, slide in enumerate(presentation.slides, start=1):
         title_shape = slide.shapes.title
@@ -154,15 +216,69 @@ def _extract_pdf(path: Path, ocr_language: str) -> str:
 
     parts: list[str] = []
     with pymupdf.open(path) as document:
+        parts.extend(_metadata_section({
+            key.capitalize(): value
+            for key, value in (document.metadata or {}).items()
+            if key not in {"format", "encryption"}
+        }))
         for index, page in enumerate(document, start=1):
             parts.append(f"## Page {index}")
             text = page.get_text("text").strip()
-            if text:
-                parts.append(text)
-            else:
+            if not text:
                 pixmap = page.get_pixmap(matrix=pymupdf.Matrix(2, 2), alpha=False)
                 parts.append(_ocr_image_bytes(pixmap.tobytes("png"), ocr_language))
+                continue
+
+            # A selectable text layer does not cover text inside embedded images.
+            # Render each image region so masks and placement are respected.
+            seen_regions: set[tuple[float, ...]] = set()
+            for image in page.get_image_info():
+                region = (pymupdf.Rect(image["bbox"]) * page.rotation_matrix) & page.rect
+                coordinates = tuple(region)
+                if region.is_empty or coordinates in seen_regions:
+                    continue
+                seen_regions.add(coordinates)
+                pixmap = page.get_pixmap(
+                    matrix=pymupdf.Matrix(2, 2), clip=region, alpha=False
+                )
+                ocr_text = _ocr_image_bytes(pixmap.tobytes("png"), ocr_language)
+                text = _append_ocr_lines(text, ocr_text)
+            parts.append(text)
     return "\n\n".join(parts)
+
+
+def _append_ocr_lines(text: str, ocr_text: str) -> str:
+    """Append OCR lines without repeating exact lines in the text layer."""
+    seen = {" ".join(line.split()) for line in text.splitlines()}
+    extra = []
+    for line in ocr_text.splitlines():
+        key = " ".join(line.split())
+        if key and key not in seen:
+            seen.add(key)
+            extra.append(line.strip())
+    return "\n".join([text, *extra])
+
+
+def _office_metadata(properties: Any) -> list[str]:
+    """Read the shared DOCX/PPTX core text properties."""
+    fields = (
+        "author", "last_modified_by", "title", "subject", "keywords", "comments",
+        "category", "identifier", "language", "content_status", "version",
+    )
+    return _metadata_section({
+        name.replace("_", " ").capitalize(): getattr(properties, name, None)
+        for name in fields
+    })
+
+
+def _metadata_section(values: dict[str, Any]) -> list[str]:
+    """Keep metadata in the same Markdown stream as document content."""
+    lines = [
+        f"- {name}: {str(value).strip()}"
+        for name, value in values.items()
+        if value is not None and str(value).strip()
+    ]
+    return ["## Document metadata", "\n".join(lines)] if lines else []
 
 
 def _extract_image(path: Path, ocr_language: str) -> str:
