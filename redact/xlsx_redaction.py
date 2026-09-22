@@ -21,29 +21,19 @@ def redact_xlsx(input_path, output_path):
 
     workbook = load_workbook(input_path)
 
-    # -------------------------
-    # 1. Redact workbook metadata
-    # -------------------------
-
+    # Redact metadata
     workbook.properties.creator = "[REDACTED]"
     workbook.properties.lastModifiedBy = "[REDACTED]"
 
-    # -------------------------
-    # 2. Redact sensitive cells
-    # -------------------------
-
+    # Redact sensitive cells
     for sheet in workbook.worksheets:
 
         headers = {}
 
-        # First row = column headers
         for cell in sheet[1]:
-
             if cell.value is not None:
-                header = str(cell.value).strip().lower()
-                headers[cell.column] = header
+                headers[cell.column] = str(cell.value).strip().lower()
 
-        # Remaining rows
         for row in sheet.iter_rows(min_row=2):
 
             for cell in row:
@@ -56,10 +46,6 @@ def redact_xlsx(input_path, output_path):
                 if header in SENSITIVE_FIELDS:
                     cell.value = "[REDACTED]"
 
-    # -------------------------
-    # 3. Save anonymized file
-    # -------------------------
-
     output_path.parent.mkdir(
         parents=True,
         exist_ok=True
@@ -67,7 +53,7 @@ def redact_xlsx(input_path, output_path):
 
     workbook.save(output_path)
 
-    print(f"Redacted file saved to:")
+    print("\nRedacted file saved to:")
     print(output_path)
 
 
@@ -81,7 +67,4 @@ if __name__ == "__main__":
         "Enter output XLSX file path: "
     ).strip().strip('"')
 
-    redact_xlsx(
-        input_path,
-        output_path
-    )
+    redact_xlsx(input_path, output_path)
