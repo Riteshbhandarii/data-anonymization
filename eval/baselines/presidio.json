@@ -2,7 +2,9 @@
   "detector": "presidio-analyzer",
   "versions": {
     "presidio-analyzer": "2.2.364",
-    "spacy": "3.8.16"
+    "spacy": "3.8.16",
+    "en_core_web_sm": "3.8.0",
+    "fi_core_news_sm": "3.8.0"
   },
   "models": {
     "en": "en_core_web_sm",
@@ -11,111 +13,281 @@
   "score_threshold": 0.0,
   "corpus": {
     "seed": 42,
-    "n": 5,
-    "documents": 50,
-    "identifiers": 650
+    "n": 25,
+    "documents": 250,
+    "identifiers": 3250
   },
   "scope": "body labels only, metadata/notes/hidden sheets need extraction",
   "recall": {
     "en/ADDRESS": {
-      "planted": 20,
-      "found": 14,
+      "planted": 100,
+      "found": 67,
       "verdict": "weak"
     },
     "fi/ADDRESS": {
-      "planted": 20,
-      "found": 13,
+      "planted": 100,
+      "found": 64,
       "verdict": "weak"
     },
     "en/COMPANY": {
-      "planted": 25,
-      "found": 14,
+      "planted": 125,
+      "found": 81,
       "verdict": "weak"
     },
     "fi/COMPANY": {
-      "planted": 25,
-      "found": 8,
+      "planted": 125,
+      "found": 47,
       "verdict": "weak"
     },
     "en/DATE": {
-      "planted": 35,
-      "found": 35,
+      "planted": 175,
+      "found": 175,
       "verdict": "good"
     },
     "fi/DATE": {
-      "planted": 35,
-      "found": 35,
+      "planted": 175,
+      "found": 175,
       "verdict": "good"
     },
     "en/EMAIL": {
-      "planted": 35,
-      "found": 35,
+      "planted": 125,
+      "found": 125,
       "verdict": "good"
     },
     "fi/EMAIL": {
-      "planted": 35,
-      "found": 35,
+      "planted": 125,
+      "found": 125,
       "verdict": "good"
     },
     "en/IBAN": {
-      "planted": 30,
-      "found": 30,
+      "planted": 125,
+      "found": 125,
       "verdict": "good"
     },
     "fi/IBAN": {
-      "planted": 30,
-      "found": 30,
+      "planted": 125,
+      "found": 125,
       "verdict": "good"
     },
     "en/INVOICE": {
-      "planted": 15,
+      "planted": 75,
       "found": 0,
       "verdict": "no recognizer"
     },
     "fi/INVOICE": {
-      "planted": 15,
+      "planted": 75,
       "found": 0,
       "verdict": "no recognizer"
     },
     "en/PERSON": {
-      "planted": 80,
-      "found": 65,
+      "planted": 225,
+      "found": 202,
       "verdict": "weak"
     },
     "fi/PERSON": {
-      "planted": 80,
-      "found": 77,
-      "verdict": "good"
+      "planted": 225,
+      "found": 196,
+      "verdict": "weak"
     },
     "en/PERSONAL_ID": {
-      "planted": 15,
+      "planted": 75,
       "found": 0,
       "verdict": "recognizer rejects all"
     },
     "fi/PERSONAL_ID": {
-      "planted": 15,
+      "planted": 75,
       "found": 0,
       "verdict": "recognizer rejects all"
     },
     "en/PHONE": {
-      "planted": 30,
-      "found": 24,
+      "planted": 125,
+      "found": 98,
       "verdict": "weak"
     },
     "fi/PHONE": {
-      "planted": 30,
-      "found": 28,
+      "planted": 125,
+      "found": 102,
       "verdict": "weak"
     },
     "en/PLATE": {
-      "planted": 15,
+      "planted": 75,
       "found": 0,
       "verdict": "no recognizer"
     },
     "fi/PLATE": {
-      "planted": 15,
+      "planted": 75,
       "found": 0,
       "verdict": "no recognizer"
+    }
+  },
+  "recall_by_format": {
+    "csv/ADDRESS": {
+      "planted": 50,
+      "found": 34
+    },
+    "csv/COMPANY": {
+      "planted": 50,
+      "found": 27
+    },
+    "csv/EMAIL": {
+      "planted": 50,
+      "found": 50
+    },
+    "csv/IBAN": {
+      "planted": 50,
+      "found": 50
+    },
+    "csv/PERSON": {
+      "planted": 100,
+      "found": 83
+    },
+    "csv/PERSONAL_ID": {
+      "planted": 50,
+      "found": 0
+    },
+    "csv/PHONE": {
+      "planted": 50,
+      "found": 39
+    },
+    "csv/PLATE": {
+      "planted": 50,
+      "found": 0
+    },
+    "docx/ADDRESS": {
+      "planted": 50,
+      "found": 36
+    },
+    "docx/COMPANY": {
+      "planted": 50,
+      "found": 23
+    },
+    "docx/DATE": {
+      "planted": 100,
+      "found": 100
+    },
+    "docx/EMAIL": {
+      "planted": 50,
+      "found": 50
+    },
+    "docx/IBAN": {
+      "planted": 50,
+      "found": 50
+    },
+    "docx/INVOICE": {
+      "planted": 50,
+      "found": 0
+    },
+    "docx/PERSON": {
+      "planted": 100,
+      "found": 95
+    },
+    "docx/PERSONAL_ID": {
+      "planted": 50,
+      "found": 0
+    },
+    "docx/PHONE": {
+      "planted": 50,
+      "found": 43
+    },
+    "docx/PLATE": {
+      "planted": 50,
+      "found": 0
+    },
+    "pdf/ADDRESS": {
+      "planted": 50,
+      "found": 27
+    },
+    "pdf/COMPANY": {
+      "planted": 50,
+      "found": 25
+    },
+    "pdf/DATE": {
+      "planted": 100,
+      "found": 100
+    },
+    "pdf/EMAIL": {
+      "planted": 50,
+      "found": 50
+    },
+    "pdf/IBAN": {
+      "planted": 50,
+      "found": 50
+    },
+    "pdf/INVOICE": {
+      "planted": 50,
+      "found": 0
+    },
+    "pdf/PERSON": {
+      "planted": 100,
+      "found": 96
+    },
+    "pdf/PERSONAL_ID": {
+      "planted": 50,
+      "found": 0
+    },
+    "pdf/PHONE": {
+      "planted": 50,
+      "found": 38
+    },
+    "pdf/PLATE": {
+      "planted": 50,
+      "found": 0
+    },
+    "pptx/ADDRESS": {
+      "planted": 50,
+      "found": 34
+    },
+    "pptx/COMPANY": {
+      "planted": 50,
+      "found": 29
+    },
+    "pptx/DATE": {
+      "planted": 50,
+      "found": 50
+    },
+    "pptx/EMAIL": {
+      "planted": 50,
+      "found": 50
+    },
+    "pptx/IBAN": {
+      "planted": 50,
+      "found": 50
+    },
+    "pptx/INVOICE": {
+      "planted": 50,
+      "found": 0
+    },
+    "pptx/PERSON": {
+      "planted": 50,
+      "found": 43
+    },
+    "pptx/PHONE": {
+      "planted": 50,
+      "found": 41
+    },
+    "xlsx/COMPANY": {
+      "planted": 50,
+      "found": 24
+    },
+    "xlsx/DATE": {
+      "planted": 100,
+      "found": 100
+    },
+    "xlsx/EMAIL": {
+      "planted": 50,
+      "found": 50
+    },
+    "xlsx/IBAN": {
+      "planted": 50,
+      "found": 50
+    },
+    "xlsx/PERSON": {
+      "planted": 100,
+      "found": 81
+    },
+    "xlsx/PHONE": {
+      "planted": 50,
+      "found": 39
     }
   }
 }
