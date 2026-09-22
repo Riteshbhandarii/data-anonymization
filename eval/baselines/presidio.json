@@ -1,0 +1,908 @@
+{
+  "detector": "presidio-analyzer",
+  "versions": {
+    "presidio-analyzer": "2.2.364",
+    "spacy": "3.8.16"
+  },
+  "models": {
+    "en": "en_core_web_sm",
+    "fi": "fi_core_news_sm"
+  },
+  "score_threshold": 0.0,
+  "corpus": {
+    "seed": 42,
+    "n": 5,
+    "documents": 50,
+    "identifiers": 650
+  },
+  "scope": "body labels only, metadata/notes/hidden sheets need extraction",
+  "recall": {
+    "en/ADDRESS": {
+      "planted": 20,
+      "found": 14,
+      "verdict": "weak"
+    },
+    "fi/ADDRESS": {
+      "planted": 20,
+      "found": 13,
+      "verdict": "weak"
+    },
+    "en/COMPANY": {
+      "planted": 25,
+      "found": 14,
+      "verdict": "weak"
+    },
+    "fi/COMPANY": {
+      "planted": 25,
+      "found": 8,
+      "verdict": "weak"
+    },
+    "en/DATE": {
+      "planted": 35,
+      "found": 35,
+      "verdict": "good"
+    },
+    "fi/DATE": {
+      "planted": 35,
+      "found": 35,
+      "verdict": "good"
+    },
+    "en/EMAIL": {
+      "planted": 35,
+      "found": 35,
+      "verdict": "good"
+    },
+    "fi/EMAIL": {
+      "planted": 35,
+      "found": 35,
+      "verdict": "good"
+    },
+    "en/IBAN": {
+      "planted": 30,
+      "found": 30,
+      "verdict": "good"
+    },
+    "fi/IBAN": {
+      "planted": 30,
+      "found": 30,
+      "verdict": "good"
+    },
+    "en/INVOICE": {
+      "planted": 15,
+      "found": 0,
+      "verdict": "no recognizer"
+    },
+    "fi/INVOICE": {
+      "planted": 15,
+      "found": 0,
+      "verdict": "no recognizer"
+    },
+    "en/PERSON": {
+      "planted": 80,
+      "found": 65,
+      "verdict": "weak"
+    },
+    "fi/PERSON": {
+      "planted": 80,
+      "found": 77,
+      "verdict": "good"
+    },
+    "en/PERSONAL_ID": {
+      "planted": 15,
+      "found": 0,
+      "verdict": "recognizer rejects all"
+    },
+    "fi/PERSONAL_ID": {
+      "planted": 15,
+      "found": 0,
+      "verdict": "recognizer rejects all"
+    },
+    "en/PHONE": {
+      "planted": 30,
+      "found": 24,
+      "verdict": "weak"
+    },
+    "fi/PHONE": {
+      "planted": 30,
+      "found": 28,
+      "verdict": "weak"
+    },
+    "en/PLATE": {
+      "planted": 15,
+      "found": 0,
+      "verdict": "no recognizer"
+    },
+    "fi/PLATE": {
+      "planted": 15,
+      "found": 0,
+      "verdict": "no recognizer"
+    }
+  },
+  "misses": [
+    {
+      "file": "csv/en_csv_00.csv",
+      "type": "PERSON",
+      "value": "Sandra Reynolds"
+    },
+    {
+      "file": "csv/en_csv_00.csv",
+      "type": "COMPANY",
+      "value": "Miranda-Campos"
+    },
+    {
+      "file": "csv/en_csv_00.csv",
+      "type": "PERSONAL_ID",
+      "value": "080870-4483"
+    },
+    {
+      "file": "csv/en_csv_00.csv",
+      "type": "PLATE",
+      "value": "HDA-839"
+    },
+    {
+      "file": "csv/en_csv_01.csv",
+      "type": "ADDRESS",
+      "value": "8463 Amy Ports Suite 634, Dillonmouth, AS 82951"
+    },
+    {
+      "file": "csv/en_csv_01.csv",
+      "type": "COMPANY",
+      "value": "Maldonado, Ramsey and French"
+    },
+    {
+      "file": "csv/en_csv_01.csv",
+      "type": "PERSONAL_ID",
+      "value": "060894-612S"
+    },
+    {
+      "file": "csv/en_csv_01.csv",
+      "type": "PLATE",
+      "value": "EXV-405"
+    },
+    {
+      "file": "csv/en_csv_02.csv",
+      "type": "PERSON",
+      "value": "Tina Rodriguez"
+    },
+    {
+      "file": "csv/en_csv_02.csv",
+      "type": "PERSONAL_ID",
+      "value": "090967-619L"
+    },
+    {
+      "file": "csv/en_csv_02.csv",
+      "type": "PLATE",
+      "value": "EID-897"
+    },
+    {
+      "file": "csv/en_csv_03.csv",
+      "type": "COMPANY",
+      "value": "Morton, Williams and Oconnor"
+    },
+    {
+      "file": "csv/en_csv_03.csv",
+      "type": "PERSONAL_ID",
+      "value": "280993-100L"
+    },
+    {
+      "file": "csv/en_csv_03.csv",
+      "type": "PLATE",
+      "value": "HAY-999"
+    },
+    {
+      "file": "csv/en_csv_04.csv",
+      "type": "PHONE",
+      "value": "(392)227-1466"
+    },
+    {
+      "file": "csv/en_csv_04.csv",
+      "type": "ADDRESS",
+      "value": "USS Sutton, FPO AE 26120"
+    },
+    {
+      "file": "csv/en_csv_04.csv",
+      "type": "PERSONAL_ID",
+      "value": "170868-3451"
+    },
+    {
+      "file": "csv/en_csv_04.csv",
+      "type": "PLATE",
+      "value": "FNB-849"
+    },
+    {
+      "file": "docx/en_docx_00.docx",
+      "type": "PERSONAL_ID",
+      "value": "040372-7543"
+    },
+    {
+      "file": "docx/en_docx_00.docx",
+      "type": "PLATE",
+      "value": "AGF-854"
+    },
+    {
+      "file": "docx/en_docx_00.docx",
+      "type": "INVOICE",
+      "value": "INV-23434"
+    },
+    {
+      "file": "docx/en_docx_01.docx",
+      "type": "PERSON",
+      "value": "Maria Daniels"
+    },
+    {
+      "file": "docx/en_docx_01.docx",
+      "type": "PERSONAL_ID",
+      "value": "190902-792R"
+    },
+    {
+      "file": "docx/en_docx_01.docx",
+      "type": "PLATE",
+      "value": "XCK-130"
+    },
+    {
+      "file": "docx/en_docx_01.docx",
+      "type": "INVOICE",
+      "value": "INV-22280"
+    },
+    {
+      "file": "docx/en_docx_01.docx",
+      "type": "PERSON",
+      "value": "Maria Daniels"
+    },
+    {
+      "file": "docx/en_docx_02.docx",
+      "type": "PHONE",
+      "value": "(439)258-1557"
+    },
+    {
+      "file": "docx/en_docx_02.docx",
+      "type": "PERSONAL_ID",
+      "value": "070598-3237"
+    },
+    {
+      "file": "docx/en_docx_02.docx",
+      "type": "PLATE",
+      "value": "MAE-765"
+    },
+    {
+      "file": "docx/en_docx_02.docx",
+      "type": "INVOICE",
+      "value": "INV-81426"
+    },
+    {
+      "file": "docx/en_docx_03.docx",
+      "type": "PERSON",
+      "value": "Justin Hodge"
+    },
+    {
+      "file": "docx/en_docx_03.docx",
+      "type": "COMPANY",
+      "value": "Ryan-Miles"
+    },
+    {
+      "file": "docx/en_docx_03.docx",
+      "type": "PERSONAL_ID",
+      "value": "130872-5297"
+    },
+    {
+      "file": "docx/en_docx_03.docx",
+      "type": "PLATE",
+      "value": "KGV-877"
+    },
+    {
+      "file": "docx/en_docx_03.docx",
+      "type": "INVOICE",
+      "value": "INV-30926"
+    },
+    {
+      "file": "docx/en_docx_03.docx",
+      "type": "PERSON",
+      "value": "Justin Hodge"
+    },
+    {
+      "file": "docx/en_docx_04.docx",
+      "type": "PERSONAL_ID",
+      "value": "060494-814D"
+    },
+    {
+      "file": "docx/en_docx_04.docx",
+      "type": "PLATE",
+      "value": "IDY-444"
+    },
+    {
+      "file": "docx/en_docx_04.docx",
+      "type": "INVOICE",
+      "value": "INV-23396"
+    },
+    {
+      "file": "pdf/en_pdf_00.pdf",
+      "type": "ADDRESS",
+      "value": "PSC 5983, Box 0077, APO AA 96103"
+    },
+    {
+      "file": "pdf/en_pdf_00.pdf",
+      "type": "PERSONAL_ID",
+      "value": "310790-2427"
+    },
+    {
+      "file": "pdf/en_pdf_00.pdf",
+      "type": "PLATE",
+      "value": "SMS-538"
+    },
+    {
+      "file": "pdf/en_pdf_00.pdf",
+      "type": "INVOICE",
+      "value": "INV-86484"
+    },
+    {
+      "file": "pdf/en_pdf_01.pdf",
+      "type": "PERSONAL_ID",
+      "value": "310785-508B"
+    },
+    {
+      "file": "pdf/en_pdf_01.pdf",
+      "type": "PLATE",
+      "value": "FZM-193"
+    },
+    {
+      "file": "pdf/en_pdf_01.pdf",
+      "type": "INVOICE",
+      "value": "INV-16175"
+    },
+    {
+      "file": "pdf/en_pdf_02.pdf",
+      "type": "PHONE",
+      "value": "001-679-878-0393x179"
+    },
+    {
+      "file": "pdf/en_pdf_02.pdf",
+      "type": "PERSONAL_ID",
+      "value": "191088-2124"
+    },
+    {
+      "file": "pdf/en_pdf_02.pdf",
+      "type": "PLATE",
+      "value": "PUK-165"
+    },
+    {
+      "file": "pdf/en_pdf_02.pdf",
+      "type": "INVOICE",
+      "value": "INV-60432"
+    },
+    {
+      "file": "pdf/en_pdf_03.pdf",
+      "type": "COMPANY",
+      "value": "Flores-Goodman"
+    },
+    {
+      "file": "pdf/en_pdf_03.pdf",
+      "type": "PERSONAL_ID",
+      "value": "110804-490L"
+    },
+    {
+      "file": "pdf/en_pdf_03.pdf",
+      "type": "PLATE",
+      "value": "ZMZ-981"
+    },
+    {
+      "file": "pdf/en_pdf_03.pdf",
+      "type": "INVOICE",
+      "value": "INV-11504"
+    },
+    {
+      "file": "pdf/en_pdf_04.pdf",
+      "type": "ADDRESS",
+      "value": "0121 Lindsey Vista Suite 559, Toddport, OH 52749"
+    },
+    {
+      "file": "pdf/en_pdf_04.pdf",
+      "type": "PERSONAL_ID",
+      "value": "080989-796R"
+    },
+    {
+      "file": "pdf/en_pdf_04.pdf",
+      "type": "PLATE",
+      "value": "CXT-887"
+    },
+    {
+      "file": "pdf/en_pdf_04.pdf",
+      "type": "INVOICE",
+      "value": "INV-94012"
+    },
+    {
+      "file": "pptx/en_pptx_00.pptx",
+      "type": "INVOICE",
+      "value": "INV-15695"
+    },
+    {
+      "file": "pptx/en_pptx_01.pptx",
+      "type": "PERSON",
+      "value": "Bradley Leach"
+    },
+    {
+      "file": "pptx/en_pptx_01.pptx",
+      "type": "ADDRESS",
+      "value": "USNV Smith, FPO AE 84846"
+    },
+    {
+      "file": "pptx/en_pptx_01.pptx",
+      "type": "COMPANY",
+      "value": "Stevens, Travis and Lynn"
+    },
+    {
+      "file": "pptx/en_pptx_01.pptx",
+      "type": "INVOICE",
+      "value": "INV-48427"
+    },
+    {
+      "file": "pptx/en_pptx_01.pptx",
+      "type": "PERSON",
+      "value": "Bradley Leach"
+    },
+    {
+      "file": "pptx/en_pptx_01.pptx",
+      "type": "PERSON",
+      "value": "Bradley Leach"
+    },
+    {
+      "file": "pptx/en_pptx_02.pptx",
+      "type": "PHONE",
+      "value": "001-739-464-0861"
+    },
+    {
+      "file": "pptx/en_pptx_02.pptx",
+      "type": "INVOICE",
+      "value": "INV-16006"
+    },
+    {
+      "file": "pptx/en_pptx_02.pptx",
+      "type": "PHONE",
+      "value": "001-739-464-0861"
+    },
+    {
+      "file": "pptx/en_pptx_03.pptx",
+      "type": "INVOICE",
+      "value": "INV-23238"
+    },
+    {
+      "file": "pptx/en_pptx_04.pptx",
+      "type": "ADDRESS",
+      "value": "32590 Yang Mall Apt. 709, Dustinbury, AZ 66621"
+    },
+    {
+      "file": "pptx/en_pptx_04.pptx",
+      "type": "INVOICE",
+      "value": "INV-37460"
+    },
+    {
+      "file": "xlsx/en_xlsx_00.xlsx",
+      "type": "COMPANY",
+      "value": "Davis-Barker"
+    },
+    {
+      "file": "xlsx/en_xlsx_01.xlsx",
+      "type": "COMPANY",
+      "value": "Robbins LLC"
+    },
+    {
+      "file": "xlsx/en_xlsx_02.xlsx",
+      "type": "PERSON",
+      "value": "Justin Lynch"
+    },
+    {
+      "file": "xlsx/en_xlsx_02.xlsx",
+      "type": "COMPANY",
+      "value": "Roberts, Tate and Henry"
+    },
+    {
+      "file": "xlsx/en_xlsx_02.xlsx",
+      "type": "PERSON",
+      "value": "Justin Lynch"
+    },
+    {
+      "file": "xlsx/en_xlsx_03.xlsx",
+      "type": "PERSON",
+      "value": "Edward Reese"
+    },
+    {
+      "file": "xlsx/en_xlsx_03.xlsx",
+      "type": "PHONE",
+      "value": "001-998-669-2037x118"
+    },
+    {
+      "file": "xlsx/en_xlsx_03.xlsx",
+      "type": "COMPANY",
+      "value": "Potter-Ball"
+    },
+    {
+      "file": "xlsx/en_xlsx_03.xlsx",
+      "type": "PERSON",
+      "value": "Edward Reese"
+    },
+    {
+      "file": "xlsx/en_xlsx_04.xlsx",
+      "type": "PERSON",
+      "value": "Kathleen Holmes"
+    },
+    {
+      "file": "xlsx/en_xlsx_04.xlsx",
+      "type": "COMPANY",
+      "value": "Wolfe, West and Russell"
+    },
+    {
+      "file": "xlsx/en_xlsx_04.xlsx",
+      "type": "PERSON",
+      "value": "Kathleen Holmes"
+    },
+    {
+      "file": "csv/fi_csv_00.csv",
+      "type": "ADDRESS",
+      "value": "Hankasuonpolku 5, 10715 Kannonkoski"
+    },
+    {
+      "file": "csv/fi_csv_00.csv",
+      "type": "PERSONAL_ID",
+      "value": "020272-3676"
+    },
+    {
+      "file": "csv/fi_csv_00.csv",
+      "type": "PLATE",
+      "value": "RHG-234"
+    },
+    {
+      "file": "csv/fi_csv_01.csv",
+      "type": "ADDRESS",
+      "value": "Oraspolku 8, 87474 Joutsa"
+    },
+    {
+      "file": "csv/fi_csv_01.csv",
+      "type": "COMPANY",
+      "value": "Haapanen Linna ry"
+    },
+    {
+      "file": "csv/fi_csv_01.csv",
+      "type": "PERSONAL_ID",
+      "value": "091070-7609"
+    },
+    {
+      "file": "csv/fi_csv_01.csv",
+      "type": "PLATE",
+      "value": "KYY-109"
+    },
+    {
+      "file": "csv/fi_csv_02.csv",
+      "type": "ADDRESS",
+      "value": "Taavetti Laitisen katu 45, 28449 Finström"
+    },
+    {
+      "file": "csv/fi_csv_02.csv",
+      "type": "PERSONAL_ID",
+      "value": "270168-736K"
+    },
+    {
+      "file": "csv/fi_csv_02.csv",
+      "type": "PLATE",
+      "value": "ZBF-371"
+    },
+    {
+      "file": "csv/fi_csv_03.csv",
+      "type": "PHONE",
+      "value": "+358730831216"
+    },
+    {
+      "file": "csv/fi_csv_03.csv",
+      "type": "ADDRESS",
+      "value": "Nils Westermarckin kuja 1, 83103 Jokioinen"
+    },
+    {
+      "file": "csv/fi_csv_03.csv",
+      "type": "COMPANY",
+      "value": "Leskinen Laakso ry"
+    },
+    {
+      "file": "csv/fi_csv_03.csv",
+      "type": "PERSONAL_ID",
+      "value": "120382-457W"
+    },
+    {
+      "file": "csv/fi_csv_03.csv",
+      "type": "PLATE",
+      "value": "BFG-548"
+    },
+    {
+      "file": "csv/fi_csv_04.csv",
+      "type": "ADDRESS",
+      "value": "Urpupolku 04, 39529 Suomussalmi"
+    },
+    {
+      "file": "csv/fi_csv_04.csv",
+      "type": "COMPANY",
+      "value": "Virtanen Jussila As Oy"
+    },
+    {
+      "file": "csv/fi_csv_04.csv",
+      "type": "PERSONAL_ID",
+      "value": "080896-8209"
+    },
+    {
+      "file": "csv/fi_csv_04.csv",
+      "type": "PLATE",
+      "value": "OZP-108"
+    },
+    {
+      "file": "docx/fi_docx_00.docx",
+      "type": "COMPANY",
+      "value": "Lehto"
+    },
+    {
+      "file": "docx/fi_docx_00.docx",
+      "type": "PERSONAL_ID",
+      "value": "090898-170S"
+    },
+    {
+      "file": "docx/fi_docx_00.docx",
+      "type": "PLATE",
+      "value": "MDP-662"
+    },
+    {
+      "file": "docx/fi_docx_00.docx",
+      "type": "INVOICE",
+      "value": "INV-31643"
+    },
+    {
+      "file": "docx/fi_docx_01.docx",
+      "type": "COMPANY",
+      "value": "Hakala Laine Tmi"
+    },
+    {
+      "file": "docx/fi_docx_01.docx",
+      "type": "PERSONAL_ID",
+      "value": "101185-371H"
+    },
+    {
+      "file": "docx/fi_docx_01.docx",
+      "type": "PLATE",
+      "value": "VKF-652"
+    },
+    {
+      "file": "docx/fi_docx_01.docx",
+      "type": "INVOICE",
+      "value": "INV-36365"
+    },
+    {
+      "file": "docx/fi_docx_02.docx",
+      "type": "PHONE",
+      "value": "+358 49 2488530"
+    },
+    {
+      "file": "docx/fi_docx_02.docx",
+      "type": "COMPANY",
+      "value": "Toivanen Helenius As Oy"
+    },
+    {
+      "file": "docx/fi_docx_02.docx",
+      "type": "PERSONAL_ID",
+      "value": "170466-8309"
+    },
+    {
+      "file": "docx/fi_docx_02.docx",
+      "type": "PLATE",
+      "value": "JRI-629"
+    },
+    {
+      "file": "docx/fi_docx_02.docx",
+      "type": "INVOICE",
+      "value": "INV-69177"
+    },
+    {
+      "file": "docx/fi_docx_03.docx",
+      "type": "COMPANY",
+      "value": "Varis Kemppainen ry"
+    },
+    {
+      "file": "docx/fi_docx_03.docx",
+      "type": "PERSONAL_ID",
+      "value": "280606-2237"
+    },
+    {
+      "file": "docx/fi_docx_03.docx",
+      "type": "PLATE",
+      "value": "FIO-335"
+    },
+    {
+      "file": "docx/fi_docx_03.docx",
+      "type": "INVOICE",
+      "value": "INV-87128"
+    },
+    {
+      "file": "docx/fi_docx_04.docx",
+      "type": "ADDRESS",
+      "value": "Nordenskiöldintie 9, 42395 Närpiö"
+    },
+    {
+      "file": "docx/fi_docx_04.docx",
+      "type": "PERSONAL_ID",
+      "value": "181267-3250"
+    },
+    {
+      "file": "docx/fi_docx_04.docx",
+      "type": "PLATE",
+      "value": "BPF-132"
+    },
+    {
+      "file": "docx/fi_docx_04.docx",
+      "type": "INVOICE",
+      "value": "INV-53309"
+    },
+    {
+      "file": "pdf/fi_pdf_00.pdf",
+      "type": "PERSONAL_ID",
+      "value": "021203-2586"
+    },
+    {
+      "file": "pdf/fi_pdf_00.pdf",
+      "type": "PLATE",
+      "value": "HZN-655"
+    },
+    {
+      "file": "pdf/fi_pdf_00.pdf",
+      "type": "INVOICE",
+      "value": "INV-17989"
+    },
+    {
+      "file": "pdf/fi_pdf_01.pdf",
+      "type": "COMPANY",
+      "value": "Kulmala"
+    },
+    {
+      "file": "pdf/fi_pdf_01.pdf",
+      "type": "PERSONAL_ID",
+      "value": "160301-865A"
+    },
+    {
+      "file": "pdf/fi_pdf_01.pdf",
+      "type": "PLATE",
+      "value": "BOM-973"
+    },
+    {
+      "file": "pdf/fi_pdf_01.pdf",
+      "type": "INVOICE",
+      "value": "INV-79615"
+    },
+    {
+      "file": "pdf/fi_pdf_02.pdf",
+      "type": "ADDRESS",
+      "value": "Edelfeltinbulevardi 91, 91362 Geta"
+    },
+    {
+      "file": "pdf/fi_pdf_02.pdf",
+      "type": "COMPANY",
+      "value": "Leinonen Moilanen Oy"
+    },
+    {
+      "file": "pdf/fi_pdf_02.pdf",
+      "type": "PERSONAL_ID",
+      "value": "191188-2611"
+    },
+    {
+      "file": "pdf/fi_pdf_02.pdf",
+      "type": "PLATE",
+      "value": "ZBE-709"
+    },
+    {
+      "file": "pdf/fi_pdf_02.pdf",
+      "type": "INVOICE",
+      "value": "INV-18907"
+    },
+    {
+      "file": "pdf/fi_pdf_03.pdf",
+      "type": "COMPANY",
+      "value": "Aalto"
+    },
+    {
+      "file": "pdf/fi_pdf_03.pdf",
+      "type": "PERSONAL_ID",
+      "value": "210906-791V"
+    },
+    {
+      "file": "pdf/fi_pdf_03.pdf",
+      "type": "PLATE",
+      "value": "FCX-352"
+    },
+    {
+      "file": "pdf/fi_pdf_03.pdf",
+      "type": "INVOICE",
+      "value": "INV-85880"
+    },
+    {
+      "file": "pdf/fi_pdf_04.pdf",
+      "type": "PERSONAL_ID",
+      "value": "071189-7081"
+    },
+    {
+      "file": "pdf/fi_pdf_04.pdf",
+      "type": "PLATE",
+      "value": "OKO-635"
+    },
+    {
+      "file": "pdf/fi_pdf_04.pdf",
+      "type": "INVOICE",
+      "value": "INV-51467"
+    },
+    {
+      "file": "pptx/fi_pptx_00.pptx",
+      "type": "PERSON",
+      "value": "Sebastian Lepistö"
+    },
+    {
+      "file": "pptx/fi_pptx_00.pptx",
+      "type": "INVOICE",
+      "value": "INV-84847"
+    },
+    {
+      "file": "pptx/fi_pptx_00.pptx",
+      "type": "PERSON",
+      "value": "Sebastian Lepistö"
+    },
+    {
+      "file": "pptx/fi_pptx_00.pptx",
+      "type": "PERSON",
+      "value": "Sebastian Lepistö"
+    },
+    {
+      "file": "pptx/fi_pptx_01.pptx",
+      "type": "COMPANY",
+      "value": "Mäkinen"
+    },
+    {
+      "file": "pptx/fi_pptx_01.pptx",
+      "type": "INVOICE",
+      "value": "INV-22704"
+    },
+    {
+      "file": "pptx/fi_pptx_02.pptx",
+      "type": "COMPANY",
+      "value": "Karppinen"
+    },
+    {
+      "file": "pptx/fi_pptx_02.pptx",
+      "type": "INVOICE",
+      "value": "INV-98259"
+    },
+    {
+      "file": "pptx/fi_pptx_03.pptx",
+      "type": "COMPANY",
+      "value": "Vuorinen Ky"
+    },
+    {
+      "file": "pptx/fi_pptx_03.pptx",
+      "type": "INVOICE",
+      "value": "INV-24322"
+    },
+    {
+      "file": "pptx/fi_pptx_04.pptx",
+      "type": "COMPANY",
+      "value": "Saari ry"
+    },
+    {
+      "file": "pptx/fi_pptx_04.pptx",
+      "type": "INVOICE",
+      "value": "INV-70637"
+    },
+    {
+      "file": "xlsx/fi_xlsx_01.xlsx",
+      "type": "COMPANY",
+      "value": "Rajala"
+    },
+    {
+      "file": "xlsx/fi_xlsx_02.xlsx",
+      "type": "COMPANY",
+      "value": "Mikkonen"
+    },
+    {
+      "file": "xlsx/fi_xlsx_04.xlsx",
+      "type": "COMPANY",
+      "value": "Aho Martikainen Oyj"
+    }
+  ]
+}
