@@ -228,7 +228,7 @@ def main():
     # Provenance. A recall number is only comparable against another run of the
     # same corpus, so the seed and size travel with the documents. The seed alone
     # does not pin them: new Faker data or an edited template changes every value
-    # while the seed stays 42, so the labels are fingerprinted as well.
+    # while the seed stays 42, so the labels and the saved text are fingerprinted together.
     # Hashed from the manifest, not from whatever the directory happens to hold,
     # or reusing an output directory with a smaller --n leaves older documents
     # behind and the hash describes a corpus nobody generated. The saved text is
@@ -243,7 +243,7 @@ def main():
     with open(os.path.join(out, "corpus.json"), "w", encoding="utf-8") as f:
         json.dump({"seed": args.seed, "n": args.n, "documents": len(index),
                    "identifiers": sum(i["entities"] for i in index),
-                   "faker": version("faker"), "labels_sha256": digest.hexdigest()},
+                   "faker": version("faker"), "corpus_sha256": digest.hexdigest()},
                   f, indent=2)
 
     with open(os.path.join(out, "index.csv"), "w", newline="", encoding="utf-8") as f:
