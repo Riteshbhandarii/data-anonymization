@@ -81,12 +81,13 @@ Reports and generated documents are under the Git-ignored `outputs/` directory. 
 
 ## Regression coverage
 
-The local run passed all 20 tests, including the real OCR test with Tesseract 5.5.0 and English language data.
+The extraction validation run at `eac4092` passed all 20 tests in that revision, including the real OCR test with Tesseract 5.5.0 and English language data. Markdown normalization tests additionally check that hard breaks reach the anonymization module and survive output saving.
 
 | Test file | Coverage |
 |---|---|
 | `tests/test_extraction_gaps.py` | Metadata in DOCX/PPTX/XLSX/PDF; Word primary, first-page, and even-page headers/footers with tables and linked sections; speaker notes and hidden worksheets; mixed PDF OCR including a real image-only identifier and rotated crop routing; scanned-page OCR; formula cached strings, empty strings, missing results, and error values |
 | `tests/test_output_names.py` | Different source extensions, repeated filenames, exact saved text, and eight simultaneous writes without overwriting |
+| `tests/test_normalization.py` | Space and backslash hard breaks, content-line indentation and trailing spaces, blank-line cleanup, and preservation through module handoff and output saving |
 | `tests/test_validation.py` | Actual generator output in all five formats and both languages; separate body/metadata accounting; extraction errors and empty-corpus rejection; failing CLI status with reports still saved |
 
 XLSX tests supply the cached values a spreadsheet application would save. The reader consumes those saved results; it does not recalculate formulas. Missing or erroneous caches produce an explicit error with the cell location and recalculation instructions.

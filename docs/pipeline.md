@@ -37,7 +37,7 @@ The extraction and anonymization modules exchange strings with the pipeline. The
 |---|---|
 | `pipeline/core.py` | Implements `run_pipeline()`, calls the supplied modules, and saves their output |
 | `pipeline/extractors.py` | Selects readers by extension, extracts content, calls OCR, and builds Markdown sections and tables |
-| `pipeline/normalization.py` | Normalizes line endings, trailing whitespace, and repeated blank lines before anonymization |
+| `pipeline/normalization.py` | Normalizes line endings and repeated blank lines while preserving content-line spacing, including Markdown hard breaks |
 | `pipeline/errors.py` | Defines exceptions for extraction and anonymization failures |
 | `pipeline/__init__.py` | Exports the public functions and result/error types |
 | `pipeline/validation.py` | Compares extracted content with generated corpus labels and writes recall reports |
@@ -85,6 +85,8 @@ print(result.output_path)
 `redact/anonymizer.py` is an example location for the module you provide. Replace the import with your actual module path. Pass the function itself (`anonymizer=anonymize_markdown`), without calling it in the argument.
 
 The pipeline calls the anonymization module after extraction and normalization. It then saves the returned string without further content processing. An anonymizer is required; the pipeline contains no built-in replacement algorithm.
+
+Normalization converts line endings to `\n`, cleans whitespace-only lines, and reduces repeated blank lines. It preserves leading and trailing whitespace on lines containing content, including the two trailing spaces used for a Markdown hard line break. Non-empty normalized text ends with `\n`.
 
 If your module uses additional arguments or returns a different structure, provide a small wrapper. For example, a module that returns `{"markdown": ...}` can be connected as follows:
 
