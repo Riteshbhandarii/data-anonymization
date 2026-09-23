@@ -25,6 +25,14 @@ import json
 import os
 import sys
 
+ROOT = os.path.dirname(
+    os.path.dirname(os.path.abspath(__file__))
+)
+
+if ROOT not in sys.path:
+    sys.path.insert(0, ROOT)
+
+from detect.pattern_recognizers import register_project_recognizers
 # Presidio's entity names on the left, the corpus label types on the right.
 # A benchmark cheats here if anywhere, so the whole mapping stays visible.
 TYPE_MAP = {
@@ -36,6 +44,10 @@ TYPE_MAP = {
     "ORGANIZATION": "COMPANY",
     "DATE_TIME": "DATE",
     "FI_PERSONAL_IDENTITY_CODE": "PERSONAL_ID",
+
+    "PLATE": "PLATE",
+    "INVOICE": "INVOICE",
+    "PERSONAL_ID": "PERSONAL_ID",
 }
 
 MODELS = {"en": "en_core_web_sm", "fi": "fi_core_news_sm"}
@@ -51,8 +63,24 @@ def build_analyzer():
 
     config = {
         "nlp_engine_name": "spacy",
-        "models": [{"lang_code": c, "model_name": m} for c, m in MODELS.items()],
+        "models": [
+            {"lang_code": c, "model_name": m}
+            for c, m in MODELS.items()
+        ],
     }
+
+    engine = NlpEngineProvider(
+        nlp_configuration=config
+    ).create_engine()
+
+    analyzer = AnalyzerEngine(
+        nlp_engine=engine,
+        supported_languages=list(MODELS)
+    )
+
+    register_project_recognizers(analyzer)
+
+    return analyzer
     engine = NlpEngineProvider(nlp_configuration=config).create_engine()
     return AnalyzerEngine(nlp_engine=engine, supported_languages=list(MODELS))
 
