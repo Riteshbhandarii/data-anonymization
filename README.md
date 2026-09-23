@@ -18,27 +18,54 @@ Two problems are often confused and this toolkit keeps them apart:
 ## Pipeline
 
 ```
-  source data
-        |
-        v
-  [extract]  text + metadata + embedded objects
-        |
-        v
-  [detect]   identifiers, quasi-identifiers, secrets
-        |
-        v
-  [redact]   suppress / generalize / substitute / pseudonymize
-        |
-        v
-  output data
-        |
-        v
-  [eval]     can a public model still identify the company or person?
+  local source file
+          |
+          v
+  [detect format]
+          |
+          v
+  [extract text or OCR]
+          |
+          v
+  [normalize as Markdown]
+          |
+          v
+  [call the anonymization module]
+          |
+          v
+  [receive the returned Markdown]
+          |
+          v
+  outputs/<filename.ext>_anonymized.md
 ```
 
-## Format matrix
+The pipeline reads an input file, builds Markdown, passes it to the anonymization module, and saves the returned Markdown. See [docs/pipeline.md](docs/pipeline.md) for function arguments, input/output contracts, and extraction/OCR integration instructions.
 
-One row per data type. The project owner's column structure, extended as new types are identified.
+## Pipeline integration
+
+```python
+from pipeline import run_pipeline
+from redact.anonymizer import anonymize_markdown
+
+result = run_pipeline(
+    "documents/report.docx",
+    anonymizer=anonymize_markdown,
+)
+
+print(result.output_path)
+```
+
+Replace `redact.anonymizer` with the module that provides your implementation. The required function accepts Markdown text and returns processed Markdown text (`str -> str`). The pipeline creates the output directory and saves the result as UTF-8 Markdown.
+
+Existing readers support TXT, MD, CSV, DOCX, XLSX, PPTX, PDF, and common image formats. The built-in OCR reader uses Tesseract. A custom reader can be supplied through `extractor=` as described in the [integration guide](docs/pipeline.md).
+
+Generated Markdown is saved under `outputs/`, which is ignored by Git. Output names retain the input extension: `report.docx` becomes `report.docx_anonymized.md`. If that name already exists, the pipeline adds `_2`, `_3`, and so on without overwriting previous results.
+
+Extraction is checked against the generator's JSON labels before anonymization. See [the extraction validation report](docs/extraction-validation.md) for results, commands, and CI checks.
+
+## Longer-term format matrix
+
+This table records the wider research scope. The current pipeline outputs Markdown.
 
 | Data type | Content type | Tool / process | Output type | AI re-identification test |
 |---|---|---|---|---|
@@ -69,12 +96,15 @@ Two numbers, not one.
 ## Layout
 
 ```
-extract/   source format to text, metadata, embedded objects
-detect/    identifier and secret detection
-redact/    suppression, generalization, substitution, pseudonymization
-eval/      detection metrics and the re-identification harness
-corpus/    public and synthetic test data only, never real data
-docs/      techniques, evaluation protocol, open questions
+pipeline/   format detection, extraction/OCR, anonymization orchestration, Markdown output
+tests/      extraction recall, extraction gap, and output naming regression tests
+extract/    extraction notes
+detect/     identifier and secret detection notes
+redact/     anonymizer integration notes
+eval/       detection metrics and the re-identification harness
+corpus/     public and synthetic test data only, never real data
+docs/       pipeline guide, techniques, evaluation protocol, open questions
+outputs/    generated Markdown; ignored by Git
 ```
 
 ## Test data
@@ -93,15 +123,20 @@ Public and synthetic only. Nothing real enters this repository.
 ## Status
 
 - [ ] Format matrix agreed with the project owner
-- [ ] Output format decision: same-format rebuild or plain text. See [docs/open-questions.md](docs/open-questions.md)
+- [x] Pipeline reads files, prepares Markdown, and saves the returned result
+- [x] Anonymization module interface (`str -> str`)
+- [x] Extractor replacement interface (`Path -> str`)
+- [ ] Connect the anonymization module
 - [ ] Synthetic corpus generator
-- [ ] `extract` for docx, xlsx, pptx
+- [x] Initial `extract` support for DOCX, XLSX, PPTX, PDF, CSV, text, and images
 - [ ] Baseline detector and a first recall number
 - [ ] Re-identification harness
 - [ ] Quality-impact benchmark, raw against redacted against pseudonymized
 
 ## Docs
 
+- [docs/pipeline.md](docs/pipeline.md), pipeline interfaces and module integration
+- [docs/extraction-validation.md](docs/extraction-validation.md), extraction recall results and validation commands
 - [docs/techniques.md](docs/techniques.md), anonymization techniques and where each one breaks
 - [docs/evaluation.md](docs/evaluation.md), the re-identification test protocol
 - [docs/open-questions.md](docs/open-questions.md), decisions not yet made
