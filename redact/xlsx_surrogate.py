@@ -1,6 +1,8 @@
 from pathlib import Path
+from datetime import datetime, date, timedelta
+from collections import defaultdict
+
 from openpyxl import load_workbook
-from datetime import datetime, date
 
 
 FIELD_TYPES = {
@@ -16,142 +18,338 @@ FIELD_TYPES = {
 }
 
 
-# Synthetic replacement values
-SURROGATES = {
+SURROGATE_VALUES = {
+
     "PERSON": [
         "Alex Morgan",
         "Jamie Taylor",
-        "Jordan Parker",
-        "Casey Wilson",
-        "Taylor Brooks",
+        "Casey Parker",
+        "Jordan Lee",
     ],
 
     "EMAIL": [
-        "alex.morgan@example.com",
-        "jamie.taylor@example.com",
-        "jordan.parker@example.com",
-        "casey.wilson@example.com",
-        "taylor.brooks@example.com",
+        "alex.morgan@surrogate.invalid",
+        "jamie.taylor@surrogate.invalid",
+        "casey.parker@surrogate.invalid",
+        "jordan.lee@surrogate.invalid",
     ],
 
     "PHONE": [
-        "+358 40 000 1001",
-        "+358 40 000 1002",
-        "+358 40 000 1003",
-        "+358 40 000 1004",
-        "+358 40 000 1005",
+        "+999 00 900 1001",
+        "+999 00 900 1002",
+        "+999 00 900 1003",
+        "+999 00 900 1004",
     ],
 
     "COMPANY": [
-        "Northstar Example Ltd.",
-        "Bluewave Example Oy",
-        "Demo Analytics Ltd.",
-        "Example Health Oy",
-        "Testworks Ltd.",
+        "Northstar Synthetic Ltd.",
+        "Bluewave Synthetic Ltd.",
+        "Greenfield Synthetic Ltd.",
+        "Silverline Synthetic Ltd.",
     ],
 
     "IBAN": [
-        "FI00TEST000000000001",
-        "FI00TEST000000000002",
-        "FI00TEST000000000003",
-        "FI00TEST000000000004",
-        "FI00TEST000000000005",
-    ],
-
-    "DATE": [
-        "1990-03-12",
-        "1995-07-24",
-        "2000-11-08",
-        "1988-05-18",
-        "2002-09-30",
+        "ZZ00SYNTH000000000001",
+        "ZZ00SYNTH000000000002",
+        "ZZ00SYNTH000000000003",
+        "ZZ00SYNTH000000000004",
     ],
 
     "PERSONAL_ID": [
-        "TEST-ID-001",
-        "TEST-ID-002",
-        "TEST-ID-003",
-        "TEST-ID-004",
-        "TEST-ID-005",
+        "SYN-ID-9001",
+        "SYN-ID-9002",
+        "SYN-ID-9003",
+        "SYN-ID-9004",
     ],
 
     "PLATE": [
-        "ZZZ-001",
-        "ZZZ-002",
-        "ZZZ-003",
-        "ZZZ-004",
-        "ZZZ-005",
+        "SYN-91",
+        "SYN-92",
+        "SYN-93",
+        "SYN-94",
     ],
 
     "ADDRESS": [
-        "100 Example Street, Test City",
-        "200 Example Avenue, Demo City",
-        "300 Sample Road, Test Town",
-        "400 Demo Street, Example City",
-        "500 Test Avenue, Sample Town",
+        "100 Synthetic Avenue, Demo City",
+        "200 Synthetic Avenue, Demo City",
+        "300 Synthetic Avenue, Demo City",
+        "400 Synthetic Avenue, Demo City",
     ],
 }
 
 
-def surrogate_xlsx(input_path, output_path):
+def parse_date(value):
+    """
+    Convert Excel date/datetime or date string into datetime.
+    """
+
+    if isinstance(value, datetime):
+        return value
+
+    if isinstance(value, date):
+        return datetime.combine(
+            value,
+            datetime.min.time()
+        )
+
+    value = str(value)
+
+    for fmt in (
+        "%Y-%m-%d",
+        "%Y-%m-%d %H:%M:%S",
+    ):
+        try:
+            return datetime.strptime(
+                value,
+                fmt
+            )
+        except ValueError:
+            pass
+
+    return None
+
+
+def collect_original_dates(workbook):
+    """
+    Collect all DATE values before anonymization.
+    """
+
+    dates = []
+
+    for sheet in workbook.worksheets:
+
+        headers = {}
+
+        for cell in sheet[1]:
+            if cell.value is not None:
+                headers[cell.column] = (
+                    str(cell.value)
+                    .strip()
+                    .lower()
+                )
+
+        for row in sheet.iter_rows(min_row=2):
+
+            for cell in row:
+
+                if cell.value is None:
+                    continue
+
+                header = headers.get(
+                    cell.column
+                )
+
+                if header != "date":
+                    continue
+
+                parsed = parse_date(
+                    cell.value
+                )
+
+                if parsed is not None:
+                    dates.append(parsed)
+
+    return dates
+
+
+def choose_safe_date_shift(original_dates):
+    """
+    Find one fixed offset for the whole workbook.
+
+    Requirements:
+    - same offset for every date
+    - preserves chronological order
+    - preserves relative time differences
+    - shifted years must not overlap original years
+    """
+
+    if not original_dates:
+        return 3652
+
+    original_years = {
+        value.year
+        for value in original_dates
+    }
+
+    # Try approximately +10 years, +11 years, etc.
+    # until no surrogate year collides with
+    # any original year in the workbook.
+    for years in range(10, 121):
+
+        shift_days = round(
+            years * 365.2425
+        )
+
+        shifted_dates = []
+
+        try:
+            for original in original_dates:
+
+                shifted = (
+                    original
+                    + timedelta(
+                        days=shift_days
+                    )
+                )
+
+                shifted_dates.append(
+                    shifted
+                )
+
+        except OverflowError:
+            continue
+
+        shifted_years = {
+            value.year
+            for value in shifted_dates
+        }
+
+        if original_years.isdisjoint(
+            shifted_years
+        ):
+            return shift_days
+
+    raise ValueError(
+        "Could not find a safe date shift."
+    )
+
+
+def shift_date(value, shift_days):
+    """
+    Apply the selected fixed offset.
+    """
+
+    parsed = parse_date(value)
+
+    if parsed is None:
+        return "[SURROGATE_DATE]"
+
+    shifted = (
+        parsed
+        + timedelta(
+            days=shift_days
+        )
+    )
+
+    return shifted.date()
+
+
+def get_new_surrogate(
+    data_type,
+    original_value,
+    counters,
+    date_shift_days,
+):
+
+    if data_type == "DATE":
+
+        return shift_date(
+            original_value,
+            date_shift_days,
+        )
+
+    values = SURROGATE_VALUES.get(
+        data_type,
+        []
+    )
+
+    index = counters[data_type]
+
+    if index < len(values):
+
+        replacement = values[index]
+
+    else:
+
+        replacement = (
+            f"[{data_type}_SURROGATE_"
+            f"{index + 1:03d}]"
+        )
+
+    counters[data_type] += 1
+
+    return replacement
+
+
+def surrogate_xlsx(
+    input_path,
+    output_path,
+):
 
     input_path = Path(input_path)
     output_path = Path(output_path)
 
-    workbook = load_workbook(input_path)
+    workbook = load_workbook(
+        input_path
+    )
 
-    # original value -> surrogate value
+    # Choose the date offset BEFORE modifying workbook.
+    original_dates = collect_original_dates(
+        workbook
+    )
+
+    date_shift_days = choose_safe_date_shift(
+        original_dates
+    )
+
     mappings = {}
+    counters = defaultdict(int)
 
-    # counter for each data type
-    counters = {}
-
-    def get_surrogate(data_type, original_value):
-
-        value = str(original_value)
-
-        key = (data_type, value)
-
-        # Same original value = same surrogate
-        if key in mappings:
-            return mappings[key]
-
-        index = counters.get(data_type, 0)
-
-        replacements = SURROGATES[data_type]
-
-        # If more values than prepared surrogates,
-        # create a simple synthetic fallback
-        if index < len(replacements):
-            surrogate = replacements[index]
-        else:
-            surrogate = f"SYNTHETIC_{data_type}_{index + 1:03d}"
-
-        counters[data_type] = index + 1
-        mappings[key] = surrogate
-
-        return surrogate
-
-    # --------------------------------------------------
-    # 1. Replace metadata
-    # --------------------------------------------------
+    # -------------------------------------------------
+    # METADATA
+    # -------------------------------------------------
 
     if workbook.properties.creator:
 
-        workbook.properties.creator = get_surrogate(
-            "PERSON",
+        original = str(
             workbook.properties.creator
+        )
+
+        key = (
+            "PERSON",
+            original,
+        )
+
+        if key not in mappings:
+
+            mappings[key] = get_new_surrogate(
+                "PERSON",
+                original,
+                counters,
+                date_shift_days,
+            )
+
+        workbook.properties.creator = (
+            mappings[key]
         )
 
     if workbook.properties.lastModifiedBy:
 
-        workbook.properties.lastModifiedBy = get_surrogate(
-            "PERSON",
+        original = str(
             workbook.properties.lastModifiedBy
         )
 
-    # --------------------------------------------------
-    # 2. Replace worksheet values
-    # --------------------------------------------------
+        key = (
+            "PERSON",
+            original,
+        )
+
+        if key not in mappings:
+
+            mappings[key] = get_new_surrogate(
+                "PERSON",
+                original,
+                counters,
+                date_shift_days,
+            )
+
+        workbook.properties.lastModifiedBy = (
+            mappings[key]
+        )
+
+    # -------------------------------------------------
+    # WORKSHEETS
+    # -------------------------------------------------
 
     for sheet in workbook.worksheets:
 
@@ -161,67 +359,92 @@ def surrogate_xlsx(input_path, output_path):
 
             if cell.value is not None:
 
-                header = str(
-                    cell.value
-                ).strip().lower()
+                headers[cell.column] = (
+                    str(cell.value)
+                    .strip()
+                    .lower()
+                )
 
-                headers[cell.column] = header
-
-        for row in sheet.iter_rows(min_row=2):
+        for row in sheet.iter_rows(
+            min_row=2
+        ):
 
             for cell in row:
 
                 if cell.value is None:
                     continue
 
-                header = headers.get(cell.column)
+                header = headers.get(
+                    cell.column
+                )
 
                 if header not in FIELD_TYPES:
                     continue
 
-                data_type = FIELD_TYPES[header]
+                data_type = FIELD_TYPES[
+                    header
+                ]
 
-                surrogate = get_surrogate(
-                    data_type,
-                    cell.value
+                original_object = cell.value
+                original_string = str(
+                    original_object
                 )
 
-                # Keep Excel date cells as actual dates
-                if data_type == "DATE":
+                key = (
+                    data_type,
+                    original_string,
+                )
 
-                    cell.value = datetime.strptime(
-                        surrogate,
-                        "%Y-%m-%d"
-                    ).date()
+                if key not in mappings:
 
-                else:
-                    cell.value = surrogate
+                    mappings[key] = (
+                        get_new_surrogate(
+                            data_type,
+                            original_object,
+                            counters,
+                            date_shift_days,
+                        )
+                    )
 
-    # --------------------------------------------------
-    # 3. Save file
-    # --------------------------------------------------
+                cell.value = mappings[key]
+
+    # -------------------------------------------------
+    # SAVE
+    # -------------------------------------------------
 
     output_path.parent.mkdir(
         parents=True,
-        exist_ok=True
+        exist_ok=True,
     )
 
-    workbook.save(output_path)
+    workbook.save(
+        output_path
+    )
 
-    print("\nSurrogate-substituted file saved to:")
+    print(
+        "\nSurrogate file saved to:"
+    )
+
     print(output_path)
 
-    # --------------------------------------------------
-    # 4. Print mappings
-    # --------------------------------------------------
+    print(
+        f"\nSafe date shift selected: "
+        f"+{date_shift_days} days"
+    )
 
-    print("\n[SURROGATE MAPPINGS]")
+    print(
+        "\n[SURROGATE MAPPINGS]"
+    )
 
-    for (data_type, original_value), surrogate in mappings.items():
+    for (
+        data_type,
+        original
+    ), replacement in mappings.items():
 
         print(
             f"{data_type:<12} | "
-            f"{original_value} -> {surrogate}"
+            f"{original} -> "
+            f"{replacement}"
         )
 
 
@@ -237,5 +460,5 @@ if __name__ == "__main__":
 
     surrogate_xlsx(
         input_path,
-        output_path
+        output_path,
     )
