@@ -8,6 +8,8 @@ pymupdf
 presidio-analyzer
 presidio-anonymizer
 spacy
+# spaCy model weights are separate packages and pip cannot resolve them
+# by name. See eval/README.md for the download commands.
 
 # corpus generation
 faker
