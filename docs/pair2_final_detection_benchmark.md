@@ -504,3 +504,99 @@ XLSX achieved the highest recall, while PPTX and PDF were more challenging becau
 
 The results establish a reproducible baseline for later comparison with custom recognizers and improved English/Finnish detection models.
 
+
+## 13. Custom Recognizer Evaluation
+
+After establishing the Presidio baseline, three project-specific pattern recognizers were added for entity types that were not covered by the baseline:
+
+- INVOICE
+- PERSONAL_ID
+- PLATE
+
+The custom recognizers were evaluated using the same final corpus, the same 300 XLSX/PPTX/PDF documents, the same 2,800 body ground-truth identifiers, and the same scoring method.
+
+This makes the baseline and improved detector directly comparable.
+
+### Baseline vs Custom Recognizers
+
+| Configuration | Fully Detected | Full Recall | Partial | Missed |
+|---|---:|---:|---:|---:|
+| Presidio baseline | 1,864 / 2,800 | 66.57% | 216 | 720 |
+| Presidio + custom recognizers | 2,264 / 2,800 | 80.86% | 216 | 320 |
+
+Adding the custom recognizers increased full recall by:
+
+**80.86% - 66.57% = 14.29 percentage points**
+
+The number of completely missed identifiers decreased from:
+
+**720 to 320**
+
+This is a reduction of 400 missed identifiers.
+
+### Improved Results by Format and Language
+
+| Format | Language | Baseline Recall | Custom Recall | Change |
+|---|---|---:|---:|---:|
+| XLSX | English | 86.50% | 86.50% | 0.00 pp |
+| XLSX | Finnish | 81.25% | 81.25% | 0.00 pp |
+| PPTX | English | 63.25% | 75.75% | +12.50 pp |
+| PPTX | Finnish | 58.75% | 71.25% | +12.50 pp |
+| PDF | English | 60.50% | 85.50% | +25.00 pp |
+| PDF | Finnish | 57.00% | 82.00% | +25.00 pp |
+
+XLSX results did not change because the XLSX body benchmark does not contain INVOICE, PERSONAL_ID, or PLATE identifiers.
+
+PPTX improved because INVOICE identifiers became fully detectable.
+
+PDF improved the most because its body labels contain INVOICE, PERSONAL_ID, and PLATE identifiers.
+
+### Custom Entity Results
+
+The custom recognizers achieved full detection for the target entity types present in the evaluated body text:
+
+| Format | Language | Entity | Full | Total | Recall |
+|---|---|---|---:|---:|---:|
+| PPTX | English | INVOICE | 50 | 50 | 100% |
+| PPTX | Finnish | INVOICE | 50 | 50 | 100% |
+| PDF | English | INVOICE | 50 | 50 | 100% |
+| PDF | Finnish | INVOICE | 50 | 50 | 100% |
+| PDF | English | PERSONAL_ID | 50 | 50 | 100% |
+| PDF | Finnish | PERSONAL_ID | 50 | 50 | 100% |
+| PDF | English | PLATE | 50 | 50 | 100% |
+| PDF | Finnish | PLATE | 50 | 50 | 100% |
+
+The custom recognizers therefore recovered all 400 identifiers belonging to these previously unsupported entity types in the evaluated body labels.
+
+### Interpretation
+
+The baseline already performed strongly for structured entities such as DATE, EMAIL, and IBAN.
+
+The custom recognizers address a different problem: entity types whose syntax is specific to the project corpus and which Presidio did not recognize using the baseline configuration.
+
+The largest improvement occurred in PDF because PDF contained all three custom entity types.
+
+Remaining weaknesses after the custom recognizers are mainly:
+
+- ADDRESS
+- COMPANY
+- some PERSON detections
+- some PHONE detections
+
+ADDRESS remains especially difficult because Presidio often detects only part of the complete address.
+
+Finnish COMPANY detection also remains substantially weaker than English COMPANY detection.
+
+## 14. Final Detection Result
+
+After adding the project-specific recognizers, the final detector result across the 300 evaluated XLSX, PPTX, and PDF documents was:
+
+- Ground-truth body identifiers: 2,800
+- Fully detected: 2,264
+- Partially detected: 216
+- Missed: 320
+- Full recall: 80.86%
+
+Compared with the original Presidio baseline, full recall increased by 14.29 percentage points.
+
+The benchmark therefore demonstrates both the limitations of the default Presidio configuration and the measurable benefit of adding recognizers for project-specific identifier formats.
