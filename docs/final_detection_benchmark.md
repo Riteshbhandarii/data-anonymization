@@ -1,4 +1,4 @@
-\# Pair 2 Final Detection Benchmark
+\# Final Detection Benchmark
 
 
 
@@ -78,7 +78,7 @@ The benchmark was run with:
 
 ```text
 
-python eval/pair2\_final\_bench.py bench\_pair2\_final
+python eval/final_detection_bench.py bench_final_detection
 
 ```
 
@@ -600,3 +600,5 @@ After adding the project-specific recognizers, the final detector result across 
 Compared with the original Presidio baseline, full recall increased by 14.29 percentage points.
 
 The benchmark therefore demonstrates both the limitations of the default Presidio configuration and the measurable benefit of adding recognizers for project-specific identifier formats.
+
+

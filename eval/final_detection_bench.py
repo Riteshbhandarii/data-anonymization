@@ -408,7 +408,7 @@ def main(root):
 
     print()
     print("=" * 86)
-    print("PAIR 2 FINAL PRESIDIO BENCHMARK")
+    print("FINAL PRESIDIO DETECTION BENCHMARK")
     print("=" * 86)
 
     print(
@@ -598,7 +598,7 @@ def main(root):
         "models": MODELS,
         "score_threshold": THRESHOLD,
         "scope": (
-            "Final Pair 2 benchmark for XLSX, PPTX and PDF. "
+            "Final detection benchmark for XLSX, PPTX and PDF. "
             "Body labels only. Metadata, notes and hidden sheets "
             "belong to extraction evaluation."
         ),
@@ -630,7 +630,7 @@ def main(root):
 
     with open(
         output_dir
-        / "pair2-final-presidio.json",
+        / "final-presidio.json",
         "w",
         encoding="utf-8",
     ) as file:
@@ -644,7 +644,7 @@ def main(root):
 
     with open(
         output_dir
-        / "pair2-final-misses.json",
+        / "final-misses.json",
         "w",
         encoding="utf-8",
     ) as file:
@@ -663,12 +663,12 @@ def main(root):
 
     print(
         output_dir
-        / "pair2-final-presidio.json"
+        / "final-presidio.json"
     )
 
     print(
         output_dir
-        / "pair2-final-misses.json"
+        / "final-misses.json"
     )
 
 
@@ -679,7 +679,8 @@ if __name__ == "__main__":
     root = (
         sys.argv[1]
         if len(sys.argv) > 1
-        else "bench_pair2_final"
+        else "bench_final_detection"
     )
 
     main(root)
+

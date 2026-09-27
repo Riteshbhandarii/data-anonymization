@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """
-Run the Pair 2 final benchmark with the project's custom recognizers.
+Run the final detection benchmark with the project's custom recognizers.
 
 Custom recognizers:
 - INVOICE
@@ -35,7 +35,7 @@ if str(EVAL_DIR) not in sys.path:
 # Import baseline benchmark and project recognizers
 # ---------------------------------------------------------
 
-import pair2_final_bench as bench
+import final_detection_bench as bench
 
 from detect.pattern_recognizers import register_project_recognizers
 
@@ -89,32 +89,32 @@ def main(root):
 
     baseline_result = (
         results_dir
-        / "pair2-final-presidio.json"
+        / "final-presidio.json"
     )
 
     baseline_misses = (
         results_dir
-        / "pair2-final-misses.json"
+        / "final-misses.json"
     )
 
     backup_result = (
         results_dir
-        / "_pair2-baseline-presidio-backup.json"
+        / "_baseline-presidio-backup.json"
     )
 
     backup_misses = (
         results_dir
-        / "_pair2-baseline-misses-backup.json"
+        / "_baseline-misses-backup.json"
     )
 
     custom_result = (
         results_dir
-        / "pair2-final-custom-presidio.json"
+        / "final-custom-presidio.json"
     )
 
     custom_misses = (
         results_dir
-        / "pair2-final-custom-misses.json"
+        / "final-custom-misses.json"
     )
 
     # Preserve the existing baseline output.
@@ -135,7 +135,7 @@ def main(root):
     print()
     print("=" * 86)
     print(
-        "PAIR 2 FINAL BENCHMARK "
+        "final detection benchmark "
         "+ CUSTOM RECOGNIZERS"
     )
     print("=" * 86)
@@ -193,7 +193,9 @@ if __name__ == "__main__":
     root = (
         sys.argv[1]
         if len(sys.argv) > 1
-        else "bench_pair2_final"
+        else "bench_final_detection"
     )
 
     main(root)
+
+
