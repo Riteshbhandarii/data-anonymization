@@ -1,604 +1,402 @@
-\# Final Detection Benchmark
+# Final Detection Benchmark — Five Formats
 
+## 1. Scope
 
+This report presents the final detection benchmark across all five synthetic document formats used by the project:
 
-\## 1. Scope
+- CSV
+- DOCX
+- XLSX
+- PPTX
+- PDF
 
+The complete evaluated corpus contains:
 
+- 500 documents
+- English and Finnish documents
+- 4,900 body ground-truth identifiers
 
-This document reports the final Presidio detection baseline for the three document formats evaluated in this work:
-
-
-
-\- XLSX
-
-\- PPTX
-
-\- PDF
-
-
-
-The benchmark uses the team's final synthetic corpus and matching ground-truth labels.
-
-
-
-The complete team corpus contains 500 documents and 6,500 labelled identifiers. This benchmark covers the 300 documents belonging to XLSX, PPTX, and PDF.
-
-
+There are 100 documents per format: 50 English and 50 Finnish.
 
 Detection is evaluated on `body` labels only.
 
+Metadata, PowerPoint speaker notes, Excel hidden sheets, and other non-body identifiers are excluded from the detection recall denominator because they belong to the extraction stage rather than the detection stage.
 
+## 2. Detector Configuration
 
-Metadata, PowerPoint speaker notes, and Excel hidden-sheet identifiers are intentionally excluded from the detection recall denominator because exposing those values is part of the extraction stage rather than the detection stage.
+The evaluated detector configuration uses Presidio Analyzer with spaCy language models:
 
+- English: `en_core_web_sm`
+- Finnish: `fi_core_news_sm`
 
+Versions used in the final result:
 
-\## 2. Benchmark Method
+- Presidio Analyzer: 2.2.364
+- spaCy: 3.8.16
+- en_core_web_sm: 3.8.0
+- fi_core_news_sm: 3.8.0
+- Score threshold: 0.0
 
-
-
-The detector uses Presidio Analyzer with spaCy language models for:
-
-
-
-\- English
-
-\- Finnish
-
-
-
-The same entity mapping and scoring logic as the existing `eval/bench.py` baseline were retained.
-
-
-
-Each ground-truth identifier is classified as:
-
-
-
-\- \*\*Full\*\* – the detector covers the complete identifier
-
-\- \*\*Partial\*\* – only part of the identifier is detected
-
-\- \*\*Missed\*\* – no relevant detection covers the identifier
-
-
-
-Full recall is calculated as:
-
-
-
-`fully detected / total ground-truth identifiers`
-
-
-
-The benchmark was run with:
-
-
-
-```text
-
-python eval/final_detection_bench.py bench_final_detection
-
-```
-
-
-
-\## 3. Dataset Used
-
-
-
-The final run processed:
-
-
-
-\- 100 XLSX documents
-
-\- 100 PPTX documents
-
-\- 100 PDF documents
-
-\- 300 documents in total
-
-
-
-The body-only detection benchmark contained:
-
-
-
-\- 2,800 ground-truth identifiers
-
-
-
-\## 4. Results by Format and Language
-
-
-
-| Format | Language | Full | Total | Full Recall | Partial | Missed |
-
-|---|---|---:|---:|---:|---:|---:|
-
-| XLSX | English | 346 | 400 | 86.50% | 16 | 38 |
-
-| XLSX | Finnish | 325 | 400 | 81.25% | 13 | 62 |
-
-| PPTX | English | 253 | 400 | 63.25% | 56 | 91 |
-
-| PPTX | Finnish | 235 | 400 | 58.75% | 47 | 118 |
-
-| PDF | English | 363 | 600 | 60.50% | 45 | 192 |
-
-| PDF | Finnish | 342 | 600 | 57.00% | 39 | 219 |
-
-
-
-\## 5. Combined Result
-
-
-
-Across XLSX, PPTX, and PDF:
-
-
-
-\- Ground-truth body identifiers: 2,800
-
-\- Fully detected: 1,864
-
-\- Partially detected: 216
-
-\- Completely missed: 720
-
-
-
-Full detection recall:
-
-
-
-`1864 / 2800 = 66.57%`
-
-
-
-Partial detections:
-
-
-
-`216 / 2800 = 7.71%`
-
-
-
-Missed identifiers:
-
-
-
-`720 / 2800 = 25.71%`
-
-
-
-\## 6. XLSX Results
-
-
-
-\### English
-
-
-
-| Entity | Total | Full | Partial | Missed | Recall |
-
-|---|---:|---:|---:|---:|---:|
-
-| COMPANY | 50 | 14 | 14 | 22 | 28% |
-
-| DATE | 100 | 100 | 0 | 0 | 100% |
-
-| EMAIL | 50 | 50 | 0 | 0 | 100% |
-
-| IBAN | 50 | 50 | 0 | 0 | 100% |
-
-| PERSON | 100 | 90 | 2 | 8 | 90% |
-
-| PHONE | 50 | 42 | 0 | 8 | 84% |
-
-
-
-English XLSX full recall: \*\*86.50%\*\*
-
-
-
-\### Finnish
-
-
-
-| Entity | Total | Full | Partial | Missed | Recall |
-
-|---|---:|---:|---:|---:|---:|
-
-| COMPANY | 50 | 5 | 8 | 37 | 10% |
-
-| DATE | 100 | 100 | 0 | 0 | 100% |
-
-| EMAIL | 50 | 50 | 0 | 0 | 100% |
-
-| IBAN | 50 | 50 | 0 | 0 | 100% |
-
-| PERSON | 100 | 79 | 4 | 17 | 79% |
-
-| PHONE | 50 | 41 | 1 | 8 | 82% |
-
-
-
-Finnish XLSX full recall: \*\*81.25%\*\*
-
-
-
-XLSX produced the strongest overall detection results among the three evaluated formats.
-
-
-
-The main weakness was COMPANY detection, particularly in Finnish.
-
-
-
-\## 7. PPTX Results
-
-
-
-\### English
-
-
-
-| Entity | Total | Full | Partial | Missed | Recall |
-
-|---|---:|---:|---:|---:|---:|
-
-| ADDRESS | 50 | 0 | 33 | 17 | 0% |
-
-| COMPANY | 50 | 15 | 23 | 12 | 30% |
-
-| DATE | 50 | 50 | 0 | 0 | 100% |
-
-| EMAIL | 50 | 50 | 0 | 0 | 100% |
-
-| IBAN | 50 | 50 | 0 | 0 | 100% |
-
-| INVOICE | 50 | 0 | 0 | 50 | 0% |
-
-| PERSON | 50 | 48 | 0 | 2 | 96% |
-
-| PHONE | 50 | 40 | 0 | 10 | 80% |
-
-
-
-English PPTX full recall: \*\*63.25%\*\*
-
-
-
-\### Finnish
-
-
-
-| Entity | Total | Full | Partial | Missed | Recall |
-
-|---|---:|---:|---:|---:|---:|
-
-| ADDRESS | 50 | 0 | 33 | 17 | 0% |
-
-| COMPANY | 50 | 3 | 12 | 35 | 6% |
-
-| DATE | 50 | 50 | 0 | 0 | 100% |
-
-| EMAIL | 50 | 50 | 0 | 0 | 100% |
-
-| IBAN | 50 | 50 | 0 | 0 | 100% |
-
-| INVOICE | 50 | 0 | 0 | 50 | 0% |
-
-| PERSON | 50 | 46 | 1 | 3 | 92% |
-
-| PHONE | 50 | 36 | 1 | 13 | 72% |
-
-
-
-Finnish PPTX full recall: \*\*58.75%\*\*
-
-
-
-ADDRESS values were frequently detected only partially, while INVOICE values were completely missed by the baseline.
-
-
-
-\## 8. PDF Results
-
-
-
-\### English
-
-
-
-| Entity | Total | Full | Partial | Missed | Recall |
-
-|---|---:|---:|---:|---:|---:|
-
-| ADDRESS | 50 | 0 | 35 | 15 | 0% |
-
-| COMPANY | 50 | 30 | 8 | 12 | 60% |
-
-| DATE | 100 | 100 | 0 | 0 | 100% |
-
-| EMAIL | 50 | 50 | 0 | 0 | 100% |
-
-| IBAN | 50 | 50 | 0 | 0 | 100% |
-
-| INVOICE | 50 | 0 | 0 | 50 | 0% |
-
-| PERSON | 100 | 94 | 2 | 4 | 94% |
-
-| PERSONAL\_ID | 50 | 0 | 0 | 50 | 0% |
-
-| PHONE | 50 | 39 | 0 | 11 | 78% |
-
-| PLATE | 50 | 0 | 0 | 50 | 0% |
-
-
-
-English PDF full recall: \*\*60.50%\*\*
-
-
-
-\### Finnish
-
-
-
-| Entity | Total | Full | Partial | Missed | Recall |
-
-|---|---:|---:|---:|---:|---:|
-
-| ADDRESS | 50 | 0 | 31 | 19 | 0% |
-
-| COMPANY | 50 | 7 | 6 | 37 | 14% |
-
-| DATE | 100 | 100 | 0 | 0 | 100% |
-
-| EMAIL | 50 | 50 | 0 | 0 | 100% |
-
-| IBAN | 50 | 50 | 0 | 0 | 100% |
-
-| INVOICE | 50 | 0 | 0 | 50 | 0% |
-
-| PERSON | 100 | 90 | 2 | 8 | 90% |
-
-| PERSONAL\_ID | 50 | 0 | 0 | 50 | 0% |
-
-| PHONE | 50 | 45 | 0 | 5 | 90% |
-
-| PLATE | 50 | 0 | 0 | 50 | 0% |
-
-
-
-Finnish PDF full recall: \*\*57.00%\*\*
-
-
-
-\## 9. Main Findings
-
-
-
-The strongest baseline entity types were:
-
-
-
-\- DATE
-
-\- EMAIL
-
-\- IBAN
-
-
-
-These achieved 100% full recall across the evaluated formats.
-
-
-
-PERSON detection was also relatively strong, although Finnish XLSX performed lower than the other PERSON tests.
-
-
-
-The main weaknesses were:
-
-
-
-\- ADDRESS
-
-\- COMPANY
-
-\- INVOICE
-
-\- PERSONAL\_ID
-
-\- PLATE
-
-
-
-ADDRESS was frequently detected only partially.
-
-
-
-COMPANY detection was substantially weaker in Finnish than in English.
-
-
-
-INVOICE, PERSONAL\_ID, and PLATE were not covered by the baseline recognizer configuration used in this run.
-
-
-
-These entity types are candidates for custom recognizers or improved detection models.
-
-
-
-\## 10. Language Comparison
-
-
-
-Finnish generally produced lower full recall than English:
-
-
-
-\- XLSX: 86.50% English vs 81.25% Finnish
-
-\- PPTX: 63.25% English vs 58.75% Finnish
-
-\- PDF: 60.50% English vs 57.00% Finnish
-
-
-
-The largest language-specific weakness was COMPANY detection.
-
-
-
-This indicates that Finnish organization recognition should be one of the priorities for further detector improvement.
-
-
-
-\## 11. Limitations
-
-
-
-This benchmark evaluates detection only after document content has been extracted.
-
-
-
-Metadata, hidden worksheets, and speaker notes are deliberately excluded from the detection denominator because they belong to the extraction stage.
-
-
-
-The results represent the current Presidio baseline configuration. Custom recognizers and different spaCy models may change the results.
-
-
-
-The corpus is synthetic, which makes it safe and reproducible but does not fully represent the complexity of real company documents.
-
-
-
-The results in this document supersede earlier preliminary benchmark results produced using a smaller 250-document corpus.
-
-
-
-\## 12. Conclusion
-
-
-
-The final baseline benchmark evaluated 2,800 body identifiers across 300 XLSX, PPTX, and PDF documents.
-
-
-
-Presidio fully detected:
-
-
-
-\*\*1,864 / 2,800 = 66.57%\*\*
-
-
-
-XLSX achieved the highest recall, while PPTX and PDF were more challenging because they contained entity types such as ADDRESS and INVOICE that were poorly covered by the baseline.
-
-
-
-The results establish a reproducible baseline for later comparison with custom recognizers and improved English/Finnish detection models.
-
-
-## 13. Custom Recognizer Evaluation
-
-After establishing the Presidio baseline, three project-specific pattern recognizers were added for entity types that were not covered by the baseline:
+The project-specific configuration also includes custom pattern recognizers for:
 
 - INVOICE
 - PERSONAL_ID
 - PLATE
 
-The custom recognizers were evaluated using the same final corpus, the same 300 XLSX/PPTX/PDF documents, the same 2,800 body ground-truth identifiers, and the same scoring method.
+Each ground-truth identifier is classified as:
 
-This makes the baseline and improved detector directly comparable.
+- **Full** — the detector covers the complete identifier
+- **Partial** — only part of the identifier is detected
+- **Missed** — no relevant detection covers the identifier
 
-### Baseline vs Custom Recognizers
+Full recall is calculated as:
 
-| Configuration | Fully Detected | Full Recall | Partial | Missed |
-|---|---:|---:|---:|---:|
-| Presidio baseline | 1,864 / 2,800 | 66.57% | 216 | 720 |
-| Presidio + custom recognizers | 2,264 / 2,800 | 80.86% | 216 | 320 |
+`fully detected / total ground-truth identifiers`
 
-Adding the custom recognizers increased full recall by:
+## 3. Final Results by Format and Language
 
-**80.86% - 66.57% = 14.29 percentage points**
+| Format | Language | Full | Total | Full Recall | Partial | Missed |
+|---|---|---:|---:|---:|---:|---:|
+| CSV | English | 354 | 450 | 78.67% | 47 | 49 |
+| CSV | Finnish | 318 | 450 | 70.67% | 35 | 97 |
+| DOCX | English | 505 | 600 | 84.17% | 45 | 50 |
+| DOCX | Finnish | 491 | 600 | 81.83% | 50 | 59 |
+| XLSX | English | 346 | 400 | 86.50% | 16 | 38 |
+| XLSX | Finnish | 325 | 400 | 81.25% | 13 | 62 |
+| PPTX | English | 303 | 400 | 75.75% | 56 | 41 |
+| PPTX | Finnish | 285 | 400 | 71.25% | 47 | 68 |
+| PDF | English | 513 | 600 | 85.50% | 45 | 42 |
+| PDF | Finnish | 492 | 600 | 82.00% | 39 | 69 |
 
-The number of completely missed identifiers decreased from:
+## 4. Combined Final Result
 
-**720 to 320**
+Across all five formats:
 
-This is a reduction of 400 missed identifiers.
+- Documents: 500
+- Ground-truth body identifiers: 4,900
+- Fully detected: 3,932
+- Partially detected: 393
+- Missed: 575
 
-### Improved Results by Format and Language
+Full recall:
 
-| Format | Language | Baseline Recall | Custom Recall | Change |
-|---|---|---:|---:|---:|
-| XLSX | English | 86.50% | 86.50% | 0.00 pp |
-| XLSX | Finnish | 81.25% | 81.25% | 0.00 pp |
-| PPTX | English | 63.25% | 75.75% | +12.50 pp |
-| PPTX | Finnish | 58.75% | 71.25% | +12.50 pp |
-| PDF | English | 60.50% | 85.50% | +25.00 pp |
-| PDF | Finnish | 57.00% | 82.00% | +25.00 pp |
+**3,932 / 4,900 = 80.24%**
 
-XLSX results did not change because the XLSX body benchmark does not contain INVOICE, PERSONAL_ID, or PLATE identifiers.
+Partial:
 
-PPTX improved because INVOICE identifiers became fully detectable.
+**393 / 4,900 = 8.02%**
 
-PDF improved the most because its body labels contain INVOICE, PERSONAL_ID, and PLATE identifiers.
+Missed:
 
-### Custom Entity Results
+**575 / 4,900 = 11.73%**
 
-The custom recognizers achieved full detection for the target entity types present in the evaluated body text:
+### Combined Result by Format
 
-| Format | Language | Entity | Full | Total | Recall |
-|---|---|---|---:|---:|---:|
-| PPTX | English | INVOICE | 50 | 50 | 100% |
-| PPTX | Finnish | INVOICE | 50 | 50 | 100% |
-| PDF | English | INVOICE | 50 | 50 | 100% |
-| PDF | Finnish | INVOICE | 50 | 50 | 100% |
-| PDF | English | PERSONAL_ID | 50 | 50 | 100% |
-| PDF | Finnish | PERSONAL_ID | 50 | 50 | 100% |
-| PDF | English | PLATE | 50 | 50 | 100% |
-| PDF | Finnish | PLATE | 50 | 50 | 100% |
+| Format | Full | Total | Full Recall | Partial | Missed |
+|---|---:|---:|---:|---:|---:|
+| CSV | 672 | 900 | 74.67% | 82 | 146 |
+| DOCX | 996 | 1,200 | 83.00% | 95 | 109 |
+| XLSX | 671 | 800 | 83.88% | 29 | 100 |
+| PPTX | 588 | 800 | 73.50% | 103 | 109 |
+| PDF | 1,005 | 1,200 | 83.75% | 84 | 111 |
 
-The custom recognizers therefore recovered all 400 identifiers belonging to these previously unsupported entity types in the evaluated body labels.
+### English vs Finnish
 
-### Interpretation
+| Language | Full | Total | Full Recall | Partial | Missed |
+|---|---:|---:|---:|---:|---:|
+| English | 2,021 | 2,450 | 82.49% | 209 | 220 |
+| Finnish | 1,911 | 2,450 | 78.00% | 184 | 355 |
 
-The baseline already performed strongly for structured entities such as DATE, EMAIL, and IBAN.
+English achieved higher full recall than Finnish in the final evaluated configuration.
 
-The custom recognizers address a different problem: entity types whose syntax is specific to the project corpus and which Presidio did not recognize using the baseline configuration.
+## 5. Entity-Level Summary Across All Formats
 
-The largest improvement occurred in PDF because PDF contained all three custom entity types.
+Entity totals differ because not every format contains every entity type.
 
-Remaining weaknesses after the custom recognizers are mainly:
+| Entity | Total | Full | Partial | Missed | Full Recall |
+|---|---:|---:|---:|---:|---:|
+| ADDRESS | 400 | 0 | 258 | 142 | 0.00% |
+| COMPANY | 500 | 129 | 106 | 265 | 25.80% |
+| DATE | 700 | 700 | 0 | 0 | 100.00% |
+| EMAIL | 500 | 500 | 0 | 0 | 100.00% |
+| IBAN | 500 | 500 | 0 | 0 | 100.00% |
+| INVOICE | 300 | 300 | 0 | 0 | 100.00% |
+| PERSON | 900 | 793 | 26 | 81 | 88.11% |
+| PERSONAL_ID | 300 | 300 | 0 | 0 | 100.00% |
+| PHONE | 500 | 410 | 3 | 87 | 82.00% |
+| PLATE | 300 | 300 | 0 | 0 | 100.00% |
 
-- ADDRESS
-- COMPANY
-- some PERSON detections
-- some PHONE detections
+The strongest fully detected entity types were DATE, EMAIL, IBAN, INVOICE, PERSONAL_ID, and PLATE.
 
-ADDRESS remains especially difficult because Presidio often detects only part of the complete address.
+The main remaining weaknesses were ADDRESS and COMPANY.
 
-Finnish COMPANY detection also remains substantially weaker than English COMPANY detection.
+Although ADDRESS often received a partial detection, no full address was completely covered under the strict benchmark scoring rule.
 
-## 14. Final Detection Result
+## 6. CSV Results
 
-After adding the project-specific recognizers, the final detector result across the 300 evaluated XLSX, PPTX, and PDF documents was:
+### English
 
-- Ground-truth body identifiers: 2,800
-- Fully detected: 2,264
-- Partially detected: 216
-- Missed: 320
-- Full recall: 80.86%
+| Entity | Total | Full | Partial | Missed | Recall |
+|---|---:|---:|---:|---:|---:|
+| ADDRESS | 50 | 0 | 35 | 15 | 0% |
+| COMPANY | 50 | 17 | 10 | 23 | 34% |
+| EMAIL | 50 | 50 | 0 | 0 | 100% |
+| IBAN | 50 | 50 | 0 | 0 | 100% |
+| PERSON | 100 | 91 | 2 | 7 | 91% |
+| PERSONAL_ID | 50 | 50 | 0 | 0 | 100% |
+| PHONE | 50 | 46 | 0 | 4 | 92% |
+| PLATE | 50 | 50 | 0 | 0 | 100% |
 
-Compared with the original Presidio baseline, full recall increased by 14.29 percentage points.
+CSV English full recall: **78.67%**
 
-The benchmark therefore demonstrates both the limitations of the default Presidio configuration and the measurable benefit of adding recognizers for project-specific identifier formats.
+### Finnish
 
+| Entity | Total | Full | Partial | Missed | Recall |
+|---|---:|---:|---:|---:|---:|
+| ADDRESS | 50 | 0 | 21 | 29 | 0% |
+| COMPANY | 50 | 4 | 7 | 39 | 8% |
+| EMAIL | 50 | 50 | 0 | 0 | 100% |
+| IBAN | 50 | 50 | 0 | 0 | 100% |
+| PERSON | 100 | 76 | 7 | 17 | 76% |
+| PERSONAL_ID | 50 | 50 | 0 | 0 | 100% |
+| PHONE | 50 | 38 | 0 | 12 | 76% |
+| PLATE | 50 | 50 | 0 | 0 | 100% |
 
+CSV Finnish full recall: **70.67%**
+
+The largest CSV weaknesses were ADDRESS and COMPANY. Finnish PERSON and PHONE detection were also weaker than their English equivalents.
+
+## 7. DOCX Results
+
+### English
+
+| Entity | Total | Full | Partial | Missed | Recall |
+|---|---:|---:|---:|---:|---:|
+| ADDRESS | 50 | 0 | 36 | 14 | 0% |
+| COMPANY | 50 | 25 | 8 | 17 | 50% |
+| DATE | 100 | 100 | 0 | 0 | 100% |
+| EMAIL | 50 | 50 | 0 | 0 | 100% |
+| IBAN | 50 | 50 | 0 | 0 | 100% |
+| INVOICE | 50 | 50 | 0 | 0 | 100% |
+| PERSON | 100 | 91 | 1 | 8 | 91% |
+| PERSONAL_ID | 50 | 50 | 0 | 0 | 100% |
+| PHONE | 50 | 39 | 0 | 11 | 78% |
+| PLATE | 50 | 50 | 0 | 0 | 100% |
+
+DOCX English full recall: **84.17%**
+
+### Finnish
+
+| Entity | Total | Full | Partial | Missed | Recall |
+|---|---:|---:|---:|---:|---:|
+| ADDRESS | 50 | 0 | 34 | 16 | 0% |
+| COMPANY | 50 | 9 | 10 | 31 | 18% |
+| DATE | 100 | 100 | 0 | 0 | 100% |
+| EMAIL | 50 | 50 | 0 | 0 | 100% |
+| IBAN | 50 | 50 | 0 | 0 | 100% |
+| INVOICE | 50 | 50 | 0 | 0 | 100% |
+| PERSON | 100 | 88 | 5 | 7 | 88% |
+| PERSONAL_ID | 50 | 50 | 0 | 0 | 100% |
+| PHONE | 50 | 44 | 1 | 5 | 88% |
+| PLATE | 50 | 50 | 0 | 0 | 100% |
+
+DOCX Finnish full recall: **81.83%**
+
+DOCX achieved relatively strong overall results, with the main weaknesses again concentrated in ADDRESS and COMPANY.
+
+## 8. XLSX Results
+
+### English
+
+| Entity | Total | Full | Partial | Missed | Recall |
+|---|---:|---:|---:|---:|---:|
+| COMPANY | 50 | 14 | 14 | 22 | 28% |
+| DATE | 100 | 100 | 0 | 0 | 100% |
+| EMAIL | 50 | 50 | 0 | 0 | 100% |
+| IBAN | 50 | 50 | 0 | 0 | 100% |
+| PERSON | 100 | 90 | 2 | 8 | 90% |
+| PHONE | 50 | 42 | 0 | 8 | 84% |
+
+XLSX English full recall: **86.50%**
+
+### Finnish
+
+| Entity | Total | Full | Partial | Missed | Recall |
+|---|---:|---:|---:|---:|---:|
+| COMPANY | 50 | 5 | 8 | 37 | 10% |
+| DATE | 100 | 100 | 0 | 0 | 100% |
+| EMAIL | 50 | 50 | 0 | 0 | 100% |
+| IBAN | 50 | 50 | 0 | 0 | 100% |
+| PERSON | 100 | 79 | 4 | 17 | 79% |
+| PHONE | 50 | 41 | 1 | 8 | 82% |
+
+XLSX Finnish full recall: **81.25%**
+
+XLSX produced strong overall results, although COMPANY recognition remained weak, particularly in Finnish.
+
+## 9. PPTX Results
+
+### English
+
+| Entity | Total | Full | Partial | Missed | Recall |
+|---|---:|---:|---:|---:|---:|
+| ADDRESS | 50 | 0 | 33 | 17 | 0% |
+| COMPANY | 50 | 15 | 23 | 12 | 30% |
+| DATE | 50 | 50 | 0 | 0 | 100% |
+| EMAIL | 50 | 50 | 0 | 0 | 100% |
+| IBAN | 50 | 50 | 0 | 0 | 100% |
+| INVOICE | 50 | 50 | 0 | 0 | 100% |
+| PERSON | 50 | 48 | 0 | 2 | 96% |
+| PHONE | 50 | 40 | 0 | 10 | 80% |
+
+PPTX English full recall: **75.75%**
+
+### Finnish
+
+| Entity | Total | Full | Partial | Missed | Recall |
+|---|---:|---:|---:|---:|---:|
+| ADDRESS | 50 | 0 | 33 | 17 | 0% |
+| COMPANY | 50 | 3 | 12 | 35 | 6% |
+| DATE | 50 | 50 | 0 | 0 | 100% |
+| EMAIL | 50 | 50 | 0 | 0 | 100% |
+| IBAN | 50 | 50 | 0 | 0 | 100% |
+| INVOICE | 50 | 50 | 0 | 0 | 100% |
+| PERSON | 50 | 46 | 1 | 3 | 92% |
+| PHONE | 50 | 36 | 1 | 13 | 72% |
+
+PPTX Finnish full recall: **71.25%**
+
+The custom INVOICE recognizer provides full coverage for the synthetic invoice-number pattern used in the corpus.
+
+ADDRESS and Finnish COMPANY remain major weaknesses.
+
+## 10. PDF Results
+
+### English
+
+| Entity | Total | Full | Partial | Missed | Recall |
+|---|---:|---:|---:|---:|---:|
+| ADDRESS | 50 | 0 | 35 | 15 | 0% |
+| COMPANY | 50 | 30 | 8 | 12 | 60% |
+| DATE | 100 | 100 | 0 | 0 | 100% |
+| EMAIL | 50 | 50 | 0 | 0 | 100% |
+| IBAN | 50 | 50 | 0 | 0 | 100% |
+| INVOICE | 50 | 50 | 0 | 0 | 100% |
+| PERSON | 100 | 94 | 2 | 4 | 94% |
+| PERSONAL_ID | 50 | 50 | 0 | 0 | 100% |
+| PHONE | 50 | 39 | 0 | 11 | 78% |
+| PLATE | 50 | 50 | 0 | 0 | 100% |
+
+PDF English full recall: **85.50%**
+
+### Finnish
+
+| Entity | Total | Full | Partial | Missed | Recall |
+|---|---:|---:|---:|---:|---:|
+| ADDRESS | 50 | 0 | 31 | 19 | 0% |
+| COMPANY | 50 | 7 | 6 | 37 | 14% |
+| DATE | 100 | 100 | 0 | 0 | 100% |
+| EMAIL | 50 | 50 | 0 | 0 | 100% |
+| IBAN | 50 | 50 | 0 | 0 | 100% |
+| INVOICE | 50 | 50 | 0 | 0 | 100% |
+| PERSON | 100 | 90 | 2 | 8 | 90% |
+| PERSONAL_ID | 50 | 50 | 0 | 0 | 100% |
+| PHONE | 50 | 45 | 0 | 5 | 90% |
+| PLATE | 50 | 50 | 0 | 0 | 100% |
+
+PDF Finnish full recall: **82.00%**
+
+PDF benefits strongly from the project-specific recognizers because the PDF body labels contain INVOICE, PERSONAL_ID, and PLATE identifiers.
+
+## 11. Custom Recognizers
+
+Three project-specific pattern recognizers were used in the evaluated configuration:
+
+- INVOICE
+- PERSONAL_ID
+- PLATE
+
+They achieved 100% full recall for the corresponding synthetic identifier patterns present in the evaluated body labels.
+
+These results apply specifically to the synthetic patterns used in this benchmark and should not be interpreted as 100% recall on unrestricted real-world data.
+
+## 12. Baseline Comparison Status
+
+A directly comparable raw Presidio baseline is available for the XLSX, PPTX, and PDF subset.
+
+For those 300 documents and 2,800 body identifiers:
+
+| Configuration | Full | Total | Full Recall | Partial | Missed |
+|---|---:|---:|---:|---:|---:|
+| Presidio baseline | 1,864 | 2,800 | 66.57% | 216 | 720 |
+| Presidio + custom recognizers | 2,264 | 2,800 | 80.86% | 216 | 320 |
+
+For this three-format subset, the custom recognizers increased full recall by:
+
+**14.29 percentage points**
+
+and reduced completely missed identifiers by:
+
+**400**
+
+The CSV and DOCX results included in the five-format final evaluation were supplied from the custom-recognizer configuration.
+
+A raw Presidio-only CSV/DOCX result was not included in the supplied benchmark results. Therefore, this report does not claim a five-format baseline-to-custom improvement percentage.
+
+## 13. Main Findings
+
+The final five-format configuration fully detected 80.24% of the 4,900 evaluated body identifiers.
+
+DATE, EMAIL, IBAN, INVOICE, PERSONAL_ID, and PLATE achieved 100% full recall for the synthetic patterns represented in the corpus.
+
+PERSON detection was relatively strong at 88.11% full recall.
+
+PHONE achieved 82.00% full recall.
+
+The largest remaining weaknesses were:
+
+- ADDRESS: 0.00% full recall, although many values were partially detected
+- COMPANY: 25.80% full recall
+- Finnish detection generally performed below English
+- Finnish COMPANY detection remained particularly weak
+
+These results indicate that further work should focus on complete address recognition and improved organization recognition, especially for Finnish.
+
+## 14. Limitations
+
+This benchmark evaluates detection after document content has been extracted.
+
+Metadata, hidden worksheets, speaker notes, and other non-body locations are excluded from the detection denominator because they belong to extraction evaluation.
+
+The corpus is synthetic. This improves reproducibility and privacy, but synthetic identifiers do not fully represent the complexity of real organizational data.
+
+The custom recognizers were designed for identifier patterns represented in the project corpus. Their 100% benchmark recall must not be interpreted as 100% recall on arbitrary real-world identifiers.
+
+Entity distributions differ between formats, so format-level recall values are not based on identical sets of entity types.
+
+A complete raw Presidio baseline comparison for CSV and DOCX was not included in the supplied final results.
+
+## 15. Conclusion
+
+The final evaluated detection configuration covered all five project formats:
+
+- CSV
+- DOCX
+- XLSX
+- PPTX
+- PDF
+
+The evaluation processed:
+
+- 500 documents
+- 4,900 body ground-truth identifiers
+
+Final result:
+
+- Fully detected: **3,932 / 4,900 = 80.24%**
+- Partial: **393 / 4,900 = 8.02%**
+- Missed: **575 / 4,900 = 11.73%**
+
+The benchmark demonstrates strong detection for structured identifier types and measurable benefit from project-specific recognizers.
+
+The main remaining detection challenges are complete ADDRESS recognition and COMPANY recognition, particularly in Finnish.
