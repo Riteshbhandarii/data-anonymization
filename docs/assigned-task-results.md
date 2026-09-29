@@ -5,9 +5,9 @@ This records the work for issues #12, #13, #15, #16, #17, #18, #19, #31 and
 measurements are separate below so an available test harness is not mistaken
 for an experiment that has already been run. Issues remain open for review.
 
-The additional synthetic datasets in the Teams folder requested in the PR #3
-review have not been evaluated. The recorded corpus results below do not cover
-those datasets or the unavailable real PDF.
+The additional synthetic corpus from Teams has now been evaluated separately;
+see [Teams corpus validation](#teams-corpus-validation). The specific real PDF
+referenced in issue #15 remains unavailable and is not covered by either run.
 
 ## Task status and handoff
 
@@ -84,6 +84,66 @@ locations and images. It is not a perfect-score baseline for the expanded
 corpus. [Extraction validation](extraction-validation.md) describes location-aware
 matching, individual report files, and the difference between verification and
 measurement.
+
+## Teams corpus validation
+
+On 2026-09-29, the supplied `General / Datasets / anonymization-corpus` archive
+was downloaded from the project's Teams group and evaluated with extraction
+code at `58af1ae`. The five document-format folders and their original JSON
+labels were read locally; the external detector datasets were excluded.
+
+The archive contains **500 source documents and 6,500 labels**, with 250 English
+and 250 Finnish documents. Its `DATASETS.md` still describes 50 documents and
+650 labels. It contains no `index.csv` or saved body-text sidecars. The local
+run derived an index only from the supplied labels and checked that every
+source document had exactly one label file. It did not regenerate documents,
+change labels, or manufacture missing reference text. Original file hashes
+were checked again after extraction.
+
+| Format | Documents | Supplied labels | Returned | Missing | Recall |
+|---|---:|---:|---:|---:|---:|
+| CSV | 100 | 900 | 900 | 0 | 100.00% |
+| DOCX | 100 | 1500 | 1500 | 0 | 100.00% |
+| PDF | 100 | 1400 | 1400 | 0 | 100.00% |
+| PPTX | 100 | 1400 | 1400 | 0 | 100.00% |
+| XLSX | 100 | 1300 | 1298 | 2 | 99.85% |
+| **Total** | **500** | **6500** | **6498** | **2** | **99.97%** |
+
+Extraction completed without errors. All 4,900 body labels, 400 speaker-note
+labels and 300 hidden-sheet labels were returned. Metadata matched 898/900.
+Both metadata mismatches are in `xlsx/en_xlsx_00.xlsx` and
+`xlsx/en_xlsx_05.xlsx`: the expected synthetic value is absent from the original
+`docProps/core.xml`, whose `lastModifiedBy` field contains a different editor
+value. Independent source-location verification reports the same two
+mismatches. The expected values occur in worksheet strings, but body matches
+cannot satisfy metadata labels. These are source/label inconsistencies, not
+evidence that the extractor omitted an existing metadata value. They remain in
+the original denominator; the supplied labels do not pass a strict 100% gate.
+The dataset owner should confirm the intended metadata and labels. Raw editor
+metadata and mismatch evidence remain local.
+
+This corpus exercised body text, metadata, notes and hidden worksheets. It has
+no supplied labels for headers, footers, comments, tracked changes or embedded
+images, and no standalone image files. The measured run made **zero OCR calls**.
+It therefore does not resolve the separate image OCR misses or validate the
+8.9 MB real PDF, which is absent from this archive. These results measure
+extraction before anonymization, not detector or redaction quality.
+
+Archive SHA-256:
+`d22b1234e6e874731f87ea8c431a4bbf0a6b793d77c20ed3683216e265ebc106`.
+The 500-document source fingerprint is
+`e929fbdee512bf4acb458426f3a050822e105ffb83ef7028a82062a93c3a3981`;
+its definition and per-file hashes are recorded in the local provenance.
+Reports are in `outputs/assigned-validation/teams-extraction`, alongside
+`provenance.json`, `source-label-verification.json`, `source-hashes.csv`, and
+`xlsx-metadata-mismatch-evidence.json`. The preserved inputs are in
+`outputs/assigned-validation/teams-corpus`.
+
+To measure a local copy with the same acceptance criteria:
+
+```bash
+python -m pipeline.validation outputs/assigned-validation/teams-corpus --report-dir outputs/validation/teams --ocr-language eng+fin --require-locations body,metadata,notes,hidden_sheet --min-recall 1.0
+```
 
 ## Detector-only and full pipeline results
 

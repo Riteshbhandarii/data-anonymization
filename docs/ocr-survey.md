@@ -99,6 +99,46 @@ missing. In this run, Tesseract's 11 missed values were six IBANs, two personal
 identity codes, two emails, and one name. This is why the pipeline reports both
 the complete OCR text and identifier-level results.
 
+## PDF rendering follow-up
+
+A local follow-up on 2026-09-29 compared five rendering/segmentation settings
+using Tesseract 5.5.0.20241111 with `eng+fin`. It read 20 embedded-image regions:
+10 from the original seed-42 corpus and 10 from an independently generated
+seed-20260929 corpus, both with `--n 5`. This produced 100 OCR calls. The new
+70-document corpus passed fixture verification for all 960 labels; the OCR
+comparison itself covered only its PDF image regions. Each call received image
+pixels, with labels and rendering references used afterward for scoring.
+
+| Setting | Original seed 42 | Independent seed 20260929 |
+|---|---:|---:|
+| Current 2× rendering | 9 / 10 | 10 / 10 |
+| 3× rendering | 8 / 10 | 10 / 10 |
+| 4× rendering | 8 / 10 | 10 / 10 |
+| Source-resolution rendering, minimum 2× | 9 / 10 | 10 / 10 |
+| 2× rendering with page segmentation mode 6 | 9 / 10 | 10 / 10 |
+
+These denominators count embedded-image identifier labels only, separately from
+all PDF labels and the full-corpus extraction results. Source-resolution
+rendering derives its scale from image pixel dimensions and the placed image
+bounds, clamped between 2× and 6×; these fixtures used approximately 3.37×.
+
+The current reader returns `Ifrench@example.org` for `lfrench@example.org`.
+Source-resolution rendering recovers that identifier but introduces a different
+error, reading `tony10` as `tonyl10`. The higher fixed scales also introduce
+errors, while segmentation mode 6 leaves the original mismatch. No setting
+improved recall consistently across these samples. The image reaches OCR, but
+resampling and character recognition remain sensitive to the input. The default
+2× PDF rendering is unchanged, and the mismatch remains a measured OCR
+limitation. The independent seed uses the same synthetic templates and does not
+establish accuracy on real scans.
+
+The ignored local evidence is
+`outputs/assigned-validation/ocr-followup/pdf-render-comparison.json`; the
+reproduction script is `outputs/assigned-validation/ocr-followup/pdf_experiments.py`.
+The script records each OCR output, rendering scale, source hash, and score. This
+follow-up did not rerun the entire corpus through extraction, detection, and
+redaction, and does not replace the previously recorded full-pipeline results.
+
 ## Integration recommendation
 
 Keep Tesseract as the existing baseline while preserving the extractor hook.
