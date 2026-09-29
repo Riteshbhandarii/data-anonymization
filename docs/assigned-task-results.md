@@ -5,6 +5,10 @@ This records the work for issues #12, #13, #15, #16, #17, #18, #19, #31 and
 measurements are separate below so an available test harness is not mistaken
 for an experiment that has already been run. Issues remain open for review.
 
+The additional synthetic datasets in the Teams folder requested in the PR #3
+review have not been evaluated. The recorded corpus results below do not cover
+those datasets or the unavailable real PDF.
+
 ## Task status and handoff
 
 | Issue | Delivered | Review or remaining dependency |
@@ -139,8 +143,9 @@ python -m eval.pipeline_bench outputs/validation/corpus --report-dir outputs/val
 CI requires 100% recall for the listed non-OCR locations in `standard`
 documents. Image recognition results are reported without assuming perfect OCR.
 All required locations, including embedded images, must have labels; all
-extraction errors remain fatal. Image-routing tests and an actual image-only
-identifier OCR regression also run. Omitting the two threshold-selection flags
+extraction errors remain fatal. Image-routing tests and real known-text OCR
+regressions for standalone PNG and embedded PDF/PPTX pixels also run. Omitting
+the two threshold-selection flags
 instead gates all quality/location groups and fails on this run's 12 OCR misses.
 
 Generated reports are ignored by Git. The recorded local directories are

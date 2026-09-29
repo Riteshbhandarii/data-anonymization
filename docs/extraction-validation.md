@@ -140,7 +140,7 @@ or anonymization is perfect.
 | Test file | Main coverage |
 |---|---|
 | `tests/test_corpus_locations.py` | Real generated locations, paired PNG qualities, reproducibility, stale/missing files, removed Word content, corrupted image evidence and unclipped Finnish text |
-| `tests/test_extraction_gaps.py` | Metadata, header/footer stories, comments and revisions, speaker notes, hidden worksheets, mixed/scanned PDF OCR, image routing, and XLSX formula caches |
+| `tests/test_extraction_gaps.py` | Metadata, header/footer stories, comments and revisions, speaker notes, hidden worksheets, mixed/scanned PDF OCR, real known-text OCR from standalone PNG and embedded PDF/PPTX pixels, image routing, and XLSX formula caches |
 | `tests/test_validation.py` | Actual corpus extraction, location separation, required coverage, quality/location thresholds, and failures retained in reports |
 | `tests/test_output_names.py` | Source-extension preservation, repeated filenames and concurrent saves |
 | `tests/test_normalization.py` | Markdown hard breaks, indentation, trailing spaces and preservation through output |

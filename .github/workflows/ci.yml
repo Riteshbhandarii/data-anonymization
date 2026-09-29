@@ -77,7 +77,7 @@ jobs:
 
       # PNG and embedded-image OCR are measured in the full report. OCR can
       # confuse characters even when the correct image is read, so exact 100%
-      # is required for non-OCR locations. Real-image regression tests verify
+      # is required for non-OCR locations. Real PNG/PDF/PPTX regressions verify
       # OCR routing and known image-only text; missing required corpus labels
       # or extraction errors always fail the evaluation command.
 

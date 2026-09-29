@@ -154,6 +154,22 @@ class ExtractionGapTests(unittest.TestCase):
         self.assertEqual("eng+fin", ocr.call_args.args[1])
         self.assertIn("Image Contact", _text_by_location(markdown, path)["body"])
 
+    @unittest.skipUnless(shutil.which("tesseract"), "Tesseract is not installed")
+    def test_standalone_png_real_ocr_reads_identifier_from_pixels(self):
+        import pymupdf
+
+        # The source file contains pixels only; no label sidecar or mock can
+        # supply the expected identifier to the standalone image reader.
+        identifier = "standalone-image@example.test"
+        path = self.root / "standalone-text.png"
+        with pymupdf.open() as raster_source:
+            page = raster_source.new_page(width=480, height=100)
+            page.insert_text((20, 60), identifier, fontsize=24)
+            page.get_pixmap(matrix=pymupdf.Matrix(2, 2)).save(path)
+
+        markdown = extract_to_markdown(path, ocr_language="eng")
+        self.assertIn(identifier, _text_by_location(markdown, path)["body"])
+
     def test_xlsx_metadata_and_hidden_worksheet(self):
         from openpyxl import Workbook
 
