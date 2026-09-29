@@ -19,7 +19,7 @@ jobs:
       # Only what the generator and the verifier need. requirements.txt also
       # carries presidio and spacy for later stages, which would add minutes
       # here for nothing.
-      - run: pip install faker reportlab python-docx python-pptx openpyxl pypdf ruff
+      - run: pip install Faker==40.39.0 reportlab python-docx python-pptx openpyxl pypdf pillow ruff
 
       - name: Lint
         run: ruff check corpus/
@@ -34,3 +34,71 @@ jobs:
         run: |
           python3 corpus/generate.py --out ./corpus-again --n 2
           diff -r ./corpus-out/labels ./corpus-again/labels
+
+  pipeline:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements-validation.txt
+
+      - name: Install OCR runtime
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes tesseract-ocr tesseract-ocr-eng tesseract-ocr-fin
+
+      - name: Install extraction and validation dependencies
+        run: python -m pip install -r requirements-validation.txt
+
+      - name: Lint pipeline, redaction, corpus and evaluation code
+        run: ruff check corpus/ pipeline/ detect/ redact/ eval/ tests/
+
+      - name: Run pipeline regression tests
+        run: python -m unittest discover -s tests -v
+
+      - name: Generate the extraction validation corpus
+        run: python corpus/generate.py --out outputs/validation/corpus --n 5 --seed 42
+
+      - name: Verify generated labels and image evidence
+        run: python corpus/verify.py outputs/validation/corpus
+
+      - name: Measure extraction recall
+        run: >-
+          python -m pipeline.validation outputs/validation/corpus
+          --report-dir outputs/validation/report --min-recall 1.0
+          --ocr-language eng+fin
+          --require-locations body,metadata,notes,hidden_sheet,header,footer,comment,tracked_change,embedded_image
+          --threshold-qualities standard
+          --threshold-locations body,metadata,notes,hidden_sheet,header,footer,comment,tracked_change
+
+      # PNG and embedded-image OCR are measured in the full report. OCR can
+      # confuse characters even when the correct image is read, so exact 100%
+      # is required for non-OCR locations. Real PNG/PDF/PPTX regressions verify
+      # OCR routing and known image-only text; missing required corpus labels
+      # or extraction errors always fail the evaluation command.
+
+      # Publish the report even when the recall threshold fails. The evaluation
+      # step keeps its failing status when an acceptance check fails.
+      - name: Show extraction results
+        if: always()
+        run: |
+          if [ -f outputs/validation/report/summary.md ]; then
+            cat outputs/validation/report/summary.md >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload extraction reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: extraction-validation-report
+          path: |
+            outputs/validation/report/summary.md
+            outputs/validation/report/by_format.csv
+            outputs/validation/report/by_location.csv
+            outputs/validation/report/by_quality.csv
+            outputs/validation/report/details.json
+          if-no-files-found: warn
