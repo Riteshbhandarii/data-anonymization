@@ -45,17 +45,20 @@ The pipeline reads an input file, builds Markdown, passes it to the anonymizatio
 
 ```python
 from pipeline import run_pipeline
-from redact.anonymizer import anonymize_markdown
+from detect import PresidioDetector
+from redact import PipelineAnonymizer
+
+anonymizer = PipelineAnonymizer(PresidioDetector(), language="en", mode="replace")
 
 result = run_pipeline(
     "documents/report.docx",
-    anonymizer=anonymize_markdown,
+    anonymizer=anonymizer,
 )
 
 print(result.output_path)
 ```
 
-Replace `redact.anonymizer` with the module that provides your implementation. The required function accepts Markdown text and returns processed Markdown text (`str -> str`). The pipeline creates the output directory and saves the result as UTF-8 Markdown.
+Install the detector models using the commands in [eval/README.md](eval/README.md). The adapter uses the team's Presidio detector and replacement operators. Any other callable accepting Markdown and returning Markdown (`str -> str`) can use the same interface. The pipeline creates the output directory and saves the result as UTF-8 Markdown. See [redact/README.md](redact/README.md) for consistent pseudonyms and explicit document/corpus alias scopes.
 
 Existing readers support TXT, MD, CSV, DOCX, XLSX, PPTX, PDF, and common image formats. The built-in OCR reader uses Tesseract. A custom reader can be supplied through `extractor=` as described in the [integration guide](docs/pipeline.md).
 
@@ -99,8 +102,8 @@ Two numbers, not one.
 pipeline/   format detection, extraction/OCR, anonymization orchestration, Markdown output
 tests/      extraction recall, extraction gap, and output naming regression tests
 extract/    extraction notes
-detect/     identifier and secret detection notes
-redact/     anonymizer integration notes
+detect/     reusable detector adapter and detection notes
+redact/     span replacement, pseudonyms and pipeline adapter
 eval/       detection metrics and the re-identification harness
 corpus/     public and synthetic test data only, never real data
 docs/       pipeline guide, techniques, evaluation protocol, open questions
@@ -126,12 +129,13 @@ Public and synthetic only. Nothing real enters this repository.
 - [x] Pipeline reads files, prepares Markdown, and saves the returned result
 - [x] Anonymization module interface (`str -> str`)
 - [x] Extractor replacement interface (`Path -> str`)
-- [ ] Connect the anonymization module
-- [ ] Synthetic corpus generator
+- [x] Connect the Presidio anonymization module
+- [x] Synthetic corpus generator, including image quality variants and review locations
 - [x] Initial `extract` support for DOCX, XLSX, PPTX, PDF, CSV, text, and images
-- [ ] Baseline detector and a first recall number
-- [ ] Re-identification harness
-- [ ] Quality-impact benchmark, raw against redacted against pseudonymized
+- [x] Baseline detector and detector/full-pipeline comparison tools
+- [x] Re-identification harness with raw/unrelated controls and linkage
+- [x] Quality-impact benchmark tools, raw against redacted against pseudonymized
+- [ ] Run external-model re-identification and quality-impact experiments
 
 ## Docs
 
@@ -139,6 +143,9 @@ Public and synthetic only. Nothing real enters this repository.
 - [docs/extraction-validation.md](docs/extraction-validation.md), extraction recall results and validation commands
 - [docs/techniques.md](docs/techniques.md), anonymization techniques and where each one breaks
 - [docs/evaluation.md](docs/evaluation.md), the re-identification test protocol
+- [docs/model-evaluation.md](docs/model-evaluation.md), preparing and running controlled model experiments
+- [docs/assigned-task-results.md](docs/assigned-task-results.md), task status and reproducible local results
+- [docs/ocr-survey.md](docs/ocr-survey.md), OCR options and measurements
 - [docs/open-questions.md](docs/open-questions.md), decisions not yet made
 
 ## Licence

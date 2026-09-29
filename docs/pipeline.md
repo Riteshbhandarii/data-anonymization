@@ -66,7 +66,7 @@ def anonymize_markdown(markdown: str) -> str:
     ...  # Implement detection and replacement logic here.
 ```
 
-The input is the complete extracted document, including Markdown headings and table syntax. Metadata, headers, footers, notes, and hidden worksheet content are included in the same string when supplied by the reader, so the anonymizer should process those sections too. It is text, not a file path. The return value is the complete processed document, not a list of detections, a dictionary, a saved filename, or `None`.
+The input is the complete extracted document, including Markdown headings and table syntax. Metadata, headers, footers, review comments, tracked changes, notes, hidden worksheets, and recognized image text are included in the same string when supplied by the reader, so the anonymizer should process those sections too. It is text, not a file path. The return value is the complete processed document, not a list of detections, a dictionary, a saved filename, or `None`.
 
 For example, if your function is defined in `redact/anonymizer.py`, the calling code is:
 
@@ -85,6 +85,18 @@ print(result.output_path)
 `redact/anonymizer.py` is an example location for the module you provide. Replace the import with your actual module path. Pass the function itself (`anonymizer=anonymize_markdown`), without calling it in the argument.
 
 The pipeline calls the anonymization module after extraction and normalization. It then saves the returned string without further content processing. An anonymizer is required; the pipeline contains no built-in replacement algorithm.
+
+The repository now provides `redact.PipelineAnonymizer` as a concrete adapter:
+
+```python
+from detect import PresidioDetector
+from redact import PipelineAnonymizer
+
+anonymizer = PipelineAnonymizer(PresidioDetector(), language="en", mode="replace")
+result = run_pipeline("documents/report.docx", anonymizer=anonymizer)
+```
+
+Detection returns spans in the original Markdown; replacement applies those spans. To use another detector, provide an object with `detect(text, language=...)` returning Presidio-style spans. To keep repeated identifiers consistent, use `mode="pseudonymize"`. Alias scopes and examples are documented in [redact/README.md](../redact/README.md); a shared map is passed explicitly when a batch should use the same aliases.
 
 Normalization converts line endings to `\n`, cleans whitespace-only lines, and reduces repeated blank lines. It preserves leading and trailing whitespace on lines containing content, including the two trailing spaces used for a Markdown hard line break. Non-empty normalized text ends with `\n`.
 
@@ -138,9 +150,9 @@ Extension matching is case-insensitive. All readers return Markdown strings thro
 |---|---|
 | `.txt`, `.md` | Read UTF-8 text, accepting an optional UTF-8 byte-order mark |
 | `.csv` | Read comma-separated rows and build a Markdown table; the first row becomes the header |
-| `.docx` | Read core metadata, body paragraphs/headings/lists/tables, and primary/first-page/even-page headers and footers |
+| `.docx` | Read core metadata, body paragraphs/headings/lists/tables, primary/first-page/even-page headers and footers, review comments and authors, and tracked changes |
 | `.xlsx` | Read core metadata and all worksheets, including hidden worksheets; build one section and table per sheet using saved computed formula values |
-| `.pptx` | Read core metadata and build a section per slide with titles, text, tables, and speaker notes |
+| `.pptx` | Read core metadata and build a section per slide with titles, text, tables, speaker notes, and OCR text from embedded pictures (including groups) |
 | `.pdf` | Read document metadata and build a section per page; extract native text and OCR embedded image regions, or OCR the full page when it has no text |
 | `.png`, `.jpg`, `.jpeg`, `.tif`, `.tiff`, `.bmp` | Read the image through OCR and return a text section |
 
@@ -148,7 +160,7 @@ Core metadata is emitted under `## Document metadata`, followed by the document 
 
 XLSX extraction reads the cached result saved by a spreadsheet application; it does not calculate formulas. A formula with a missing cache or an error value raises `ExtractionError` identifying the workbook, sheet, and cell. Recalculate and save the workbook in Excel or LibreOffice, then retry. A valid cached empty string is accepted.
 
-For mixed PDF pages, OCR text supplements the selectable text. Exact duplicate lines are removed after whitespace normalization. Pages with selectable text and no images are read without OCR.
+For mixed PDF pages, OCR text supplements selectable text in a separate embedded-image section. Pages with selectable text and no images are read without OCR. Word comments and tracked changes also have separate headings, allowing the validation report to check those locations independently.
 
 Extraction can also be called independently:
 

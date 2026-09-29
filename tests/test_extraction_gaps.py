@@ -10,6 +10,7 @@ from unittest.mock import patch
 from zipfile import ZipFile
 
 from pipeline import ExtractionError, extract_to_markdown
+from pipeline.validation import _text_by_location
 
 
 class ExtractionGapTests(unittest.TestCase):
@@ -79,6 +80,80 @@ class ExtractionGapTests(unittest.TestCase):
         ):
             self.assertIn(value, markdown)
 
+    def test_docx_review_comments_and_revisions_have_distinct_locations(self):
+        from docx import Document
+        from docx.opc.constants import RELATIONSHIP_TYPE as RT
+        from docx.opc.packuri import PackURI
+        from docx.opc.part import Part
+        from docx.oxml import parse_xml
+
+        document = Document()
+        paragraph = document.add_paragraph("Body Contact ")
+        paragraph._p.append(parse_xml(
+            '<w:ins xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" '
+            'w:id="1" w:author="Revision Editor"><w:r><w:t>Inserted Person</w:t></w:r></w:ins>'
+        ))
+        paragraph._p.append(parse_xml(
+            '<w:del xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" '
+            'w:id="2" w:author="Deletion Editor"><w:r><w:delText>Deleted Person</w:delText>'
+            '</w:r></w:del>'
+        ))
+        comments = Part(
+            PackURI("/word/comments.xml"),
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.comments+xml",
+            b'<w:comments xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'
+            b'<w:comment w:id="0" w:author="Comment Author" w:initials="CA">'
+            b'<w:p><w:r><w:t>review-only@example.test</w:t></w:r></w:p>'
+            b'</w:comment></w:comments>',
+            document.part.package,
+        )
+        document.part.relate_to(comments, RT.COMMENTS)
+        path = self.root / "review.docx"
+        document.save(path)
+        sections = _text_by_location(extract_to_markdown(path), path)
+        self.assertIn("Body Contact Inserted Person", sections["body"])
+        self.assertNotIn("Deleted Person", sections["body"])
+        for value in ("Inserted Person", "Revision Editor", "Deleted Person", "Deletion Editor"):
+            self.assertIn(value, sections["tracked_change"])
+        for value in ("Comment Author", "review-only@example.test"):
+            self.assertIn(value, sections["comment"])
+            self.assertNotIn(value, sections["body"])
+
+    def test_pptx_nested_picture_ocr_keeps_body_and_notes_separate(self):
+        from PIL import Image
+        from pptx import Presentation
+        from pptx.util import Inches
+
+        image_path = self.root / "image.png"
+        Image.new("RGB", (640, 160), "white").save(image_path)
+        presentation = Presentation()
+        slide = presentation.slides.add_slide(presentation.slide_layouts[5])
+        slide.shapes.title.text = "Body Contact"
+        group = slide.shapes.add_group_shape()
+        group.shapes.add_picture(str(image_path), 0, 0, width=Inches(4))
+        slide.notes_slide.notes_text_frame.text = "Notes Contact"
+        path = self.root / "group.pptx"
+        presentation.save(path)
+        with patch("pipeline.extractors._ocr_image_bytes", return_value="Image Contact") as ocr:
+            sections = _text_by_location(extract_to_markdown(path, "eng+fin"), path)
+        ocr.assert_called_once()
+        self.assertEqual("eng+fin", ocr.call_args.args[1])
+        self.assertIn("Image Contact", sections["embedded_image"])
+        self.assertNotIn("Image Contact", sections["body"])
+        self.assertIn("Body Contact", sections["body"])
+        self.assertIn("Notes Contact", sections["notes"])
+
+    def test_standalone_image_routes_pixels_to_ocr(self):
+        from PIL import Image
+
+        path = self.root / "standalone.png"
+        Image.new("RGB", (320, 100), "white").save(path)
+        with patch("pipeline.extractors._run_tesseract", return_value="Image Contact") as ocr:
+            markdown = extract_to_markdown(path, "eng+fin")
+        ocr.assert_called_once()
+        self.assertEqual("eng+fin", ocr.call_args.args[1])
+        self.assertIn("Image Contact", _text_by_location(markdown, path)["body"])
+
     def test_xlsx_metadata_and_hidden_worksheet(self):
         from openpyxl import Workbook
 
@@ -138,7 +213,7 @@ class ExtractionGapTests(unittest.TestCase):
             document.save(path)
         return path
 
-    def test_mixed_pdf_ocr_adds_image_text_and_deduplicates_text_layer(self):
+    def test_mixed_pdf_ocr_keeps_image_evidence_separate_from_text_layer(self):
         from PIL import Image
 
         for rotation, size in ((0, (960, 200)), (90, (200, 960))):
@@ -154,7 +229,10 @@ class ExtractionGapTests(unittest.TestCase):
                 with Image.open(BytesIO(ocr.call_args.args[0])) as region:
                     # Only the image region is passed to OCR, not the entire page.
                     self.assertEqual(region.size, size)
-                self.assertEqual(markdown.count("Visible Contact"), 1)
+                sections = _text_by_location(markdown, path)
+                self.assertIn("Visible Contact", sections["body"])
+                self.assertNotIn("image-only@example.test", sections["body"])
+                self.assertIn("Visible Contact", sections["embedded_image"])
                 self.assertEqual(markdown.count("image-only@example.test"), 1)
 
     def test_scanned_pdf_still_uses_full_page_ocr(self):
@@ -176,6 +254,27 @@ class ExtractionGapTests(unittest.TestCase):
         markdown = extract_to_markdown(self._mixed_pdf())
         self.assertIn("Visible Contact", markdown)
         self.assertIn("image-only@example.test", markdown)
+
+    @unittest.skipUnless(shutil.which("tesseract"), "Tesseract is not installed")
+    def test_pptx_real_ocr_reads_identifier_only_present_in_pixels(self):
+        import pymupdf
+        from pptx import Presentation
+        from pptx.util import Inches
+
+        # This is an independent known-text raster, not a generator label reader.
+        with pymupdf.open() as image_document:
+            page = image_document.new_page(width=480, height=100)
+            page.insert_text((20, 60), "slide-image@example.test", fontsize=24)
+            image_bytes = page.get_pixmap(matrix=pymupdf.Matrix(2, 2)).tobytes("png")
+        presentation = Presentation()
+        slide = presentation.slides.add_slide(presentation.slide_layouts[5])
+        slide.shapes.title.text = "Visible slide"
+        slide.shapes.add_picture(BytesIO(image_bytes), Inches(1), Inches(2), width=Inches(5))
+        path = self.root / "image-text.pptx"
+        presentation.save(path)
+        sections = _text_by_location(extract_to_markdown(path), path)
+        self.assertIn("slide-image@example.test", sections["embedded_image"])
+        self.assertNotIn("slide-image@example.test", sections["body"])
 
     def _formula_workbook(self) -> Path:
         from openpyxl import Workbook

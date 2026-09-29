@@ -42,7 +42,7 @@ def extract_to_markdown(file_path: str | Path, ocr_language: str = "eng") -> str
         if suffix == ".xlsx":
             return _extract_xlsx(path)
         if suffix == ".pptx":
-            return _extract_pptx(path)
+            return _extract_pptx(path, ocr_language)
         if suffix == ".pdf":
             return _extract_pdf(path, ocr_language)
         if suffix in IMAGE_EXTENSIONS:
@@ -72,6 +72,13 @@ def _extract_docx(path: Path) -> str:
     parts = _office_metadata(document.core_properties)
     parts.append("## Document content")
     parts.extend(_docx_blocks(document.element.body, document))
+
+    tracked = _docx_tracked_changes(document.element.body)
+    if tracked:
+        parts.extend(["## Tracked changes", *tracked])
+    comments = _docx_comments(document)
+    if comments:
+        parts.extend(["## Review comments", *comments])
 
     # Linked sections reuse an earlier story; only extract its defining part.
     seen_parts: set[str] = set()
@@ -105,7 +112,7 @@ def _docx_blocks(element: Any, parent: Any) -> list[str]:
     for child in element.iterchildren():
         if child.tag.endswith("}p"):
             paragraph = Paragraph(child, parent)
-            text = paragraph.text.strip()
+            text = _docx_text(child).strip()
             if not text:
                 continue
 
@@ -120,9 +127,70 @@ def _docx_blocks(element: Any, parent: Any) -> list[str]:
                 parts.append(text)
         elif child.tag.endswith("}tbl"):
             table = Table(child, parent)
-            rows = [[cell.text for cell in row.cells] for row in table.rows]
+            rows = [
+                ["\n".join(_docx_text(p) for p in cell._tc.iterchildren()
+                           if p.tag.endswith("}p")) for cell in row.cells]
+                for row in table.rows
+            ]
             parts.append(_rows_to_markdown(rows, empty_message="_Empty table._"))
 
+    return parts
+
+
+def _docx_text(element: Any, *, include_deleted: bool = False) -> str:
+    """Read accepted text, including runs inside hyperlinks and tracked inserts."""
+    from docx.oxml.ns import qn
+
+    parts = []
+    for node in element.iter():
+        if not include_deleted and any(
+            ancestor.tag == qn("w:del") for ancestor in node.iterancestors()
+        ):
+            continue
+        if node.tag in {qn("w:t"), qn("w:delText")}:
+            parts.append(node.text or "")
+        elif node.tag == qn("w:tab"):
+            parts.append("\t")
+        elif node.tag in {qn("w:br"), qn("w:cr")}:
+            parts.append("\n")
+    return "".join(parts)
+
+
+def _docx_tracked_changes(element: Any) -> list[str]:
+    """Expose revision text and its attribution as a separate source location."""
+    from docx.oxml.ns import qn
+
+    parts = []
+    for node in element.iter():
+        if node.tag not in {qn("w:ins"), qn("w:del")}:
+            continue
+        change = "Insertion" if node.tag == qn("w:ins") else "Deletion"
+        author = node.get(qn("w:author"), "")
+        text = _docx_text(node, include_deleted=True).strip()
+        parts.append(f"- {change}; author: {author}\n\n{text}")
+    return parts
+
+
+def _docx_comments(document: Any) -> list[str]:
+    """Read the package's review comments, distinct from core-property comments."""
+    from docx.oxml import parse_xml
+    from docx.oxml.ns import qn
+
+    parts = []
+    for relationship in document.part.rels.values():
+        if relationship.is_external or not relationship.reltype.endswith("/comments"):
+            continue
+        root = parse_xml(relationship.target_part.blob)
+        for comment in root:
+            if comment.tag != qn("w:comment"):
+                continue
+            author = comment.get(qn("w:author"), "")
+            initials = comment.get(qn("w:initials"), "")
+            text = "\n".join(
+                _docx_text(paragraph, include_deleted=True)
+                for paragraph in comment.iter(qn("w:p"))
+            ).strip()
+            parts.append(f"- Author: {author}; initials: {initials}\n\n{text}")
     return parts
 
 
@@ -178,7 +246,7 @@ def _extract_xlsx(path: Path) -> str:
     return "\n\n".join(parts)
 
 
-def _extract_pptx(path: Path) -> str:
+def _extract_pptx(path: Path, ocr_language: str) -> str:
     from pptx import Presentation
 
     presentation = Presentation(path)
@@ -192,7 +260,8 @@ def _extract_pptx(path: Path) -> str:
             heading = f"{heading}: {title}"
         parts.append(heading)
 
-        for shape in slide.shapes:
+        image_texts = []
+        for shape in _pptx_shapes(slide.shapes):
             if title_shape is not None and shape.shape_id == title_shape.shape_id:
                 continue
             if getattr(shape, "has_table", False):
@@ -202,6 +271,11 @@ def _extract_pptx(path: Path) -> str:
                 text = shape.text.strip()
                 if text:
                     parts.append(text)
+            elif hasattr(shape, "image"):
+                image_texts.append(_ocr_image_bytes(shape.image.blob, ocr_language))
+
+        if image_texts:
+            parts.extend(["### Embedded image text", *image_texts])
 
         if slide.has_notes_slide:
             notes = slide.notes_slide.notes_text_frame.text.strip()
@@ -209,6 +283,15 @@ def _extract_pptx(path: Path) -> str:
                 parts.append(f"### Speaker notes\n\n{notes}")
 
     return "\n\n".join(parts)
+
+
+def _pptx_shapes(shapes: Any):
+    """Visit leaf shapes inside groups as well as top-level slide shapes."""
+    for shape in shapes:
+        if hasattr(shape, "shapes"):
+            yield from _pptx_shapes(shape.shapes)
+        else:
+            yield shape
 
 
 def _extract_pdf(path: Path, ocr_language: str) -> str:
@@ -231,6 +314,8 @@ def _extract_pdf(path: Path, ocr_language: str) -> str:
 
             # A selectable text layer does not cover text inside embedded images.
             # Render each image region so masks and placement are respected.
+            parts.append(text)
+            image_texts = []
             seen_regions: set[tuple[float, ...]] = set()
             for image in page.get_image_info():
                 region = (pymupdf.Rect(image["bbox"]) * page.rotation_matrix) & page.rect
@@ -242,13 +327,14 @@ def _extract_pdf(path: Path, ocr_language: str) -> str:
                     matrix=pymupdf.Matrix(2, 2), clip=region, alpha=False
                 )
                 ocr_text = _ocr_image_bytes(pixmap.tobytes("png"), ocr_language)
-                text = _append_ocr_lines(text, ocr_text)
-            parts.append(text)
+                image_texts.append(_append_ocr_lines("", ocr_text).strip())
+            if image_texts:
+                parts.extend(["### Embedded image text", *image_texts])
     return "\n\n".join(parts)
 
 
 def _append_ocr_lines(text: str, ocr_text: str) -> str:
-    """Append OCR lines without repeating exact lines in the text layer."""
+    """Append distinct OCR lines to the supplied text."""
     seen = {" ".join(line.split()) for line in text.splitlines()}
     extra = []
     for line in ocr_text.splitlines():
