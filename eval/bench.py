@@ -17,6 +17,7 @@ the synthetic corpus: its values are invented and safe to publish, and real
 documents must never end up in a tracked file.
 """
 
+import argparse
 import collections
 import csv
 import hashlib
@@ -42,23 +43,38 @@ TYPE_MAP = {
     "PERSONAL_ID": "PERSONAL_ID",
 }
 
-MODELS = {"en": "en_core_web_sm", "fi": "fi_core_news_sm"}
+MODEL_SETS = {
+    "sm": {"en": "en_core_web_sm", "fi": "fi_core_news_sm"},
+    "lg": {"en": "en_core_web_lg", "fi": "fi_core_news_lg"},
+}
 
 # Presidio's own default. Recorded because raising it trades recall for
 # precision, and two runs at different thresholds are not comparable.
 THRESHOLD = 0.0
 
 
-def build_analyzer():
+def result_name(size, custom):
+    """Output file stem. The default configuration keeps its original name."""
+    if size == "sm" and not custom:
+        return "presidio"
+    return "presidio" + ("-custom" if custom else "") + f"-{size}"
+
+
+def build_analyzer(models, custom=False):
     from presidio_analyzer import AnalyzerEngine
     from presidio_analyzer.nlp_engine import NlpEngineProvider
 
     config = {
         "nlp_engine_name": "spacy",
-        "models": [{"lang_code": c, "model_name": m} for c, m in MODELS.items()],
+        "models": [{"lang_code": c, "model_name": m} for c, m in models.items()],
     }
     engine = NlpEngineProvider(nlp_configuration=config).create_engine()
-    return AnalyzerEngine(nlp_engine=engine, supported_languages=list(MODELS))
+    analyzer = AnalyzerEngine(nlp_engine=engine, supported_languages=list(models))
+    if custom:
+        sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        from detect.pattern_recognizers import register_project_recognizers
+        register_project_recognizers(analyzer, list(models))
+    return analyzer
 
 
 def found(text, value, results):
@@ -90,19 +106,20 @@ def found(text, value, results):
     return "partial" if any(states) else ""
 
 
-def verdict(entity_type, planted, covered, partial):
+def verdict(entity_type, planted, covered, partial, recognized):
     """A word per type, so a future run is readable without reading the code."""
     if not planted:
         return "not in corpus"
     if covered == 0:
         if partial:
             return "partial only"
-        return "no recognizer" if entity_type not in TYPE_MAP.values() else "recognizer rejects all"
+        return "no recognizer" if entity_type not in recognized else "recognizer rejects all"
     return "good" if covered / planted >= 0.95 else "weak"
 
 
-def main(root, baseline=False):
-    analyzer = build_analyzer()
+def main(root, baseline=False, size="sm", custom=False):
+    models = MODEL_SETS[size]
+    analyzer = build_analyzer(models, custom)
     # (lang, fmt, type) -> [planted, covered, partial]
     counts = collections.defaultdict(lambda: [0, 0, 0])
     misses = []
@@ -147,7 +164,9 @@ def main(root, baseline=False):
             f"  the scored files are {actual}\n"
             f"Regenerate it; a result carrying the wrong digest is worse than none."
         )
-    report(counts, misses, corpus, baseline)
+    report(counts, misses, corpus, baseline, size, custom,
+           {TYPE_MAP[e] for lang in models for e in analyzer.get_supported_entities(lang)
+            if e in TYPE_MAP})
 
 
 def manifest(root):
@@ -182,7 +201,8 @@ def totals(counts, *keys):
     return out
 
 
-def report(counts, misses, corpus, baseline):
+def report(counts, misses, corpus, baseline, size, custom, recognized):
+    models_used = MODEL_SETS[size]
     by_lang_type = totals(counts, 0, 2)
     types = sorted({t for _, _, t in counts})
     langs = sorted({lang for lang, _, _ in counts})
@@ -197,7 +217,7 @@ def report(counts, misses, corpus, baseline):
             planted, covered, partial = by_lang_type.get((lang, t), [0, 0, 0])
             recall[f"{lang}/{t}"] = {"planted": planted, "covered": covered,
                                      "partial": partial,
-                                     "verdict": verdict(t, planted, covered, partial)}
+                                     "verdict": verdict(t, planted, covered, partial, recognized)}
             row += (f"{covered:>5}/{planted:<4}{covered / planted:>4.0%}{partial:>4}p"
                     if planted else f"{'-':>17}")
         worst = min((recall[f"{lang}/{t}"]["verdict"] for lang in langs), key=order.index)
@@ -209,18 +229,20 @@ def report(counts, misses, corpus, baseline):
     print(f"\n{hits}/{total} body identifiers fully covered, {hits / total:.0%}. "
           f"{part} more were partly detected, which still leaks the rest.")
 
+    name = result_name(size, custom)
     models = {p: importlib.metadata.version(p) for p in ("presidio-analyzer", "spacy")}
     # The model weights are their own packages. Updating them changes every
     # number while the spacy version stays put, so they are recorded too.
-    models.update({m: importlib.metadata.version(m) for m in MODELS.values()})
+    models.update({m: importlib.metadata.version(m) for m in models_used.values()})
 
     # ../docs/evaluation.md asks for recall per entity type and per document
     # format. The table above is the readable cut; the format cut lives here.
     by_fmt_type = totals(counts, 1, 2)
-    write(os.path.join("baselines" if baseline else "results", "presidio.json"), {
+    write(os.path.join("baselines" if baseline else "results", f"{name}.json"), {
         "detector": "presidio-analyzer",
         "versions": models,
-        "models": MODELS,
+        "models": models_used,
+        "custom_recognizers": custom,
         "score_threshold": THRESHOLD,
         "corpus": corpus,
         "scope": ("body labels only, metadata/notes/hidden sheets need extraction. "
@@ -234,7 +256,7 @@ def report(counts, misses, corpus, baseline):
     # Every failure individually, which is what you read to decide what to fix.
     # It grows with the corpus and regenerates in seconds, so it stays untracked.
     # The values are verbatim, so treat it like the documents it came from.
-    write(os.path.join("results", "presidio-misses.json"), misses)
+    write(os.path.join("results", f"{name}-misses.json"), misses)
 
 
 def write(name, payload):
@@ -246,5 +268,11 @@ def write(name, payload):
 
 
 if __name__ == "__main__":
-    args = [a for a in sys.argv[1:] if a != "--baseline"]
-    main(args[0] if args else "./bench", baseline="--baseline" in sys.argv)
+    parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
+    parser.add_argument("root", nargs="?", default="./bench")
+    parser.add_argument("--baseline", action="store_true")
+    parser.add_argument("--models", choices=sorted(MODEL_SETS), default="sm")
+    parser.add_argument("--custom", action="store_true",
+                        help="add the plate, invoice and identity code recognizers")
+    a = parser.parse_args()
+    main(a.root, baseline=a.baseline, size=a.models, custom=a.custom)
