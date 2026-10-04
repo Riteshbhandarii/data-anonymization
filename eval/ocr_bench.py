@@ -31,6 +31,7 @@ def edit_distance(reference: str, hypothesis: str) -> int:
 
 def image_cases(root: Path) -> list[dict]:
     """Load indexed PNG cases and references; never pass references to readers."""
+    root = root.resolve()  # macOS temp dirs are symlinks (/var -> /private/var)
     with (root / "index.csv").open(encoding="utf-8", newline="") as handle:
         entries = [entry for entry in csv.DictReader(handle) if entry["format"] == "png"]
     if not entries:
