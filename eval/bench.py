@@ -36,6 +36,10 @@ TYPE_MAP = {
     "ORGANIZATION": "COMPANY",
     "DATE_TIME": "DATE",
     "FI_PERSONAL_IDENTITY_CODE": "PERSONAL_ID",
+    # Custom recognizers from detect/pattern_recognizers.py, used with --custom.
+    "PLATE": "PLATE",
+    "INVOICE": "INVOICE",
+    "PERSONAL_ID": "PERSONAL_ID",
 }
 
 MODELS = {"en": "en_core_web_sm", "fi": "fi_core_news_sm"}
