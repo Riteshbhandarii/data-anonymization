@@ -1,7 +1,7 @@
 """Pattern recognizers for the synthetic benchmark corpus.
 
-Presidio has no recognizer for vehicle plates or invoice numbers, and its
-Finnish identity code recognizer rejects the corpus codes. These fill those
+Presidio has no recognizer for vehicle plates or invoice numbers, and it does
+not load its Finnish identity code recognizer by default. These fill those
 gaps so the benchmark measures the detector and not a missing recognizer.
 
 The formats are the ones corpus/generate.py produces, so they are stand-ins
@@ -26,8 +26,9 @@ INVOICE_PATTERN = Pattern(
 )
 
 # Identity code, SHAPE ONLY, NO CHECKSUM VALIDATION. The generator makes codes
-# with invalid check characters on purpose, so Presidio's own
-# FI_PERSONAL_IDENTITY_CODE recognizer (which validates) rejects all of them.
+# with invalid check characters on purpose, so a validating recognizer would
+# reject them. Presidio does not load its own FI_PERSONAL_IDENTITY_CODE
+# recognizer by default in any case.
 # This pattern is a benchmark choice, not a statement about what a real
 # deployment should do; see docs/open-questions.md.
 # Example: 140106-800L

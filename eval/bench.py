@@ -106,8 +106,14 @@ def found(text, value, results):
     return "partial" if any(states) else ""
 
 
-def verdict(entity_type, planted, covered, partial, recognized):
-    """A word per type, so a future run is readable without reading the code."""
+def verdict(entity_type, planted, covered, partial, recognized=None):
+    """A word per type, so a future run is readable without reading the code.
+
+    `recognized` is the set of corpus types the analyzer actually has a
+    recognizer for. Without it, every type in TYPE_MAP is assumed loaded.
+    """
+    if recognized is None:
+        recognized = set(TYPE_MAP.values())
     if not planted:
         return "not in corpus"
     if covered == 0:
@@ -165,7 +171,8 @@ def main(root, baseline=False, size="sm", custom=False):
             f"Regenerate it; a result carrying the wrong digest is worse than none."
         )
     report(counts, misses, corpus, baseline, size, custom,
-           {TYPE_MAP[e] for lang in models for e in analyzer.get_supported_entities(lang)
+           {TYPE_MAP[e] for lang in models
+            for e in getattr(analyzer, "get_supported_entities", lambda _: [])(lang)
             if e in TYPE_MAP})
 
 
