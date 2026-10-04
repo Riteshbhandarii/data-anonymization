@@ -22,7 +22,7 @@ jobs:
       - run: pip install Faker==40.39.0 reportlab python-docx python-pptx openpyxl pypdf pillow ruff
 
       - name: Lint
-        run: ruff check corpus/
+        run: ruff check corpus/ eval/ tests/
 
       - name: Generate a small corpus
         run: python3 corpus/generate.py --out ./corpus-out --n 2
@@ -34,6 +34,22 @@ jobs:
         run: |
           python3 corpus/generate.py --out ./corpus-again --n 2
           diff -r ./corpus-out/labels ./corpus-again/labels
+
+  # Model-free on purpose: the scorer is tested with hand-built fixtures and a
+  # stubbed analyzer, so nothing here installs presidio or downloads weights.
+  scoring:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - run: pip install pytest
+
+      - name: Test the benchmark scoring logic
+        run: python3 -m pytest tests/eval -v
 
   pipeline:
     runs-on: ubuntu-latest

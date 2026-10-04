@@ -35,6 +35,7 @@ import hashlib
 import json
 import os
 import random
+from datetime import date, timedelta
 from importlib.metadata import version
 
 from faker import Faker
@@ -66,9 +67,20 @@ TEXT = {
 }
 
 
+# Faker's date_of_birth() and date() count back from today, so the same seed made
+# a different corpus every day. Every date is drawn against this fixed day instead,
+# as a whole number of days, because Faker's own date ranges go through timestamps
+# in the local timezone and shift by a day between a laptop and CI.
+REFERENCE_DATE = date(2026, 1, 1)
+
+
+def fixed_date(fake, start, end):
+    return start + timedelta(days=fake.random_int(0, (end - start).days))
+
+
 def hetu(fake):
     """Finnish-shaped personal identity code. Checksum is not valid on purpose."""
-    d = fake.date_of_birth(minimum_age=20, maximum_age=60)
+    d = fixed_date(fake, date(REFERENCE_DATE.year - 60, 1, 1), date(REFERENCE_DATE.year - 20, 1, 1))
     return f"{d:%d%m%y}-{random.randint(100, 899)}{random.choice('0123456789ABCDEFHJKLMNPRSTUVWXY')}"
 
 
@@ -83,8 +95,8 @@ def make_record(fake):
         "IBAN": fake.iban(),
         "PERSONAL_ID": hetu(fake),
         "PLATE": "".join(random.choices("ABCDEFGHIJKLMNOPRSTUVXYZ", k=3)) + f"-{random.randint(100, 999)}",
-        "DATE": fake.date(),
-        "DATE2": fake.date(),
+        "DATE": fixed_date(fake, date(1970, 1, 1), REFERENCE_DATE).isoformat(),
+        "DATE2": fixed_date(fake, date(1970, 1, 1), REFERENCE_DATE).isoformat(),
         "INVOICE": f"INV-{random.randint(10000, 99999)}",
     }
     # Values outside the body must be independently observable. Avoid a repeated
