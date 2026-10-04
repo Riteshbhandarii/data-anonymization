@@ -60,7 +60,9 @@ def result_name(size, custom):
     return "presidio" + ("-custom" if custom else "") + f"-{size}"
 
 
-def build_analyzer(models, custom=False):
+def build_analyzer(models=None, custom=False):
+    """Presidio with the given spaCy models; small models and defaults if omitted."""
+    models = MODEL_SETS["sm"] if models is None else models
     from presidio_analyzer import AnalyzerEngine
     from presidio_analyzer.nlp_engine import NlpEngineProvider
 
