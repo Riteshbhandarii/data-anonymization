@@ -10,9 +10,7 @@ Decisions not yet made. Nothing here should be silently resolved in code.
 
 ## Output format, the biggest one
 
-- [ ] Must the output be the same format as the input, so people can keep working with the document, or is clean text enough because it is only ever fed to a model?
-
-Rebuilding a redacted `.docx` that still looks like a real document is roughly ten times the work of extracting to text. This decision shapes the whole `redact` stage and should be settled before any of it is written.
+The current pipeline outputs Markdown. See [the output contract](pipeline.md#output-contract) for paths, encoding, and the returned result.
 
 - [ ] The corpus generates Finnish identity codes with invalid checksums on purpose. Presidio's recognizer validates the checksum and rejects all of them. Generate valid codes, or disable validation for the benchmark?
 
