@@ -37,6 +37,10 @@ Corpus: seed 42, 25 per format, 2450 body identifiers.
 | custom, large | 2013 | 82% | 216, 224 of 225 | 48, 18 of 125 | 0, 0 of 100 |
 
 Plate, invoice and identity code are 75 of 75 per language in both custom runs.
+That is by construction: the patterns are written from the generator's own
+formats, so they say nothing about real documents. Leaving those three types
+out, the other 2000 identifiers score 1511 (76%) with small models and 1563
+(78%) with large ones, which is the number to quote for detection quality.
 The large models mainly help PERSON. COMPANY stays weak, and ADDRESS is never
 fully covered in any run, only partly (the city comes back, the street does not).
 
