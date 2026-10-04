@@ -43,7 +43,7 @@ class OCRBenchmarkTests(unittest.TestCase):
             return "Contact\nA1ex"
 
         report = evaluate(self.root, reader, engine="test")
-        self.assertEqual([self.root / "png" / "example.png"], received)
+        self.assertEqual([self.root.resolve() / "png" / "example.png"], received)
         row = report["summary"][0]
         self.assertEqual(0, row["recall"])
         self.assertEqual(1, row["character_edits"])

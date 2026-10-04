@@ -11,7 +11,7 @@ import unicodedata
 from pathlib import Path
 
 from detect import PresidioDetector
-from eval.bench import MODELS, THRESHOLD, TYPE_MAP, fingerprint, manifest
+from eval.bench import MODEL_SETS, THRESHOLD, TYPE_MAP, fingerprint, manifest
 from pipeline import run_pipeline
 from pipeline.extractors import extract_to_markdown
 from pipeline.normalization import normalize_markdown
@@ -220,7 +220,7 @@ def evaluate_pipeline(
                           "output_path": output_path,
                           "errors": errors, "scores": scores})
     versions = {}
-    for package in ("presidio-analyzer", "presidio-anonymizer", "spacy", *MODELS.values(),
+    for package in ("presidio-analyzer", "presidio-anonymizer", "spacy", *MODEL_SETS["sm"].values(),
                     "python-docx", "openpyxl", "python-pptx", "pymupdf", "pytesseract"):
         try:
             versions[package] = importlib.metadata.version(package)
@@ -232,7 +232,7 @@ def evaluate_pipeline(
         "occurrence_scope": "Body source occurrence counts come from saved generator text. Other locations have a minimum of one per label; every extracted occurrence is scored.",
         "corpus": provenance, "corpus_root": str(root), "source_artifacts_sha256": source_digest.hexdigest(),
         "detector": type(detector).__name__, "score_threshold": getattr(detector, "score_threshold", None),
-        "models": MODELS if isinstance(detector, PresidioDetector) else {}, "versions": versions,
+        "models": MODEL_SETS["sm"] if isinstance(detector, PresidioDetector) else {}, "versions": versions,
         "python_version": platform.python_version(),
         "extractor": "pipeline.extractors.extract_to_markdown" if extractor is None else getattr(extractor, "__name__", type(extractor).__name__),
         "ocr_language": ocr_language if extractor is None else None,
