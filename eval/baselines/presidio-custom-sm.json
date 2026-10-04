@@ -10,7 +10,7 @@
     "en": "en_core_web_sm",
     "fi": "fi_core_news_sm"
   },
-  "custom_recognizers": false,
+  "custom_recognizers": true,
   "score_threshold": 0.0,
   "corpus": {
     "seed": 42,
@@ -85,15 +85,15 @@
     },
     "en/INVOICE": {
       "planted": 75,
-      "covered": 0,
+      "covered": 75,
       "partial": 0,
-      "verdict": "no recognizer"
+      "verdict": "good"
     },
     "fi/INVOICE": {
       "planted": 75,
-      "covered": 0,
+      "covered": 75,
       "partial": 0,
-      "verdict": "no recognizer"
+      "verdict": "good"
     },
     "en/PERSON": {
       "planted": 225,
@@ -109,15 +109,15 @@
     },
     "en/PERSONAL_ID": {
       "planted": 75,
-      "covered": 0,
+      "covered": 75,
       "partial": 0,
-      "verdict": "no recognizer"
+      "verdict": "good"
     },
     "fi/PERSONAL_ID": {
       "planted": 75,
-      "covered": 0,
+      "covered": 75,
       "partial": 0,
-      "verdict": "no recognizer"
+      "verdict": "good"
     },
     "en/PHONE": {
       "planted": 125,
@@ -133,15 +133,15 @@
     },
     "en/PLATE": {
       "planted": 75,
-      "covered": 0,
+      "covered": 75,
       "partial": 0,
-      "verdict": "no recognizer"
+      "verdict": "good"
     },
     "fi/PLATE": {
       "planted": 75,
-      "covered": 0,
+      "covered": 75,
       "partial": 0,
-      "verdict": "no recognizer"
+      "verdict": "good"
     }
   },
   "recall_by_format": {
@@ -172,7 +172,7 @@
     },
     "csv/PERSONAL_ID": {
       "planted": 50,
-      "covered": 0,
+      "covered": 50,
       "partial": 0
     },
     "csv/PHONE": {
@@ -182,7 +182,7 @@
     },
     "csv/PLATE": {
       "planted": 50,
-      "covered": 0,
+      "covered": 50,
       "partial": 0
     },
     "docx/ADDRESS": {
@@ -212,7 +212,7 @@
     },
     "docx/INVOICE": {
       "planted": 50,
-      "covered": 0,
+      "covered": 50,
       "partial": 0
     },
     "docx/PERSON": {
@@ -222,7 +222,7 @@
     },
     "docx/PERSONAL_ID": {
       "planted": 50,
-      "covered": 0,
+      "covered": 50,
       "partial": 0
     },
     "docx/PHONE": {
@@ -232,7 +232,7 @@
     },
     "docx/PLATE": {
       "planted": 50,
-      "covered": 0,
+      "covered": 50,
       "partial": 0
     },
     "pdf/ADDRESS": {
@@ -262,7 +262,7 @@
     },
     "pdf/INVOICE": {
       "planted": 50,
-      "covered": 0,
+      "covered": 50,
       "partial": 0
     },
     "pdf/PERSON": {
@@ -272,7 +272,7 @@
     },
     "pdf/PERSONAL_ID": {
       "planted": 50,
-      "covered": 0,
+      "covered": 50,
       "partial": 0
     },
     "pdf/PHONE": {
@@ -282,7 +282,7 @@
     },
     "pdf/PLATE": {
       "planted": 50,
-      "covered": 0,
+      "covered": 50,
       "partial": 0
     },
     "pptx/ADDRESS": {
@@ -312,7 +312,7 @@
     },
     "pptx/INVOICE": {
       "planted": 50,
-      "covered": 0,
+      "covered": 50,
       "partial": 0
     },
     "pptx/PERSON": {

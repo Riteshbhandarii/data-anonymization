@@ -3,14 +3,14 @@
   "versions": {
     "presidio-analyzer": "2.2.364",
     "spacy": "3.8.16",
-    "en_core_web_sm": "3.8.0",
-    "fi_core_news_sm": "3.8.0"
+    "en_core_web_lg": "3.8.0",
+    "fi_core_news_lg": "3.8.0"
   },
   "models": {
-    "en": "en_core_web_sm",
-    "fi": "fi_core_news_sm"
+    "en": "en_core_web_lg",
+    "fi": "fi_core_news_lg"
   },
-  "custom_recognizers": false,
+  "custom_recognizers": true,
   "score_threshold": 0.0,
   "corpus": {
     "seed": 42,
@@ -26,25 +26,25 @@
     "en/ADDRESS": {
       "planted": 100,
       "covered": 0,
-      "partial": 62,
+      "partial": 48,
       "verdict": "partial only"
     },
     "fi/ADDRESS": {
       "planted": 100,
       "covered": 0,
-      "partial": 64,
+      "partial": 85,
       "verdict": "partial only"
     },
     "en/COMPANY": {
       "planted": 125,
-      "covered": 44,
-      "partial": 41,
+      "covered": 48,
+      "partial": 31,
       "verdict": "weak"
     },
     "fi/COMPANY": {
       "planted": 125,
-      "covered": 15,
-      "partial": 23,
+      "covered": 18,
+      "partial": 33,
       "verdict": "weak"
     },
     "en/DATE": {
@@ -85,39 +85,39 @@
     },
     "en/INVOICE": {
       "planted": 75,
-      "covered": 0,
+      "covered": 75,
       "partial": 0,
-      "verdict": "no recognizer"
+      "verdict": "good"
     },
     "fi/INVOICE": {
       "planted": 75,
-      "covered": 0,
+      "covered": 75,
       "partial": 0,
-      "verdict": "no recognizer"
+      "verdict": "good"
     },
     "en/PERSON": {
       "planted": 225,
-      "covered": 211,
+      "covered": 216,
       "partial": 2,
-      "verdict": "weak"
+      "verdict": "good"
     },
     "fi/PERSON": {
       "planted": 225,
-      "covered": 184,
-      "partial": 11,
-      "verdict": "weak"
+      "covered": 224,
+      "partial": 0,
+      "verdict": "good"
     },
     "en/PERSONAL_ID": {
       "planted": 75,
-      "covered": 0,
+      "covered": 75,
       "partial": 0,
-      "verdict": "no recognizer"
+      "verdict": "good"
     },
     "fi/PERSONAL_ID": {
       "planted": 75,
-      "covered": 0,
+      "covered": 75,
       "partial": 0,
-      "verdict": "no recognizer"
+      "verdict": "good"
     },
     "en/PHONE": {
       "planted": 125,
@@ -133,27 +133,27 @@
     },
     "en/PLATE": {
       "planted": 75,
-      "covered": 0,
+      "covered": 75,
       "partial": 0,
-      "verdict": "no recognizer"
+      "verdict": "good"
     },
     "fi/PLATE": {
       "planted": 75,
-      "covered": 0,
+      "covered": 75,
       "partial": 0,
-      "verdict": "no recognizer"
+      "verdict": "good"
     }
   },
   "recall_by_format": {
     "csv/ADDRESS": {
       "planted": 50,
       "covered": 0,
-      "partial": 28
+      "partial": 30
     },
     "csv/COMPANY": {
       "planted": 50,
       "covered": 3,
-      "partial": 16
+      "partial": 21
     },
     "csv/EMAIL": {
       "planted": 50,
@@ -167,12 +167,12 @@
     },
     "csv/PERSON": {
       "planted": 100,
-      "covered": 77,
-      "partial": 3
+      "covered": 95,
+      "partial": 1
     },
     "csv/PERSONAL_ID": {
       "planted": 50,
-      "covered": 0,
+      "covered": 50,
       "partial": 0
     },
     "csv/PHONE": {
@@ -182,18 +182,18 @@
     },
     "csv/PLATE": {
       "planted": 50,
-      "covered": 0,
+      "covered": 50,
       "partial": 0
     },
     "docx/ADDRESS": {
       "planted": 50,
       "covered": 0,
-      "partial": 31
+      "partial": 36
     },
     "docx/COMPANY": {
       "planted": 50,
-      "covered": 16,
-      "partial": 12
+      "covered": 18,
+      "partial": 8
     },
     "docx/DATE": {
       "planted": 100,
@@ -212,17 +212,17 @@
     },
     "docx/INVOICE": {
       "planted": 50,
-      "covered": 0,
+      "covered": 50,
       "partial": 0
     },
     "docx/PERSON": {
       "planted": 100,
-      "covered": 96,
-      "partial": 4
+      "covered": 99,
+      "partial": 1
     },
     "docx/PERSONAL_ID": {
       "planted": 50,
-      "covered": 0,
+      "covered": 50,
       "partial": 0
     },
     "docx/PHONE": {
@@ -232,18 +232,18 @@
     },
     "docx/PLATE": {
       "planted": 50,
-      "covered": 0,
+      "covered": 50,
       "partial": 0
     },
     "pdf/ADDRESS": {
       "planted": 50,
       "covered": 0,
-      "partial": 30
+      "partial": 32
     },
     "pdf/COMPANY": {
       "planted": 50,
-      "covered": 17,
-      "partial": 6
+      "covered": 21,
+      "partial": 7
     },
     "pdf/DATE": {
       "planted": 100,
@@ -262,17 +262,17 @@
     },
     "pdf/INVOICE": {
       "planted": 50,
-      "covered": 0,
+      "covered": 50,
       "partial": 0
     },
     "pdf/PERSON": {
       "planted": 100,
-      "covered": 93,
-      "partial": 2
+      "covered": 98,
+      "partial": 0
     },
     "pdf/PERSONAL_ID": {
       "planted": 50,
-      "covered": 0,
+      "covered": 50,
       "partial": 0
     },
     "pdf/PHONE": {
@@ -282,18 +282,18 @@
     },
     "pdf/PLATE": {
       "planted": 50,
-      "covered": 0,
+      "covered": 50,
       "partial": 0
     },
     "pptx/ADDRESS": {
       "planted": 50,
       "covered": 0,
-      "partial": 37
+      "partial": 35
     },
     "pptx/COMPANY": {
       "planted": 50,
-      "covered": 13,
-      "partial": 14
+      "covered": 16,
+      "partial": 8
     },
     "pptx/DATE": {
       "planted": 50,
@@ -312,12 +312,12 @@
     },
     "pptx/INVOICE": {
       "planted": 50,
-      "covered": 0,
+      "covered": 50,
       "partial": 0
     },
     "pptx/PERSON": {
       "planted": 50,
-      "covered": 49,
+      "covered": 50,
       "partial": 0
     },
     "pptx/PHONE": {
@@ -327,8 +327,8 @@
     },
     "xlsx/COMPANY": {
       "planted": 50,
-      "covered": 10,
-      "partial": 16
+      "covered": 8,
+      "partial": 20
     },
     "xlsx/DATE": {
       "planted": 100,
@@ -347,8 +347,8 @@
     },
     "xlsx/PERSON": {
       "planted": 100,
-      "covered": 80,
-      "partial": 4
+      "covered": 98,
+      "partial": 0
     },
     "xlsx/PHONE": {
       "planted": 50,
