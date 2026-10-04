@@ -10,6 +10,7 @@
     "en": "en_core_web_sm",
     "fi": "fi_core_news_sm"
   },
+  "custom_recognizers": false,
   "score_threshold": 0.0,
   "corpus": {
     "seed": 42,
@@ -110,13 +111,13 @@
       "planted": 75,
       "covered": 0,
       "partial": 0,
-      "verdict": "recognizer rejects all"
+      "verdict": "no recognizer"
     },
     "fi/PERSONAL_ID": {
       "planted": 75,
       "covered": 0,
       "partial": 0,
-      "verdict": "recognizer rejects all"
+      "verdict": "no recognizer"
     },
     "en/PHONE": {
       "planted": 125,
