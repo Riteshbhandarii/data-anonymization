@@ -13,12 +13,6 @@ import os
 import re
 from types import SimpleNamespace
 
-from detect.pattern_recognizers import (
-    INVOICE_PATTERN,
-    PERSONAL_ID_NO_CHECKSUM_PATTERN,
-    PLATE_PATTERN,
-)
-
 MODEL = "urchade/gliner_multi_pii-v1"
 
 # GLiNER prompt label -> Presidio entity name.
@@ -84,6 +78,12 @@ class GlinerDetector:
                 spans.append(SimpleNamespace(
                     start=offset + item["start"], end=offset + item["end"],
                     entity_type=LABELS[item["label"]], score=float(item["score"])))
+        # Imported here so the module loads without presidio (CI tests only the helpers).
+        from detect.pattern_recognizers import (
+            INVOICE_PATTERN,
+            PERSONAL_ID_NO_CHECKSUM_PATTERN,
+            PLATE_PATTERN,
+        )
         for entity, pattern in (("PLATE", PLATE_PATTERN), ("INVOICE", INVOICE_PATTERN),
                                 ("PERSONAL_ID", PERSONAL_ID_NO_CHECKSUM_PATTERN)):
             for match in re.finditer(pattern.regex, text):
