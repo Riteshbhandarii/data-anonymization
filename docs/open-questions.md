@@ -14,7 +14,9 @@ Decisions not yet made. Nothing here should be silently resolved in code.
 
 Rebuilding a redacted `.docx` that still looks like a real document is roughly ten times the work of extracting to text. This decision shapes the whole `redact` stage and should be settled before any of it is written.
 
-- [ ] The corpus generates Finnish identity codes with invalid checksums on purpose. Presidio's recognizer validates the checksum and rejects all of them. Generate valid codes, or disable validation for the benchmark?
+- [ ] The corpus generates Finnish identity codes with invalid checksums on purpose. Should a real deployment validate the checksum or match the shape only? Validating avoids false positives on look-alike numbers but misses typos and malformed codes that still identify someone; matching the shape catches both and over-flags.
+
+Benchmark status: `eval/bench.py --custom` uses a shape-only pattern with no checksum validation (`detect/pattern_recognizers.py`), because the corpus codes are invalid by design. That is a benchmark choice, not an answer to the question above. Also, the earlier note here that Presidio's recognizer rejects every code was wrong: Presidio 2.2.364 does not load its Finnish identity code recognizer by default for `en` or `fi`, so the default run had no recognizer at all. Whether it would accept these codes if enabled has not been measured.
 
 ## Legal
 
