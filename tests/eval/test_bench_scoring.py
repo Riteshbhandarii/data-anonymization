@@ -114,7 +114,9 @@ def test_found_overlapping_occurrences_are_all_checked():
 @pytest.mark.parametrize("entity_type, planted, covered, partial, expected", [
     ("PERSON", 0, 0, 0, "not in corpus"),
     ("PERSON", 10, 0, 4, "partial only"),
-    ("PLATE", 10, 0, 0, "no recognizer"),
+    # A corpus type no detector entity maps to. Not PLATE: recognizers for it
+    # are being added, and this test is about the rule, not today's coverage.
+    ("UNMAPPED_TYPE", 10, 0, 0, "no recognizer"),
     ("PERSONAL_ID", 10, 0, 0, "recognizer rejects all"),
     ("PERSON", 100, 95, 0, "good"),
     ("PERSON", 100, 100, 0, "good"),
@@ -127,7 +129,7 @@ def test_verdict(entity_type, planted, covered, partial, expected):
 
 def test_verdict_partial_only_wins_over_missing_recognizer():
     # Something was detected, so the type is not unconfigured.
-    assert bench.verdict("PLATE", 10, 0, 2) == "partial only"
+    assert bench.verdict("UNMAPPED_TYPE", 10, 0, 2) == "partial only"
 
 
 # manifest() and fingerprint() ----------------------------------------------
@@ -194,6 +196,9 @@ class StubAnalyzer:
     def __init__(self, detect=()):
         self.detect = detect
 
+    def get_supported_entities(self, language=None):
+        return sorted({entity for _, entity in self.detect})
+
     def analyze(self, text, language, score_threshold):
         out = []
         for value, entity in self.detect:
@@ -208,9 +213,9 @@ def run(monkeypatch):
     """Run main() and return (counts, misses) instead of writing a report."""
     def go(root, detect=()):
         got = {}
-        monkeypatch.setattr(bench, "build_analyzer", lambda: StubAnalyzer(detect))
+        monkeypatch.setattr(bench, "build_analyzer", lambda *a, **k: StubAnalyzer(detect))
         monkeypatch.setattr(bench, "report",
-                            lambda counts, misses, corpus, baseline:
+                            lambda counts, misses, corpus, baseline, *a, **k:
                             got.update(counts=dict(counts), misses=misses))
         bench.main(str(root))
         return got
@@ -283,7 +288,7 @@ def test_report_is_not_reached_when_digest_mismatches(tmp_path, monkeypatch):
         json.dumps({"file": "csv/en_csv_00.csv", "language": "en", "format": "csv",
                     "entities": []}), encoding="utf-8")
     called = []
-    monkeypatch.setattr(bench, "build_analyzer", lambda: StubAnalyzer())
+    monkeypatch.setattr(bench, "build_analyzer", lambda *a, **k: StubAnalyzer())
     monkeypatch.setattr(bench, "report", lambda *a: called.append(a))
     with pytest.raises(SystemExit):
         bench.main(str(tmp_path))
