@@ -1,0 +1,5 @@
+# Local testbench and optional GLiNER detector.
+-r requirements.txt
+streamlit>=1.56,<2
+altair>=5,<7
+gliner==0.2.29

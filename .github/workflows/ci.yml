@@ -71,7 +71,7 @@ jobs:
         run: python -m pip install -r requirements-validation.txt
 
       - name: Lint pipeline, redaction, corpus and evaluation code
-        run: ruff check corpus/ pipeline/ detect/ redact/ eval/ tests/
+        run: ruff check app/ corpus/ pipeline/ detect/ redact/ eval/ tests/
 
       - name: Run pipeline regression tests
         run: python -m unittest discover -s tests -v
