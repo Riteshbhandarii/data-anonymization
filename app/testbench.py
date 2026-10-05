@@ -1,46 +1,47 @@
-"""Local anonymization testbench. Run: streamlit run app/testbench.py
-
-Everything runs on this machine; no document content is sent anywhere.
-"""
+"""Local document testbench. Run with ``streamlit run app/testbench.py``."""
 
 import csv
+import html
 import io
 import json
 import subprocess
 import sys
 import time
 import zipfile
+from collections import Counter
 from pathlib import Path
 from types import SimpleNamespace
+
+import streamlit as st
 
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-import streamlit as st
-
+# Streamlit also runs this file directly, so set the project path before imports.
 from app.logic import (
     STATUS_COLOURS,
+    changed_intervals,
     highlight_html,
     label_intervals,
     recall_table,
     score_labels,
     split_sections,
-    summarize,
     type_colours,
 )
+from detect.methods import METHODS
 from pipeline.extractors import SUPPORTED_EXTENSIONS, extract_to_markdown
 from pipeline.normalization import normalize_markdown
 
 OUT = ROOT / "outputs"
 CORPUS = OUT / "app-corpus"
 REAL = ROOT / "corpus" / "real"
-MODES = {"[PERSON]  (replace)": "replace", "[PERSON_1]  (pseudonymize)": "pseudonymize"}
+MODES = {"Replace with type": "replace", "Use consistent pseudonyms": "pseudonymize"}
+PREVIEW_HEIGHT = 520
 
-st.set_page_config(page_title="Anonymization testbench", layout="wide")
+st.set_page_config(page_title="Document anonymization", layout="wide")
 
 
-# ---------------------------------------------------------------- cached work
 @st.cache_data(show_spinner=False)
 def extract_cached(path: str, mtime: float, ocr_language: str) -> str:
     return normalize_markdown(extract_to_markdown(path, ocr_language=ocr_language))
@@ -60,287 +61,356 @@ def detect_cached(text: str, language: str, method: str):
 
 def ensure_corpus():
     if not (CORPUS / "corpus.json").exists():
-        subprocess.run([sys.executable, str(ROOT / "corpus" / "generate.py"), "--out",
-                        str(CORPUS), "--n", "2"], check=True, cwd=ROOT,
-                       capture_output=True)
+        subprocess.run(
+            [sys.executable, str(ROOT / "corpus" / "generate.py"), "--out", str(CORPUS), "--n", "2"],
+            check=True, cwd=ROOT, capture_output=True,
+        )
     return CORPUS
 
 
 def corpus_docs():
-    root = ensure_corpus()
     docs = {}
-    for lab in sorted((root / "labels").glob("*.json")):
+    for lab in sorted((ensure_corpus() / "labels").glob("*.json")):
         meta = json.loads(lab.read_text(encoding="utf-8"))
-        docs[lab.stem] = (root / meta["file"], meta)
+        docs[lab.stem] = (CORPUS / meta["file"], meta)
     return docs
 
 
-def timed(label, fn, *a):
-    t = time.perf_counter()
+def timed(label, fn):
+    started = time.perf_counter()
     try:
-        return fn(*a), time.perf_counter() - t, None
-    except Exception as exc:  # noqa: BLE001 - shown per stage, never crashes the page
-        return None, time.perf_counter() - t, f"{label} failed: {exc}"
+        return fn(), time.perf_counter() - started, None
+    except Exception as exc:  # noqa: BLE001 - display failures at their pipeline stage
+        return None, time.perf_counter() - started, f"{label} failed: {exc}"
 
 
-# -------------------------------------------------------------------- sidebar
 def sidebar():
-    from detect.methods import METHODS
-    st.sidebar.title("Testbench")
-    st.sidebar.caption("Local only. Nothing leaves this machine.")
-    source = st.sidebar.radio("Data source", ["Upload a file", "Fake corpus", "Real public file"])
+    st.sidebar.header("Document")
+    source = st.sidebar.radio("Source", ["Upload a file", "Synthetic corpus", "Real public file"])
     path, labels, lang_guess, is_real, stem = None, None, "en", False, None
-
     if source == "Upload a file":
-        up = st.sidebar.file_uploader(
-            "File", type=[e.lstrip(".") for e in SUPPORTED_EXTENSIONS])
-        if up:
-            dest = OUT / "app-uploads"
-            dest.mkdir(parents=True, exist_ok=True)
-            path = dest / Path(up.name).name
-            path.write_bytes(up.getvalue())
+        uploaded = st.sidebar.file_uploader("Choose a file", type=[e.lstrip(".") for e in SUPPORTED_EXTENSIONS])
+        if uploaded is not None:
+            folder = OUT / "app-uploads"
+            folder.mkdir(parents=True, exist_ok=True)
+            path = folder / Path(uploaded.name).name
+            path.write_bytes(uploaded.getvalue())
             stem = path.stem
-    elif source == "Fake corpus":
+    elif source == "Synthetic corpus":
         try:
             docs = corpus_docs()
-            pick = st.sidebar.selectbox("Document", list(docs))
-            path, meta = docs[pick]
-            labels, lang_guess, stem = meta["entities"], meta["language"], pick
+            picked = st.sidebar.selectbox("Document", list(docs))
+            path, meta = docs[picked]
+            labels, lang_guess, stem = meta["entities"], meta["language"], picked
         except Exception as exc:  # noqa: BLE001
-            st.sidebar.error(f"Could not prepare the fake corpus: {exc}")
+            st.sidebar.error(f"Could not prepare the corpus: {exc}")
     else:
         files = sorted(p for p in REAL.glob("*/*") if p.is_file()) if REAL.exists() else []
-        if not files:
-            st.sidebar.warning("No real files found.")
+        if files:
+            path = st.sidebar.selectbox("Document", files, format_func=lambda p: f"{p.parent.name}/{p.name}")
+            is_real, stem = True, path.stem
         else:
-            pick = st.sidebar.selectbox("File", files, format_func=lambda p: f"{p.parent.name}/{p.name}")
-            path, is_real, stem = pick, True, pick.stem
-            st.sidebar.info("Real document. Check output by eye before sharing anything.")
+            st.sidebar.info("Add public test files to corpus/real/ to use this source.")
 
-    langs = ["en", "fi"]
-    lang = st.sidebar.selectbox("Language", langs, index=langs.index(lang_guess),
-                                key=f"lang-{stem}")
-    method = st.sidebar.radio("Method", list(METHODS),
-                              format_func=lambda m: f"{m}: {METHODS[m]['label']}")
-    st.sidebar.caption(METHODS[method]["about"])
-    mode_label = st.sidebar.radio("Replacement", list(MODES))
-    run = st.sidebar.button("Run", type="primary", disabled=path is None)
+    lang = st.sidebar.selectbox("Language", ["en", "fi"], index=["en", "fi"].index(lang_guess),
+                               format_func=lambda value: {"en": "English", "fi": "Finnish"}[value],
+                               key=f"lang-{stem}")
+    st.sidebar.divider()
+    method = st.sidebar.radio("Detector", list(METHODS), format_func=lambda value: METHODS[value]["label"])
+    mode = st.sidebar.radio("Replacement", list(MODES))
+    run = st.sidebar.button("Run document", type="primary", disabled=path is None, width="stretch")
+    if path is None:
+        st.sidebar.caption("Choose a document to enable Run.")
     return {"path": path, "labels": labels, "lang": lang, "method": method,
-            "mode": MODES[mode_label], "is_real": is_real, "stem": stem, "run": run}
+            "mode": MODES[mode], "is_real": is_real, "stem": stem, "run": run}
 
 
-# ------------------------------------------------------------------- pipeline
 def run_stages(cfg):
     from redact import redact, validate_spans
     res = {"cfg": cfg, "times": {}, "errors": {}}
     path = Path(cfg["path"])
     ocr = "fin+eng" if cfg["lang"] == "fi" else "eng"
-
-    text, dt, err = timed("Extraction", lambda: extract_cached(str(path), path.stat().st_mtime, ocr))
-    res["times"]["extract"], res["text"] = dt, text
-    if err:
-        res["errors"]["extract"] = err
+    text, duration, error = timed("Extraction", lambda: extract_cached(str(path), path.stat().st_mtime, ocr))
+    res["times"]["extract"], res["text"] = duration, text
+    if error:
+        res["errors"]["extract"] = error
         return res
 
     def detect():
-        return [SimpleNamespace(start=s, end=e, entity_type=t, score=sc)
-                for s, e, t, sc in detect_cached(text, cfg["lang"], cfg["method"])]
-    results, dt, err = timed("Detection", detect)
-    res["times"]["detect"], res["results"] = dt, results
-    if err:
-        res["errors"]["detect"] = err
+        return [SimpleNamespace(start=s, end=e, entity_type=t, score=score)
+                for s, e, t, score in detect_cached(text, cfg["lang"], cfg["method"])]
+
+    results, duration, error = timed("Detection", detect)
+    res["times"]["detect"], res["results"] = duration, results
+    if error:
+        res["errors"]["detect"] = error
         return res
     if cfg["labels"] is not None:
         res["scored"] = score_labels(text, cfg["labels"], results)
-
-    def clean():
-        return redact(text, validate_spans(text, results), mode=cfg["mode"])
-    clean_text, dt, err = timed("Redaction", clean)
-    res["times"]["clean"], res["clean"] = dt, clean_text
-    if err:
-        res["errors"]["clean"] = err
+    cleaned, duration, error = timed(
+        "Redaction", lambda: redact(text, validate_spans(text, results), mode=cfg["mode"]),
+    )
+    res["times"]["clean"], res["clean"] = duration, cleaned
+    if error:
+        res["errors"]["clean"] = error
         return res
     folder = OUT / "app-runs" / cfg["method"]
     folder.mkdir(parents=True, exist_ok=True)
     res["saved"] = folder / f"{cfg['stem']}_anonymized.md"
-    res["saved"].write_text(clean_text, encoding="utf-8")
+    res["saved"].write_text(cleaned, encoding="utf-8")
     return res
 
 
-def timing(res, key):
-    if key in res["times"]:
-        st.caption(f"Stage time: {res['times'][key]:.2f} s")
-
-
 def stage_error(res, key):
-    if key in res["errors"]:
-        msg = res["errors"][key]
-        if "lg" in str(res["cfg"]["method"]) and key == "detect":
-            msg += (" The large spaCy models may not be installed; try "
-                    "`python -m spacy download en_core_web_lg fi_core_news_lg` or pick another method.")
-        st.error(msg)
-        return True
-    return False
+    if key not in res["errors"]:
+        return False
+    message = res["errors"][key]
+    if key == "detect" and res["cfg"]["method"] == "rules-lg":
+        message += " Install the large English/Finnish spaCy models or choose another detector."
+    elif key == "detect" and res["cfg"]["method"] == "gliner":
+        message += " Install requirements-app.txt; the first GLiNER run downloads model weights."
+    st.error(message)
+    return True
 
 
-# ----------------------------------------------------------------------- tabs
+def document_view(text, intervals=(), colours=None, *, height=PREVIEW_HEIGHT):
+    with st.container(height=height, border=True):
+        st.html(highlight_html(text or "(empty)", intervals, colours or {}))
+
+
+def summary_row(res):
+    results, scored = res["results"], res.get("scored")
+    columns = st.columns(4)
+    columns[0].metric("Detections", len(results), border=True)
+    if scored is not None:
+        counts = Counter(item["status"] for item in scored)
+        columns[1].metric("Found labels", f"{counts['covered']} / {len(scored)}", border=True)
+        columns[2].metric("Missed labels", counts["missed"] + counts["absent"], border=True)
+        columns[3].metric("Partial labels", counts["partial"], border=True)
+    else:
+        columns[1].metric("Entity types", len({item.entity_type for item in results}), border=True)
+        columns[2].metric("Detection time", f"{res['times']['detect']:.2f} s", border=True)
+        columns[3].metric("Label coverage", "Unlabelled", border=True)
+
+
 def tab_extract(res):
     if stage_error(res, "extract"):
         return
-    timing(res, "extract")
     sections = split_sections(res["text"])
-    hidden = [s for s in sections if s[2]]
-    st.subheader("Hidden places")
-    if hidden:
-        st.caption("Metadata, notes, comments, tracked changes, headers and footers. "
-                   "A reader of the page never sees these, but the anonymizer must.")
-        for title, body, _ in hidden:
-            with st.expander(title, expanded=True):
-                st.code(body or "(empty)", language="markdown")
+    hidden = [(title, body) for title, body, is_hidden in sections if is_hidden]
+    cols = st.columns(3)
+    cols[0].metric("Characters", f"{len(res['text']):,}", border=True)
+    cols[1].metric("Hidden sections", len(hidden), border=True)
+    cols[2].metric("Extraction time", f"{res['times']['extract']:.2f} s", border=True)
+    if Path(res["cfg"]["path"]).suffix.lower() == ".csv":
+        with Path(res["cfg"]["path"]).open(encoding="utf-8-sig", newline="") as stream:
+            st.dataframe(list(csv.DictReader(stream)), hide_index=True, width="stretch")
     else:
-        st.info("No hidden sections in this document.")
-    st.subheader("Full Markdown")
-    st.code(res["text"], language="markdown", wrap_lines=True)
+        document_view(res["text"])
+    if hidden:
+        with st.expander(f"Metadata and other hidden content ({len(hidden)})"):
+            title = st.selectbox("Section", range(len(hidden)), format_func=lambda i: hidden[i][0])
+            document_view(hidden[title][1], height=320)
 
 
 def tab_detect(res):
     if "extract" in res["errors"]:
-        return st.info("Extraction failed; see tab 1.")
+        st.info("Extraction failed. Open Extract for details.")
+        return
     if stage_error(res, "detect"):
         return
-    timing(res, "detect")
-    text, results = res["text"], res["results"]
-    colours = type_colours(r.entity_type for r in results)
-    st.markdown(f"**{len(results)} detections** by "
-                f"`{res['cfg']['method']}` ({res['cfg']['lang']}).")
-    if colours:
-        st.markdown(" ".join(
-            f'<span style="background:{c};color:#111;padding:1px 6px;border-radius:3px">{t}</span>'
-            for t, c in colours.items()), unsafe_allow_html=True)
-    st.markdown(highlight_html(text, [(r.start, r.end, r.entity_type, r.score) for r in results],
-                               colours), unsafe_allow_html=True)
-
-    scored = res.get("scored")
-    if scored is None:
-        return st.caption("No labels for this source, so recall cannot be scored.")
-    st.divider()
-    got, total, misses = summarize(scored)
-    st.subheader(f"Found {got} of {total} labelled values")
-    absent = sum(s["status"] == "absent" for s in scored)
-    if absent:
-        st.caption(f"{absent} labelled value(s) are not in the extracted text and are not counted "
-                   "(an extraction problem, not a detection one).")
-    st.markdown(" ".join(
-        f'<span style="background:{c};color:#111;padding:1px 6px;border-radius:3px">{s}</span>'
-        for s, c in STATUS_COLOURS.items()), unsafe_allow_html=True)
-    st.markdown(highlight_html(text, label_intervals(text, scored), STATUS_COLOURS,
-                               lambda s: s), unsafe_allow_html=True)
-    if misses:
-        st.markdown("**Misses by type**")
-        for t, vals in sorted(misses.items()):
-            st.write(f"- **{t}** ({len(vals)}): " + "; ".join(vals))
+    summary_row(res)
+    results, scored = res["results"], res.get("scored")
+    counts = Counter(item.entity_type for item in results)
+    mode = st.segmented_control("Highlight", ["By entity type", "By coverage"],
+                                default="By entity type", disabled=scored is None)
+    if mode == "By coverage" and scored is not None:
+        intervals, colours = label_intervals(res["text"], scored), STATUS_COLOURS
+        st.html('<div class="coverage-key">'
+                '<span style="background:#86efac">Found</span> '
+                '<span style="background:#fde047">Partial</span> '
+                '<span style="background:#fca5a5">Missed</span></div>')
     else:
-        st.success("Every labelled value is fully covered.")
+        selected = st.pills("Entity types", sorted(counts), selection_mode="multi", default=sorted(counts),
+                            format_func=lambda entity: f"{entity.replace('_', ' ').title()} ({counts[entity]})")
+        intervals = [(item.start, item.end, item.entity_type, item.score)
+                     for item in results if item.entity_type in selected]
+        colours = type_colours(counts)
+    document_view(res["text"], intervals, colours)
+    if scored is None:
+        st.info("This source has no labels, so misses and recall cannot be measured.")
+    else:
+        missed = [item for item in scored if item["status"] != "covered"]
+        with st.expander(f"Missed and partial labels ({len(missed)})"):
+            if missed:
+                st.dataframe([{"Type": item["type"], "Value": item["value"],
+                               "Location": item["location"],
+                               "Status": "Not extracted" if item["status"] == "absent" else item["status"].title()}
+                              for item in sorted(missed, key=lambda item: (item["type"], item["status"]))],
+                             hide_index=True, width="stretch")
+            else:
+                st.success("All supplied labels are fully covered.")
 
 
 def tab_clean(res):
     if "extract" in res["errors"] or "detect" in res["errors"]:
-        return st.info("An earlier stage failed; see tabs 1 and 2.")
+        st.info("An earlier stage failed. Open Extract or Detect for details.")
+        return
     if stage_error(res, "clean"):
         return
-    timing(res, "clean")
-    a, b = st.columns(2)
-    a.markdown("**Original**")
-    a.code(res["text"], language="markdown", wrap_lines=True)
-    b.markdown("**Anonymized**")
-    b.code(res["clean"], language="markdown", wrap_lines=True)
-    st.download_button("Download anonymized .md", res["clean"].encode("utf-8"),
-                       file_name=res["saved"].name, mime="text/markdown")
-    st.caption(f"Also saved to `{res['saved'].relative_to(ROOT)}`")
+    summary_row(res)
+    original_intervals, clean_intervals = changed_intervals(res["text"], res["clean"])
+    left, right = st.columns(2)
+    with left:
+        st.subheader("Original")
+        document_view(res["text"], original_intervals, {"REPLACED": "#fde68a"})
+    with right:
+        st.subheader("Anonymized")
+        document_view(res["clean"], clean_intervals, {"REPLACED": "#a7f3d0"})
+    st.download_button("Download Markdown", res["clean"].encode("utf-8"),
+                       file_name=res["saved"].name, mime="text/markdown", type="primary")
+
+
+def recall_chart(recalls):
+    import altair as alt
+    import pandas as pd
+    data = pd.DataFrame([{"Dataset": dataset, "Method": METHODS.get(method, {}).get("label", method),
+                          "Recall": recall} for (dataset, method), recall in recalls.items()])
+    base = alt.Chart(data).encode(
+        x=alt.X("Method:N", sort=[entry["label"] for entry in METHODS.values()],
+                axis=alt.Axis(title=None, labelAngle=0, labelLimit=190)),
+        y=alt.Y("Dataset:N", axis=alt.Axis(title=None)),
+    )
+    cells = base.mark_rect(cornerRadius=4).encode(
+        color=alt.Color("Recall:Q", scale=alt.Scale(domain=[0, 1], scheme="blues"),
+                        legend=alt.Legend(format=".0%", values=[0, 0.25, 0.5, 0.75, 1])),
+        tooltip=["Dataset:N", "Method:N", alt.Tooltip("Recall:Q", format=".1%")],
+    )
+    labels = base.mark_text(fontSize=15, fontWeight=600).encode(
+        text=alt.Text("Recall:Q", format=".1%"),
+        color=alt.condition(alt.datum.Recall > 0.55, alt.value("white"), alt.value("#183047")),
+    )
+    return (cells + labels).properties(height=alt.Step(58)).configure_axis(labelFontSize=13)
+
+
+def show_file(path):
+    if path.suffix.lower() == ".csv":
+        with path.open(encoding="utf-8-sig", newline="") as stream:
+            st.dataframe(list(csv.DictReader(stream)), hide_index=True, width="stretch")
+    elif path.suffix.lower() in {".md", ".txt"}:
+        document_view(path.read_text(encoding="utf-8", errors="replace"))
+    else:
+        st.info(f"{path.name} · {path.stat().st_size:,} bytes")
 
 
 def tab_results():
     import pandas as pd
     csv_path = OUT / "runs" / "results.csv"
     if not csv_path.exists():
-        st.info("No benchmark results yet. Produce them with:")
+        st.info("Run the benchmark to compare detectors here.")
         st.code("python -m eval.run_matrix --out outputs/runs", language="bash")
-    else:
-        df = pd.read_csv(csv_path)
-        rows = df.to_dict("records")
-        rec = recall_table(rows)
-        pivot = pd.Series(rec).unstack() if rec else pd.DataFrame()
-        st.subheader("Recall by dataset and method")
-        st.dataframe(pivot.style.format("{:.1%}"), use_container_width=True)
-        if not pivot.empty:
-            st.bar_chart(pivot)
-        st.subheader("Per entity type")
-        per = df.groupby(["entity_type", "method"])[["planted", "covered", "partial"]].sum()
-        per["recall"] = (per["covered"] / per["planted"]).where(per["planted"] > 0)
-        st.dataframe(per.reset_index().style.format({"recall": "{:.1%}"}),
-                     use_container_width=True, hide_index=True)
-    files = sorted(p for p in (OUT / "runs").rglob("*") if p.is_file() and p.suffix == ".md") \
-        if (OUT / "runs").exists() else []
+        return
+    data = pd.read_csv(csv_path)
+    recalls = recall_table(data.to_dict("records"))
+    st.subheader("Recall by dataset and detector")
+    if recalls:
+        st.altair_chart(recall_chart(recalls), width="stretch")
+    st.subheader("Entity types with the largest gaps")
+    per = data.groupby(["entity_type", "method"])[["planted", "covered", "partial"]].sum().reset_index()
+    per["recall"] = (per["covered"] / per["planted"]).where(per["planted"] > 0)
+    per = per.sort_values(["recall", "planted"], ascending=[True, False], na_position="last")
+    per["method"] = per["method"].map(lambda method: METHODS.get(method, {}).get("label", method))
+    st.dataframe(per, hide_index=True, width="stretch", column_config={
+        "entity_type": "Entity type", "method": "Detector", "planted": "Labels", "covered": "Found",
+        "partial": "Partial", "recall": st.column_config.ProgressColumn("Recall", format="percent",
+                                                                       min_value=0, max_value=1),
+    })
+    files = sorted((OUT / "runs").rglob("*_anonymized.md"))
     if files:
-        st.subheader("Anonymized files from runs")
-        pick = st.selectbox("File", files, format_func=lambda p: str(p.relative_to(OUT / "runs")))
-        st.code(pick.read_text(encoding="utf-8", errors="replace")[:20000], language="markdown",
-                wrap_lines=True)
+        with st.expander("Inspect a benchmark output"):
+            st.write("Choose a saved anonymized document from a benchmark run.")
+            picked = st.selectbox("Saved document", files,
+                                  format_func=lambda path: str(path.relative_to(OUT / "runs")))
+            show_file(picked)
 
 
 def tab_pack():
-    st.warning("Real documents that contain people's names must be checked by eye before any "
-               "manual upload to a public AI. A detector misses things; the benchmark only "
-               "covers planted values.")
     pack = OUT / "pack"
-    if not pack.exists():
-        st.info("No pack yet. Build it from the benchmark runs with:")
+    files = sorted(path for path in pack.rglob("*") if path.is_file()) if pack.exists() else []
+    if not files:
+        st.info("Build a pack to browse documents, prompts and answer sheets here.")
         st.code("python -m eval.make_pack --runs outputs/runs --pack outputs/pack", language="bash")
         return
-    files = sorted(p for p in pack.rglob("*") if p.is_file())
-    buf = io.BytesIO()
-    with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as z:
-        for p in files:
-            z.write(p, p.relative_to(pack))
-    st.download_button("Download pack (.zip)", buf.getvalue(), file_name="pack.zip",
-                       mime="application/zip")
-    for p in files:
-        with st.expander(str(p.relative_to(pack))):
-            if p.suffix == ".csv":
-                st.dataframe(list(csv.DictReader(p.open(encoding="utf-8"))))
-            elif p.suffix in {".md", ".txt"}:
-                if p.name == "prompts.md":
-                    st.markdown(p.read_text(encoding="utf-8"))
-                else:
-                    st.code(p.read_text(encoding="utf-8"), language="markdown", wrap_lines=True)
-            else:
-                st.caption(f"{p.stat().st_size} bytes")
+    st.write("Browse the pack by group, or download the complete set.")
+    buffer = io.BytesIO()
+    with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as archive:
+        for path in files:
+            archive.write(path, path.relative_to(pack))
+    st.download_button("Download pack", buffer.getvalue(), file_name="pack.zip", mime="application/zip")
+    groups = {}
+    for path in files:
+        relative = path.relative_to(pack)
+        group = relative.parts[0] if len(relative.parts) > 1 else "Overview and answer sheets"
+        groups.setdefault(group, []).append(path)
+    names = {"docs": "Documents", "paste": "Prompts"}
+    group = st.pills("Group", list(groups), default=next(iter(groups)),
+                     format_func=lambda value: f"{names.get(value, value)} ({len(groups[value])})")
+    if group is None:
+        return
+    picked = st.selectbox("Pack file", groups[group],
+                          format_func=lambda path: str(path.relative_to(pack)))
+    show_file(picked)
 
 
-# ----------------------------------------------------------------------- main
 def main():
+    st.html("""<style>
+      .block-container { padding-top: 1.4rem; }
+      .app-header { display:flex; align-items:baseline; gap:1rem; margin-bottom:1rem; }
+      .app-header strong { font-size:1.55rem; color:#183047; }
+      .app-header span { color:#526578; }
+      .coverage-key { margin-bottom:.6rem; }
+      .coverage-key span { padding:3px 10px; border-radius:5px; color:#183047; }
+      [data-testid="stMetric"] { padding:.8rem 1rem; }
+      [data-testid="stMetricValue"] { font-size:1.7rem; }
+      @media (max-width:640px) {
+        .block-container { padding-top:4.25rem; }
+        [data-testid="stHorizontalBlock"]:has([data-testid="stMetric"]) {
+          display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:.6rem;
+        }
+        [data-testid="stHorizontalBlock"]:has([data-testid="stMetric"]) > div {
+          width:100% !important; min-width:0 !important;
+        }
+        [data-testid="stMetricValue"] { font-size:1.4rem; }
+        .app-header { flex-wrap:wrap; gap:.25rem .75rem; }
+        .app-header strong { font-size:1.2rem; }
+        .app-header span { display:none; }
+      }
+    </style><div class="app-header"><strong>Document anonymization</strong><span>Local testbench</span></div>""")
     cfg = sidebar()
-    st.title("Anonymization testbench")
-    if cfg["path"] is not None and cfg["is_real"]:
-        st.warning("Real document. Review the output by eye.")
     if cfg["run"]:
-        with st.spinner("Running (the first run of a method loads spaCy models)..."):
+        with st.spinner("Processing document. The first run loads the detector model."):
             st.session_state["res"] = run_stages(cfg)
     res = st.session_state.get("res")
-    t1, t2, t3, t4, t5 = st.tabs(["1 Extract", "2 Detect", "3 Clean", "4 Results", "5 Pack"])
-    with t4:
+    if res is not None:
+        actual = res["cfg"]
+        st.html('<div class="run-context">' + html.escape(
+            f"{Path(actual['path']).name} · {METHODS[actual['method']]['label']} · "
+            f"{'Finnish' if actual['lang'] == 'fi' else 'English'}"
+        ) + "</div>")
+        if actual["is_real"]:
+            st.warning("Real document: review detected and replaced content before sharing the output.")
+    extract, detect, clean, results, pack = st.tabs(["Extract", "Detect", "Clean", "Results", "Pack"])
+    with results:
         tab_results()
-    with t5:
+    with pack:
         tab_pack()
-    if res is None:
-        for t in (t1, t2, t3):
-            t.info("Pick a source in the sidebar and press Run.")
-        return
-    st.caption(f"Last run: `{Path(res['cfg']['path']).name}`, method `{res['cfg']['method']}`, "
-               f"language `{res['cfg']['lang']}`, replacement `{res['cfg']['mode']}`.")
-    for tab, fn in ((t1, tab_extract), (t2, tab_detect), (t3, tab_clean)):
+    for tab, render in ((extract, tab_extract), (detect, tab_detect), (clean, tab_clean)):
         with tab:
-            fn(res)
+            if res is None:
+                st.info("Choose a document and select Run document.")
+            else:
+                render(res)
 
 
-main()
+if __name__ == "__main__":
+    main()
