@@ -34,7 +34,7 @@ from pipeline.normalization import normalize_markdown
 
 OUT = ROOT / "outputs"
 CORPUS = OUT / "app-corpus"
-REAL = Path("/Users/riteshbhandari/code/data-anonymization/corpus/real")
+REAL = ROOT / "corpus" / "real"
 MODES = {"[PERSON]  (replace)": "replace", "[PERSON_1]  (pseudonymize)": "pseudonymize"}
 
 st.set_page_config(page_title="Anonymization testbench", layout="wide")
@@ -264,7 +264,7 @@ def tab_results():
     csv_path = OUT / "runs" / "results.csv"
     if not csv_path.exists():
         st.info("No benchmark results yet. Produce them with:")
-        st.code("python -m eval.run_matrix", language="bash")
+        st.code("python -m eval.run_matrix --out outputs/runs", language="bash")
     else:
         df = pd.read_csv(csv_path)
         rows = df.to_dict("records")
@@ -294,8 +294,9 @@ def tab_pack():
                "covers planted values.")
     pack = OUT / "pack"
     if not pack.exists():
-        return st.info("No pack yet. It is built by the other worktree into `outputs/pack/` "
-                       "(anonymized documents, `prompts.md`, `answers.csv`).")
+        st.info("No pack yet. Build it from the benchmark runs with:")
+        st.code("python -m eval.make_pack --runs outputs/runs --pack outputs/pack", language="bash")
+        return
     files = sorted(p for p in pack.rglob("*") if p.is_file())
     buf = io.BytesIO()
     with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as z:
@@ -308,7 +309,9 @@ def tab_pack():
             if p.suffix == ".csv":
                 st.dataframe(list(csv.DictReader(p.open(encoding="utf-8"))))
             elif p.suffix in {".md", ".txt"}:
-                st.markdown(p.read_text(encoding="utf-8")) if p.name == "prompts.md" else \
+                if p.name == "prompts.md":
+                    st.markdown(p.read_text(encoding="utf-8"))
+                else:
                     st.code(p.read_text(encoding="utf-8"), language="markdown", wrap_lines=True)
             else:
                 st.caption(f"{p.stat().st_size} bytes")
