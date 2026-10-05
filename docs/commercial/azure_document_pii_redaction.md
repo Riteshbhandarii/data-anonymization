@@ -55,20 +55,20 @@ This means that PowerPoint, Excel, and CSV files would need an additional extrac
 
 For the supported formats, I tested one English and one Finnish document for both DOCX and PDF.
 
-| Test file | Language | Full | Partial | Missed | Full detection |
+The table below uses **redaction coverage**. An identifier counts as fully covered when its complete text span was redacted, even if Azure assigned the wrong entity type.
+
+| Test file | Language | Full coverage | Partial | Missed | Full coverage rate |
 |---|---|---:|---:|---:|---:|
 | DOCX | English | 9/12 | 1/12 | 2/12 | 75.00% |
 | DOCX | Finnish | 8/12 | 0/12 | 4/12 | 66.67% |
 | PDF | English | 9/12 | 0/12 | 3/12 | 75.00% |
 | PDF | Finnish | 9/12 | 0/12 | 3/12 | 75.00% |
 
-Across the 48 expected identifiers in these four documents:
+Across the 48 expected identifiers in these four documents, Azure fully redacted 35, partially redacted 1, and missed 12.
 
-- 35 were fully detected
-- 1 was partially detected
-- 12 were missed
+These numbers describe whether sensitive text was covered, not whether Azure assigned the correct entity category. This distinction matters because some identifiers were redacted under the wrong type.
 
-The results show that Azure generally performed well with common PII such as:
+The service generally handled common PII well in these samples, including:
 
 - person names
 - email addresses
@@ -79,9 +79,29 @@ The results show that Azure generally performed well with common PII such as:
 
 The service also preserved the main structure of the DOCX and PDF documents after redaction.
 
+## Like-for-like Comparison with Presidio
+
+To provide a small like-for-like comparison, I also ran the same four documents through the project's default Presidio baseline using the same strict full/partial coverage rules.
+
+For this comparison, the detected entity also had to match the expected entity type. This changes two Azure results:
+
+- the personal identity code in the English DOCX was fully redacted but classified as `PhoneNumber`
+- the company in the English PDF was fully covered by several `Person` detections instead of being identified as a company or organization
+
+With entity type taken into account, the results were:
+
+| Tool | Full | Partial | Missed | Full detection rate |
+|---|---:|---:|---:|---:|
+| Azure Document PII | 33/48 | 1/48 | 14/48 | 68.75% |
+| Presidio default baseline | 27/48 | 5/48 | 16/48 | 56.25% |
+
+On this four-document sample, Azure had a 12.5 percentage point higher full detection rate than the default Presidio baseline.
+
+This is still only a small representative comparison, not a general performance benchmark. With only 48 expected identifiers, individual detections have a noticeable effect on the percentages.
+
 ## English DOCX
 
-The English DOCX test reached a full detection rate of **75.00%**.
+The English DOCX test reached a full redaction coverage rate of **75.00%**.
 
 Azure correctly redacted names, email, company name, address, IBAN, dates, and the Finnish-style personal identity code.
 
@@ -91,7 +111,7 @@ The personal identity code was redacted, but Azure classified it as a `PhoneNumb
 
 ## Finnish DOCX
 
-The Finnish DOCX test had the lowest result, with **66.67%** full detection.
+The Finnish DOCX test had the lowest result, with **66.67%** full redaction coverage.
 
 Names, email, telephone number, address, IBAN, and dates were successfully redacted.
 
@@ -106,11 +126,13 @@ There was also one clear false positive. The Finnish word `laatija`, meaning app
 
 ## English PDF
 
-The English PDF reached **75.00%** full detection.
+The English PDF reached **75.00%** full redaction coverage.
 
 Azure successfully redacted names, email, phone number, address, IBAN, and dates.
 
 The company name was also fully covered, although Azure interpreted its individual words as person names rather than as one organization.
+
+For the type-aware Presidio comparison above, this therefore counts as a miss for the expected company entity even though the sensitive text itself was redacted.
 
 The following identifiers were missed:
 
@@ -122,7 +144,7 @@ The redacted PDF remained readable and the main document layout was preserved.
 
 ## Finnish PDF
 
-The Finnish PDF also reached **75.00%** full detection.
+The Finnish PDF also reached **75.00%** full redaction coverage.
 
 Azure correctly detected:
 
@@ -144,7 +166,7 @@ The same `laatija` false positive seen in the Finnish DOCX appeared again. Azure
 
 ## Strengths
 
-Azure performed reliably with common PII categories and was able to create usable redacted DOCX and PDF files without requiring us to rebuild the documents ourselves.
+Azure handled common PII categories reasonably well in the files tested and was able to create usable redacted DOCX and PDF files without requiring us to rebuild the documents ourselves.
 
 Another useful feature is that the service provides both the redacted document and a structured JSON result.
 
@@ -208,7 +230,9 @@ Because of this, Azure seems more suitable for an automated backend pipeline tha
 
 Azure AI Language Document PII works well as a cloud-based anonymization component for DOCX and PDF files.
 
-Its strongest area is standard PII such as:
+In the small type-aware comparison on the same four documents, Azure reached **68.75%** full detection compared with **56.25%** for the default Presidio baseline. Because the sample contains only four documents, this should be treated as an illustrative comparison rather than evidence that Azure is generally more accurate.
+
+Its strongest area in these tests was standard PII such as:
 
 - names
 - emails
@@ -217,7 +241,7 @@ Its strongest area is standard PII such as:
 - bank account numbers
 - dates
 
-It also preserves the original document format reasonably well and provides structured detection results.
+It also preserved the original document format reasonably well and provided structured detection results.
 
 However, it is not a complete solution for our project by itself because PPTX, XLSX, and CSV are not supported by the native document API.
 
