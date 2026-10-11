@@ -1,0 +1,11 @@
+﻿language,format,total,not_extracted,missed,changed_review,changed_rate_percent
+en,csv,450,0,367,83,18.44
+en,docx,750,0,621,129,17.2
+en,pdf,700,0,574,126,18.0
+en,pptx,700,50,551,99,15.23
+en,xlsx,650,0,570,80,12.31
+fi,csv,450,0,375,75,16.67
+fi,docx,750,0,611,139,18.53
+fi,pdf,700,0,573,127,18.14
+fi,pptx,700,50,544,106,16.31
+fi,xlsx,650,0,565,85,13.08
