@@ -23,6 +23,7 @@ import importlib.metadata
 import json
 import time
 from collections.abc import Sequence
+from dataclasses import replace
 from pathlib import Path
 
 from PIL import Image
@@ -44,7 +45,7 @@ COVERED = 0.9
 
 def find_occurrences(words: Sequence[Word], value: str) -> list[list[int]]:
     """Word indices of every place the OCR text contains the whole value."""
-    text, ranges = layout(words)
+    text, ranges = layout([replace(word, text=normalize(word.text)) for word in words])
     text = text.replace("\n", " ")
     needle = normalize(value)
     occurrences = []
@@ -79,7 +80,7 @@ def score_image(words: Sequence[Word], after: Image.Image, after_words: Sequence
     """Value states and word counts for one redacted image."""
     gray = after.convert("L")
     covered = [blacked(gray, word.box) for word in words]
-    after_text = layout(after_words)[0].replace("\n", " ")
+    after_text = normalize(layout(after_words)[0])
     states, label_words = [], set()
     for entity in entities:
         occurrences = find_occurrences(words, entity["value"])
