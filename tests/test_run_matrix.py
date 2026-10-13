@@ -1,14 +1,24 @@
 """Pure helpers of the dataset runs and the manual pack; no models are loaded."""
 
 import csv
+import math
 import tempfile
 import unittest
 from pathlib import Path
 from types import SimpleNamespace
 
+from detect.combined import route
 from detect.gliner_detector import select_device, windows
+from detect.privacy_filter import merge_tags, viterbi
 from eval.make_pack import answer_rows, best_method, pair_prompt, truncate_at_line
-from eval.run_matrix import detect_long, mention_state, merge_rows, split_text, tally
+from eval.run_matrix import (
+    detect_long,
+    mention_state,
+    merge_rows,
+    split_text,
+    tally,
+    unlabelled,
+)
 
 
 def span(start, end, kind):
@@ -115,6 +125,53 @@ class PackTests(unittest.TestCase):
         text = pair_prompt("one", "two")
         self.assertIn("Document A:\none", text)
         self.assertIn("Document B:\ntwo", text)
+
+
+class UnlabelledTests(unittest.TestCase):
+    def test_counts_only_detections_touching_no_annotation(self):
+        spans = [span(0, 5, "PERSON"), span(8, 12, "DATE_TIME"), span(40, 45, "LOCATION")]
+        self.assertEqual(1, unlabelled(spans, [(3, 6), (10, 20)]))
+
+    def test_no_annotations_means_every_detection_is_unlabelled(self):
+        self.assertEqual(2, unlabelled([span(0, 1, "PERSON"), span(2, 3, "PERSON")], []))
+
+
+class CombinedRouteTests(unittest.TestCase):
+    def test_presidio_names_companies_and_places_give_way_to_the_model(self):
+        presidio = [span(0, 5, "IBAN_CODE"), span(6, 9, "PERSON"), span(10, 14, "LOCATION"),
+                    span(15, 19, "US_SSN"), span(20, 24, "DATE_TIME")]
+        model = [span(6, 9, "PERSON"), span(20, 24, "DATE_TIME"), span(30, 35, "PHONE_NUMBER")]
+        kept = sorted((s.start, s.entity_type) for s in route(presidio, model))
+        self.assertEqual([(0, "IBAN_CODE"), (6, "PERSON"), (15, "US_SSN"), (20, "DATE_TIME"),
+                          (20, "DATE_TIME"), (30, "PHONE_NUMBER")], kept)
+
+    def test_presidio_types_the_model_lacks_are_kept(self):
+        kept = route([span(0, 3, "NRP"), span(4, 8, "ORGANIZATION")], [])
+        self.assertEqual([(0, "NRP")], [(s.start, s.entity_type) for s in kept])
+
+
+LABELS = ["O", "B-x", "I-x", "E-x", "S-x"]
+
+
+def log_rows(*rows):
+    """Log probabilities from {tag: probability}; unlisted tags get a little."""
+    return [[math.log(row.get(t, 0.01)) for t in LABELS] for row in rows]
+
+
+class PrivacyFilterDecodeTests(unittest.TestCase):
+    def test_viterbi_keeps_a_span_whole_where_argmax_breaks_it(self):
+        rows = log_rows({"B-x": 0.6, "O": 0.36}, {"O": 0.5, "I-x": 0.4}, {"E-x": 0.6, "O": 0.36})
+        self.assertEqual(["B-x", "I-x", "E-x"], viterbi(rows, LABELS))
+
+    def test_viterbi_never_starts_or_ends_inside_a_span(self):
+        rows = log_rows({"I-x": 0.9, "S-x": 0.06})
+        self.assertEqual(["S-x"], viterbi(rows, LABELS))
+
+    def test_merge_tags_joins_tokens_and_skips_special_ones(self):
+        tags = ["O", "B-x", "I-x", "E-x", "O", "S-y"]
+        offsets = [(0, 0), (0, 4), (4, 6), (6, 9), (9, 10), (10, 12)]
+        spans = merge_tags(tags, offsets, [1.0, 0.9, 0.7, 0.8, 1.0, 0.95])
+        self.assertEqual([(0, 9, "x", 0.7), (10, 12, "y", 0.95)], spans)
 
 
 if __name__ == "__main__":

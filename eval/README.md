@@ -44,6 +44,52 @@ out, the other 2000 identifiers score 1511 (76%) with small models and 1563
 The large models mainly help PERSON. COMPANY stays weak, and ADDRESS is never
 fully covered in any run, only partly (the city comes back, the street does not).
 
+### Precision
+
+`bench.py` prints a second table, per detected entity type and language, and
+writes it to the result file under `precision`. The counting rule:
+
+- Every place a labelled value appears in the saved text is a labelled span,
+  whichever location the label was planted for.
+- A detection is **correct** when it overlaps a labelled span of its own type
+  (through `TYPE_MAP`). Overlap is enough: holding only part of an address is
+  a recall problem and is already counted there as partial.
+- It is **other type** when it overlaps only labelled spans of other types,
+  such as a person name inside a company name or a URL inside an email
+  address. That still hides personal data, but under the wrong label.
+- Anything else touches no labelled value and is a false positive in the
+  plain sense: over-redaction.
+- Precision is correct divided by detections. Types with no corpus
+  counterpart (URL, NRP, US_DRIVER_LICENSE and so on) keep their Presidio name
+  and can never be correct. Each detection counts once, so two overlapping
+  detections of one value count twice.
+
+This is an upper bound. The text is a few template sentences around the
+planted values, so there is almost no ordinary text for a detector to misfire
+on, and real documents will see more over-redaction. The run matrix measures
+precision on TAB, Turku and ai4privacy with the opposite bias (those datasets
+leave some personal data unannotated, so it is a lower bound); see
+[dataset-runs.md](../docs/dataset-runs.md).
+
+Measured on seed 42, 25 per format: 350 documents and 3650 body identifiers.
+The generator has grown since the recall table above, so the two tables are
+not the same corpus.
+
+| Configuration | Recall | Precision | Other type | Unlabelled |
+|---|---|---|---|---|
+| default, small | 2210/3650 (61%) | 2612/4438 (59%) | 1766 | 60 |
+| custom, small | 2960/3650 (81%) | 3362/5188 (65%) | 1766 | 60 |
+| custom, large | 3039/3650 (83%) | 3473/5107 (68%) | 1583 | 51 |
+
+Only about 1% of detections touch no labelled value: table header words
+("IBAN Date") and the word "plate" read as a company, and one "Invoice" read
+as a place. Most of
+the loss is the wrong type. In the custom, small run: 350 URL detections on
+the domain of an email address, 240 PERSON on company names built from
+surnames, 125 US_DRIVER_LICENSE and 93 DATE on identity codes, 121 PERSON
+and 111 DATE on parts of addresses. The custom recognizers add 750 correct
+detections and nothing else.
+
 The model weights are separate packages that pip cannot resolve from
 `requirements.txt`, so they are downloaded explicitly. `bench.py` records which
 versions it loaded, since new weights under the same name change every number.

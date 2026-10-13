@@ -33,6 +33,8 @@ TYPE_MAP = {
     "EMAIL_ADDRESS": "EMAIL",
     "PHONE_NUMBER": "PHONE",
     "IBAN_CODE": "IBAN",
+    # OpenAI Privacy Filter's account_number, which covers IBANs and cards alike.
+    "ACCOUNT_NUMBER": "IBAN",
     "LOCATION": "ADDRESS",
     "ORGANIZATION": "COMPANY",
     "DATE_TIME": "DATE",
@@ -108,6 +110,31 @@ def found(text, value, results):
     return "partial" if any(states) else ""
 
 
+def occurrences(text, entities):
+    """(start, end, type) for every place a labelled value appears in the text."""
+    spans = []
+    for e in entities:
+        start = text.find(e["value"])
+        while start >= 0:
+            spans.append((start, start + len(e["value"]), e["type"]))
+            start = text.find(e["value"], start + 1)
+    return spans
+
+
+def judge(detection, kind, labelled):
+    """Whether one detection of corpus type `kind` landed on a labelled value.
+
+    "correct" when it overlaps a labelled value of its own type, "other type"
+    when it overlaps only values of other types, and "" when it touches no
+    labelled value at all. Overlap is enough: a span holding part of a value
+    is a recall problem (see found), not a false positive.
+    """
+    hit = {t for start, end, t in labelled if detection.start < end and detection.end > start}
+    if kind in hit:
+        return "correct"
+    return "other type" if hit else ""
+
+
 def verdict(entity_type, planted, covered, partial, recognized=None):
     """A word per type, so a future run is readable without reading the code.
 
@@ -130,6 +157,8 @@ def main(root, baseline=False, size="sm", custom=False):
     analyzer = build_analyzer(models, custom)
     # (lang, fmt, type) -> [planted, covered, partial]
     counts = collections.defaultdict(lambda: [0, 0, 0])
+    # (lang, detected type) -> [detections, correct, other type]
+    precision = collections.defaultdict(lambda: [0, 0, 0])
     misses = []
 
     # Driven from the manifest rather than the directory listing. A smaller --n
@@ -162,6 +191,17 @@ def main(root, baseline=False, size="sm", custom=False):
                 misses.append({"file": doc["file"], "type": e["type"],
                                "value": e["value"], "detected": how or "nothing"})
 
+        # Every label counts here, not only body ones: a detection over any
+        # labelled value is personal data, whichever location it was planted for.
+        # Types with no corpus counterpart keep their Presidio name.
+        labelled = occurrences(text, doc["entities"])
+        for r in results:
+            kind = TYPE_MAP.get(r.entity_type, r.entity_type)
+            how = judge(r, kind, labelled)
+            precision[(lang, kind)][0] += 1
+            precision[(lang, kind)][1] += how == "correct"
+            precision[(lang, kind)][2] += how == "other type"
+
     with open(os.path.join(root, "corpus.json"), encoding="utf-8") as f:
         corpus = json.load(f)
     actual = fingerprint(root, stems)
@@ -175,7 +215,8 @@ def main(root, baseline=False, size="sm", custom=False):
     report(counts, misses, corpus, baseline, size, custom,
            {TYPE_MAP[e] for lang in models
             for e in getattr(analyzer, "get_supported_entities", lambda _: [])(lang)
-            if e in TYPE_MAP})
+            if e in TYPE_MAP},
+           precision=precision)
 
 
 def manifest(root):
@@ -210,7 +251,24 @@ def totals(counts, *keys):
     return out
 
 
-def report(counts, misses, corpus, baseline, size, custom, recognized):
+def print_precision(precision):
+    """Per detected type: correct/detections, then how many hit another type (t)."""
+    langs = sorted({lang for lang, _ in precision})
+    print(f"\n{'detected':<13}" + "".join(f"{lang:>17}" for lang in langs)
+          + "   correct/detections, t = on another type's value")
+    for t in sorted({t for _, t in precision}):
+        row = f"{t:<13}"
+        for lang in langs:
+            n, c, o = precision.get((lang, t), [0, 0, 0])
+            row += f"{c:>5}/{n:<4}{c / n:>4.0%}{o:>4}t" if n else f"{'-':>17}"
+        print(row)
+    n, c, o = (sum(v[i] for v in precision.values()) for i in range(3))
+    if n:
+        print(f"\n{c}/{n} detections landed on a labelled value of their own type, "
+              f"{c / n:.0%}. {o} more landed on another type's value, {n - c - o} on none.")
+
+
+def report(counts, misses, corpus, baseline, size, custom, recognized, precision=None):
     models_used = MODEL_SETS[size]
     by_lang_type = totals(counts, 0, 2)
     types = sorted({t for _, _, t in counts})
@@ -237,6 +295,8 @@ def report(counts, misses, corpus, baseline, size, custom, recognized):
     part = sum(p for _, _, p in counts.values())
     print(f"\n{hits}/{total} body identifiers fully covered, {hits / total:.0%}. "
           f"{part} more were partly detected, which still leaks the rest.")
+    precision = precision or {}
+    print_precision(precision)
 
     name = result_name(size, custom)
     models = {p: importlib.metadata.version(p) for p in ("presidio-analyzer", "spacy")}
@@ -261,6 +321,11 @@ def report(counts, misses, corpus, baseline, size, custom, recognized):
         "recall": recall,
         "recall_by_format": {f"{fmt}/{t}": {"planted": p, "covered": c, "partial": q}
                              for (fmt, t), (p, c, q) in sorted(by_fmt_type.items())},
+        "precision_rule": ("a detection is correct when it overlaps a labelled value of its "
+                           "own type; template text, so an upper bound (eval/README.md)"),
+        "precision": {f"{lang}/{t}": {"detections": n, "correct": c, "other_type": o,
+                                      "unlabelled": n - c - o}
+                      for (lang, t), (n, c, o) in sorted(precision.items())},
     })
     # Every failure individually, which is what you read to decide what to fix.
     # It grows with the corpus and regenerates in seconds, so it stays untracked.

@@ -132,6 +132,34 @@ def test_verdict_partial_only_wins_over_missing_recognizer():
     assert bench.verdict("UNMAPPED_TYPE", 10, 0, 2) == "partial only"
 
 
+# occurrences() and judge() ---------------------------------------------------
+
+def test_occurrences_finds_every_copy_of_every_value():
+    text = "Anna at Acme Oy, Anna again"
+    got = bench.occurrences(text, [label("PERSON", "Anna"), label("COMPANY", "Acme Oy")])
+    assert sorted(got) == [(0, 4, "PERSON"), (8, 15, "COMPANY"), (17, 21, "PERSON")]
+
+
+def test_occurrences_skips_values_missing_from_text():
+    assert bench.occurrences("nothing here", [label("PERSON", "Anna")]) == []
+
+
+LABELLED = [(0, 13, "PERSON"), (17, 24, "COMPANY")]  # "Anna Virtanen of Acme Oy"
+
+
+@pytest.mark.parametrize("start, end, kind, expected", [
+    (0, 13, "PERSON", "correct"),
+    (5, 13, "PERSON", "correct"),        # part of the value: a recall problem, not a false one
+    (0, 24, "PERSON", "correct"),        # spans both, one of them its own type
+    (17, 24, "PERSON", "other type"),    # a company read as a person
+    (13, 17, "PERSON", ""),              # " of " touches neither value
+    (24, 30, "COMPANY", ""),             # adjacent is not overlap
+    (0, 13, "URL", "other type"),        # a type the corpus does not label
+])
+def test_judge(start, end, kind, expected):
+    assert bench.judge(span(start, end), kind, LABELLED) == expected
+
+
 # manifest() and fingerprint() ----------------------------------------------
 
 def make_corpus(root, docs, n=None):
@@ -215,8 +243,9 @@ def run(monkeypatch):
         got = {}
         monkeypatch.setattr(bench, "build_analyzer", lambda *a, **k: StubAnalyzer(detect))
         monkeypatch.setattr(bench, "report",
-                            lambda counts, misses, corpus, baseline, *a, **k:
-                            got.update(counts=dict(counts), misses=misses))
+                            lambda counts, misses, corpus, baseline, *a, precision=None, **k:
+                            got.update(counts=dict(counts), misses=misses,
+                                       precision=dict(precision or {})))
         bench.main(str(root))
         return got
     return go
@@ -262,6 +291,26 @@ def test_detection_of_the_wrong_type_does_not_count(tmp_path, run):
     make_corpus(tmp_path, {"en_csv_00": ([label("PERSON", "Anna Virtanen")], text)})
     got = run(tmp_path, detect=[("Anna Virtanen", "ORGANIZATION")])
     assert got["counts"][("en", "csv", "PERSON")] == [1, 0, 0]
+
+
+def test_precision_counts_per_detected_type(tmp_path, run):
+    text = "Quarterly memo by Anna Virtanen of Acme Oy."
+    make_corpus(tmp_path, {"en_csv_00": ([label("PERSON", "Anna Virtanen"),
+                                          label("COMPANY", "Acme Oy")], text)})
+    got = run(tmp_path, detect=[("Anna Virtanen", "PERSON"), ("Acme Oy", "PERSON"),
+                                ("Quarterly", "ORGANIZATION"), ("memo", "NRP")])
+    # [detections, correct, other type]; the rest touched no labelled value.
+    assert got["precision"] == {("en", "PERSON"): [2, 1, 1],
+                                ("en", "COMPANY"): [1, 0, 0],
+                                ("en", "NRP"): [1, 0, 0]}
+
+
+def test_detection_over_a_metadata_value_is_not_a_false_positive(tmp_path, run):
+    text = "Memo by Anna Virtanen."
+    make_corpus(tmp_path, {"en_docx_00": (
+        [label("PERSON", "Anna Virtanen", "metadata")], text)})
+    got = run(tmp_path, detect=[("Anna Virtanen", "PERSON")])
+    assert got["precision"] == {("en", "PERSON"): [1, 1, 0]}
 
 
 def test_leftover_documents_from_a_larger_run_are_not_scored(tmp_path, run):
