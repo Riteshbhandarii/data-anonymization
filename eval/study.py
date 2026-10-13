@@ -11,7 +11,7 @@ import json
 import unicodedata
 from collections import defaultdict
 from contextlib import nullcontext
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
 
@@ -221,7 +221,7 @@ def run(plan, provider, *, web_search=True, max_requests=100, output_path=None):
             row = {**request, "model": provider.model, "web_search": search_enabled,
                    "synthetic": plan.get("synthetic", False),
                    "plan_sha256": hashlib.sha256(canonical(plan).encode()).hexdigest(),
-                   "timestamp": datetime.now(timezone.utc).isoformat()}
+                   "timestamp": datetime.now(UTC).isoformat()}
             try:
                 response = provider.answer(request["prompt"], web_search=search_enabled)
                 if not isinstance(response, dict):
