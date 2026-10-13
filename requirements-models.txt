@@ -1,0 +1,5 @@
+# Optional full local detector set, pinned to the measured development environment.
+-r requirements-evaluation.txt
+gliner==0.2.29
+gliner2==2.1.0
+transformers==5.16.1
