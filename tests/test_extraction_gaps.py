@@ -19,6 +19,18 @@ class ExtractionGapTests(unittest.TestCase):
         self.addCleanup(self.directory.cleanup)
         self.root = Path(self.directory.name)
 
+    def test_nested_docx_table_pipes_are_escaped_once(self):
+        from docx import Document
+
+        document = Document()
+        outer = document.add_table(rows=1, cols=1)
+        inner = outer.cell(0, 0).add_table(rows=1, cols=1)
+        inner.cell(0, 0).text = "Aino | Example"
+        path = self.root / "nested-pipes.docx"
+        document.save(path)
+        text = _text_by_location(extract_to_markdown(path), path)["body"]
+        self.assertIn("Aino | Example", text)
+
     def test_docx_metadata_and_all_header_footer_variants(self):
         from docx import Document
         from docx.enum.section import WD_SECTION_START
