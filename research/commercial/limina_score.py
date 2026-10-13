@@ -3,7 +3,6 @@ import json
 import unicodedata
 from pathlib import Path
 
-
 RESULT_ROOT = Path("commercial_limina_results")
 
 TESTS = [
@@ -282,7 +281,7 @@ def print_table(title, counts):
         rate = 100 * full / total if total else 0
 
         print(
-            f"{str(key):<18}"
+            f"{key!s:<18}"
             f"{full:>8}"
             f"{row['partial']:>10}"
             f"{row['missed']:>9}"
@@ -354,7 +353,7 @@ def main():
 
     output = {
         "documents_scored": len(TESTS),
-        "expected_body_identifiers": 74,
+        "expected_body_identifiers": coverage["overall"]["ALL"]["total"],
         "scoring_note": (
             "Entity text is compared directly with ground truth after "
             "Unicode normalization and whitespace removal. Punctuation "
