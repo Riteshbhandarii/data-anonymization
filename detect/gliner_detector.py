@@ -59,6 +59,27 @@ def select_device(environ=None) -> str:
     return "cpu"
 
 
+def pattern_spans(text: str) -> list:
+    """The project's plate, invoice and identity code patterns, as spans.
+
+    Added to every model detector, since no model has a reason to know these
+    synthetic formats.
+    """
+    # Imported here so the module loads without presidio (CI tests only the helpers).
+    from detect.pattern_recognizers import (
+        INVOICE_PATTERN,
+        PERSONAL_ID_NO_CHECKSUM_PATTERN,
+        PLATE_PATTERN,
+    )
+    spans = []
+    for entity, pattern in (("PLATE", PLATE_PATTERN), ("INVOICE", INVOICE_PATTERN),
+                            ("PERSONAL_ID", PERSONAL_ID_NO_CHECKSUM_PATTERN)):
+        for match in re.finditer(pattern.regex, text):
+            spans.append(SimpleNamespace(start=match.start(), end=match.end(),
+                                         entity_type=entity, score=pattern.score))
+    return spans
+
+
 class GlinerDetector:
     def __init__(self, threshold: float = 0.4, model: str = MODEL, device: str | None = None):
         self.threshold = threshold
@@ -78,15 +99,4 @@ class GlinerDetector:
                 spans.append(SimpleNamespace(
                     start=offset + item["start"], end=offset + item["end"],
                     entity_type=LABELS[item["label"]], score=float(item["score"])))
-        # Imported here so the module loads without presidio (CI tests only the helpers).
-        from detect.pattern_recognizers import (
-            INVOICE_PATTERN,
-            PERSONAL_ID_NO_CHECKSUM_PATTERN,
-            PLATE_PATTERN,
-        )
-        for entity, pattern in (("PLATE", PLATE_PATTERN), ("INVOICE", INVOICE_PATTERN),
-                                ("PERSONAL_ID", PERSONAL_ID_NO_CHECKSUM_PATTERN)):
-            for match in re.finditer(pattern.regex, text):
-                spans.append(SimpleNamespace(start=match.start(), end=match.end(),
-                                             entity_type=entity, score=pattern.score))
-        return spans
+        return spans + pattern_spans(text)
