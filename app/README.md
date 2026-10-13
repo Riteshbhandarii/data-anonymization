@@ -1,5 +1,11 @@
 # Anonymization testbench
 
+The project config binds the server to `127.0.0.1` by default. Downloads use a
+neutral name rather than carrying a person's name from the original filename.
+Saved local runs retain their source extension and get a new suffix instead of
+overwriting earlier output. Changing the input, detector, language or replacement
+mode hides the old result until the selection is run again.
+
 A local Streamlit page for watching the pipeline work: extract, detect, clean.
 Everything runs on this machine and no document content is sent to any network
 service.
