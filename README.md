@@ -142,6 +142,8 @@ Public and synthetic only. Nothing real enters this repository.
 - [docs/pipeline.md](docs/pipeline.md), pipeline interfaces and module integration
 - [docs/extraction-validation.md](docs/extraction-validation.md), extraction recall results and validation commands
 - [docs/techniques.md](docs/techniques.md), anonymization techniques and where each one breaks
+- [docs/product-options.md](docs/product-options.md), free/paid, local/cloud product inventory
+- [docs/work-plan.md](docs/work-plan.md), pathway ownership, review order and remaining evidence
 - [docs/evaluation.md](docs/evaluation.md), the re-identification test protocol
 - [docs/model-evaluation.md](docs/model-evaluation.md), preparing and running controlled model experiments
 - [docs/assigned-task-results.md](docs/assigned-task-results.md), task status and reproducible local results
