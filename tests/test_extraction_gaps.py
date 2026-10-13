@@ -101,6 +101,58 @@ class ExtractionGapTests(unittest.TestCase):
         for value in ("body-image@example.test", "table-image@example.test", "header-image@example.test"):
             self.assertIn(value, sections["embedded_image"])
 
+    def _docx_with_note_parts(self, *, broken_reference=False):
+        from docx import Document
+        from docx.opc.constants import RELATIONSHIP_TYPE as RT
+        from docx.opc.packuri import PackURI
+        from docx.opc.part import Part
+        from docx.oxml import parse_xml
+
+        document = Document()
+        paragraph = document.add_paragraph("Body Contact")
+        for kind, reltype in (("footnote", RT.FOOTNOTES), ("endnote", RT.ENDNOTES)):
+            for identifier in ("2", "1", "2"):
+                paragraph._p.append(parse_xml(
+                    '<w:r xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'
+                    f'<w:{kind}Reference w:id="{identifier}"/></w:r>'
+                ))
+            note_ids = ("1", "orphan") if broken_reference else ("1", "2", "orphan")
+            content = ''.join(
+                f'<w:{kind} w:id="{identifier}"><w:p><w:r><w:t>'
+                f'{kind}-{identifier}@example.test</w:t></w:r></w:p></w:{kind}>'
+                for identifier in note_ids
+            )
+            part = Part(
+                PackURI(f"/word/{kind}s.xml"),
+                f"application/vnd.openxmlformats-officedocument.wordprocessingml.{kind}s+xml",
+                ('<w:' + kind + 's xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'
+                 + content + f'</w:{kind}s>').encode(), document.part.package,
+            )
+            document.part.relate_to(part, reltype)
+        path = self.root / "notes.docx"
+        document.save(path)
+        return path
+
+    def test_docx_footnotes_and_endnotes_follow_references_and_have_notes_location(self):
+        path = self._docx_with_note_parts()
+        markdown = extract_to_markdown(path)
+        sections = _text_by_location(markdown, path)
+        self.assertIn("Body Contact", sections["body"])
+        for kind in ("footnote", "endnote"):
+            self.assertIn(f"[{kind}:2][{kind}:1][{kind}:2]", sections["body"])
+            for identifier in ("1", "2"):
+                value = f"{kind}-{identifier}@example.test"
+                self.assertEqual(1, markdown.count(value))
+                self.assertIn(value, sections["notes"])
+                self.assertNotIn(value, sections["body"])
+            self.assertLess(markdown.index(f"{kind}-2@"), markdown.index(f"{kind}-1@"))
+            self.assertNotIn(f"{kind}-orphan@", markdown)
+
+    def test_docx_missing_referenced_note_fails_instead_of_losing_text(self):
+        path = self._docx_with_note_parts(broken_reference=True)
+        with self.assertRaisesRegex(ExtractionError, "missing footnote 2"):
+            extract_to_markdown(path)
+
     def test_multiframe_tiff_routes_every_page_to_ocr(self):
         from PIL import Image
 
