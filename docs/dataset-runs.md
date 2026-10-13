@@ -1,5 +1,11 @@
 # Dataset runs
 
+These recorded numbers predate the pre-review audit fixes to GLiNER windows,
+outer document chunks and negative-document precision. They describe the
+historical implementation, not the corrected one. Rerun the matrix before
+quoting them as corrected-code accuracy or runtime; the original aggregate
+tables are retained rather than silently recalculated.
+
 Every free detection method over every dataset we have. Aggregate numbers only:
 the anonymized outputs and the manual-test pack are built locally and never
 committed.
