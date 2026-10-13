@@ -1,13 +1,14 @@
-from pathlib import Path
 import csv
-
-from docx import Document
-from pypdf import PdfReader
-from pptx import Presentation
-from openpyxl import load_workbook
+import logging
+from pathlib import Path
 
 from datafog_core import scan
+from docx import Document
+from openpyxl import load_workbook
+from pptx import Presentation
+from pypdf import PdfReader
 
+logger = logging.getLogger(__name__)
 
 # ============================================================
 # CONFIGURATION
@@ -118,7 +119,7 @@ def extract_pptx(path):
                     lines.append(text)
 
        
-        try:
+        if slide.has_notes_slide:
 
             notes_slide = slide.notes_slide
 
@@ -138,8 +139,6 @@ def extract_pptx(path):
                 lines.append("[SPEAKER NOTES]")
                 lines.extend(notes)
 
-        except Exception:
-            pass
 
     return "\n".join(lines)
 
@@ -271,10 +270,7 @@ for folder, extension in extensions.items():
         ):
             continue
 
-        if not (
-            filename.startswith("en_")
-            or filename.startswith("fi_")
-        ):
+        if not filename.startswith(("en_", "fi_")):
             continue
 
         files.append(path)
@@ -351,227 +347,228 @@ summary_path = (
 )
 
 
-summary_file = open(
+with open(
     summary_path,
     "w",
     newline="",
     encoding="utf-8-sig"
-)
+) as summary_file:
 
 
-summary_writer = csv.writer(
-    summary_file
-)
-
-
-summary_writer.writerow([
-    "filename",
-    "format",
-    "language",
-    "status",
-    "detections",
-    "original_characters",
-    "anonymized_characters",
-    "changed",
-    "error"
-])
-
-
-# ============================================================
-# PROCESS FILES
-# ============================================================
-
-success_count = 0
-error_count = 0
-changed_count = 0
-total_detections = 0
-
-
-for number, path in enumerate(
-    files,
-    start=1
-):
-
-    print(
-        f"[{number}/{len(files)}] "
-        f"Testing {path.name}"
+    summary_writer = csv.writer(
+        summary_file
     )
 
 
-    file_format = (
-        path.suffix
-        .lower()
-        .replace(".", "")
-    )
+    summary_writer.writerow([
+        "filename",
+        "format",
+        "language",
+        "status",
+        "detections",
+        "original_characters",
+        "anonymized_characters",
+        "changed",
+        "error"
+    ])
 
 
-    if path.name.lower().startswith(
-        "en_"
+    # ============================================================
+    # PROCESS FILES
+    # ============================================================
+
+    success_count = 0
+    error_count = 0
+    changed_count = 0
+    total_detections = 0
+
+
+    for number, path in enumerate(
+        files,
+        start=1
     ):
-        language = "EN"
-
-    else:
-        language = "FI"
-
-
-    try:
-
-        # Extract document text
-        original = extract_text(path)
-
-
-        # Run DataFog
-        anonymized, findings = (
-            redact_with_datafog(original)
-        )
-
-
-        detection_count = len(findings)
-
-        total_detections += (
-            detection_count
-        )
-
-
-        changed = (
-            original != anonymized
-        )
-
-
-        if changed:
-            changed_count += 1
-
-
-        # ====================================================
-        # SAVE DETAILED RESULT
-        # ====================================================
-
-        result_name = (
-            f"{path.stem}"
-            f"_datafog_result.txt"
-        )
-
-
-        result_path = (
-            OUTPUT_DIR /
-            result_name
-        )
-
-
-        with open(
-            result_path,
-            "w",
-            encoding="utf-8"
-        ) as result_file:
-
-            result_file.write(
-                f"FILE: {path}\n"
-            )
-
-            result_file.write(
-                f"FORMAT: "
-                f"{file_format.upper()}\n"
-            )
-
-            result_file.write(
-                f"LANGUAGE: "
-                f"{language}\n"
-            )
-
-            result_file.write(
-                f"DETECTIONS: "
-                f"{detection_count}\n"
-            )
-
-            result_file.write(
-                f"CHANGED BY DATAFOG: "
-                f"{changed}\n"
-            )
-
-
-            result_file.write(
-                "\n"
-                + "=" * 70
-                + "\nORIGINAL\n"
-                + "=" * 70
-                + "\n\n"
-            )
-
-            result_file.write(
-                original
-            )
-
-
-            result_file.write(
-                "\n\n"
-                + "=" * 70
-                + "\nANONYMIZED BY DATAFOG\n"
-                + "=" * 70
-                + "\n\n"
-            )
-
-            result_file.write(
-                anonymized
-            )
-
-
-            result_file.write(
-                "\n\n"
-                + "=" * 70
-                + "\nDATAFOG FINDINGS\n"
-                + "=" * 70
-                + "\n\n"
-            )
-
-            result_file.write(
-                repr(findings)
-            )
-
-
-        # ====================================================
-        # SUMMARY
-        # ====================================================
-
-        summary_writer.writerow([
-            path.name,
-            file_format,
-            language,
-            "SUCCESS",
-            detection_count,
-            len(original),
-            len(anonymized),
-            changed,
-            ""
-        ])
-
-
-        success_count += 1
-
-
-    except Exception as error:
 
         print(
-            f"    ERROR: {error}"
+            f"[{number}/{len(files)}] "
+            f"Testing {path.name}"
         )
 
 
-        summary_writer.writerow([
-            path.name,
-            file_format,
-            language,
-            "ERROR",
-            "",
-            "",
-            "",
-            "",
-            str(error)
-        ])
+        file_format = (
+            path.suffix
+            .lower()
+            .replace(".", "")
+        )
 
 
-        error_count += 1
+        if path.name.lower().startswith(
+            "en_"
+        ):
+            language = "EN"
+
+        else:
+            language = "FI"
 
 
-summary_file.close()
+        try:
+
+            # Extract document text
+            original = extract_text(path)
+
+
+            # Run DataFog
+            anonymized, findings = (
+                redact_with_datafog(original)
+            )
+
+
+            detection_count = len(findings)
+
+            total_detections += (
+                detection_count
+            )
+
+
+            changed = (
+                original != anonymized
+            )
+
+
+            if changed:
+                changed_count += 1
+
+
+            # ====================================================
+            # SAVE DETAILED RESULT
+            # ====================================================
+
+            result_name = (
+                f"{path.stem}"
+                f"_datafog_result.txt"
+            )
+
+
+            result_path = (
+                OUTPUT_DIR /
+                result_name
+            )
+
+
+            with open(
+                result_path,
+                "w",
+                encoding="utf-8"
+            ) as result_file:
+
+                result_file.write(
+                    f"FILE: {path}\n"
+                )
+
+                result_file.write(
+                    f"FORMAT: "
+                    f"{file_format.upper()}\n"
+                )
+
+                result_file.write(
+                    f"LANGUAGE: "
+                    f"{language}\n"
+                )
+
+                result_file.write(
+                    f"DETECTIONS: "
+                    f"{detection_count}\n"
+                )
+
+                result_file.write(
+                    f"CHANGED BY DATAFOG: "
+                    f"{changed}\n"
+                )
+
+
+                result_file.write(
+                    "\n"
+                    + "=" * 70
+                    + "\nORIGINAL\n"
+                    + "=" * 70
+                    + "\n\n"
+                )
+
+                result_file.write(
+                    original
+                )
+
+
+                result_file.write(
+                    "\n\n"
+                    + "=" * 70
+                    + "\nANONYMIZED BY DATAFOG\n"
+                    + "=" * 70
+                    + "\n\n"
+                )
+
+                result_file.write(
+                    anonymized
+                )
+
+
+                result_file.write(
+                    "\n\n"
+                    + "=" * 70
+                    + "\nDATAFOG FINDINGS\n"
+                    + "=" * 70
+                    + "\n\n"
+                )
+
+                result_file.write(
+                    repr(findings)
+                )
+
+
+            # ====================================================
+            # SUMMARY
+            # ====================================================
+
+            summary_writer.writerow([
+                path.name,
+                file_format,
+                language,
+                "SUCCESS",
+                detection_count,
+                len(original),
+                len(anonymized),
+                changed,
+                ""
+            ])
+
+
+            success_count += 1
+
+
+        except Exception as error:
+            logger.exception("Failed to process %s", path)
+
+            print(
+                f"    ERROR: {error}"
+            )
+
+
+            summary_writer.writerow([
+                path.name,
+                file_format,
+                language,
+                "ERROR",
+                "",
+                "",
+                "",
+                "",
+                str(error)
+            ])
+
+
+            error_count += 1
+
+
+
 
 
 # ============================================================
