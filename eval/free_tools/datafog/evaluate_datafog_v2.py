@@ -1,9 +1,11 @@
-
-from pathlib import Path
-from collections import defaultdict
 import csv
 import json
+import logging
 import re
+from collections import defaultdict
+from pathlib import Path
+
+logger = logging.getLogger(__name__)
 
 # ============================================================
 # CONFIGURATION
@@ -38,7 +40,7 @@ def read_sections(result_path):
 
     def section(start_marker, end_marker):
         start_pattern = (
-            rf"(?m)^ORIGINAL\s*$"
+            r"(?m)^ORIGINAL\s*$"
             if start_marker == "ORIGINAL"
             else rf"(?m)^{re.escape(start_marker)}\s*$"
         )
@@ -175,6 +177,7 @@ for index, label_path in enumerate(label_files, start=1):
             })
 
     except Exception as error:
+        logger.exception("Failed to process %s", label_path)
         bad_labels.append(
             (label_path.name, str(error))
         )
