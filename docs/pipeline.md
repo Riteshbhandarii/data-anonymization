@@ -150,17 +150,17 @@ Extension matching is case-insensitive. All readers return Markdown strings thro
 |---|---|
 | `.txt`, `.md` | Read UTF-8 text, accepting an optional UTF-8 byte-order mark |
 | `.csv` | Read comma-separated rows and build a Markdown table; the first row becomes the header |
-| `.docx` | Read core metadata, body paragraphs/headings/lists/tables, primary/first-page/even-page headers and footers, review comments and authors, and tracked changes |
-| `.xlsx` | Read core metadata and all worksheets, including hidden worksheets; build one section and table per sheet using saved computed formula values |
+| `.docx` | Read core metadata, body paragraphs/headings/lists/nested tables/content controls, primary/first-page/even-page headers and footers, review comments and authors, tracked changes, and OCR text from embedded pictures |
+| `.xlsx` | Read core metadata and all worksheets, including hidden worksheets; retain saved computed formula values, formula expressions, and cell comments/authors |
 | `.pptx` | Read core metadata and build a section per slide with titles, text, tables, speaker notes, and OCR text from embedded pictures (including groups) |
-| `.pdf` | Read document metadata and build a section per page; extract native text and OCR embedded image regions, or OCR the full page when it has no text |
-| `.png`, `.jpg`, `.jpeg`, `.tif`, `.tiff`, `.bmp` | Read the image through OCR and return a text section |
+| `.pdf` | Read document metadata and annotation comments/authors; build a section per page with native text and OCR embedded image regions, or OCR the full page when it has no text |
+| `.png`, `.jpg`, `.jpeg`, `.tif`, `.tiff`, `.bmp` | Read every image frame through OCR and return a text section |
 
 Core metadata is emitted under `## Document metadata`, followed by the document content sections. DOCX and PPTX properties include author, last modified by, title, subject, keywords, comments, and other core text properties. XLSX includes the equivalent workbook properties, and PDF includes its document information fields. Shared Word headers and footers are emitted once per defining part, including their paragraphs and tables.
 
-XLSX extraction reads the cached result saved by a spreadsheet application; it does not calculate formulas. A formula with a missing cache or an error value raises `ExtractionError` identifying the workbook, sheet, and cell. Recalculate and save the workbook in Excel or LibreOffice, then retry. A valid cached empty string is accepted.
+XLSX extraction reads the cached result saved by a spreadsheet application; it does not calculate formulas. Formula expressions are also retained in each worksheet section, because they can contain identifiers absent from the computed result. A formula with a missing cache or an error value raises `ExtractionError` identifying the workbook, sheet, and cell. Recalculate and save the workbook in Excel or LibreOffice, then retry. A valid cached empty string is accepted.
 
-For mixed PDF pages, OCR text supplements selectable text in a separate embedded-image section. Pages with selectable text and no images are read without OCR. Word comments and tracked changes also have separate headings, allowing the validation report to check those locations independently.
+For mixed PDF pages, OCR text supplements selectable text in a separate embedded-image section. Pages with selectable text and no images are read without OCR. Word comments and tracked changes, workbook cell comments, and PDF annotation comments have separate headings, allowing the validation report to check those locations independently.
 
 Extraction can also be called independently:
 
