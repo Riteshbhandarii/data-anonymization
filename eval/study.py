@@ -94,6 +94,8 @@ def prepare(suite_path, detector, *, alias_scope="document", ocr_language="eng+f
             raise ValueError("Every question needs a nonempty list of accepted answer strings")
         requests.append({
             "document_id": doc["id"], "format": Path(doc["file"]).suffix.lstrip("."),
+            "language": next(item["language"] for item in documents
+                             if item["id"] == (input_id or doc["id"])),
             "input_id": input_id or doc["id"], "pair_id": pair_id,
             "sanitization_config": {"variant": variant, "alias_scope": alias_scope},
             "task": task, "prompt_type": prompt_type, "control": control,
@@ -119,7 +121,11 @@ def prepare(suite_path, detector, *, alias_scope="document", ocr_language="eng+f
                     content, control="raw" if variant == "raw" else "target")
             add(doc, "raw", "reidentification", f"attribute:{field}", question, accepted,
                 versions[unrelated["id"]]["raw"], control="unrelated", input_id=unrelated["id"])
-        for question in doc.get("utility", []):
+        questions = doc.get("utility", [])
+        question_ids = [question["id"] for question in questions]
+        if len(set(question_ids)) != len(question_ids):
+            raise ValueError("Utility question IDs must be unique within each document")
+        for question in questions:
             for variant, content in versions[doc["id"]].items():
                 add(doc, variant, "utility", question["id"], question["question"],
                     question["answers"], content, control="raw" if variant == "raw" else "target")
@@ -252,13 +258,16 @@ def run(plan, provider, *, web_search=True, max_requests=100, output_path=None):
 def summarize(rows):
     groups = defaultdict(list)
     for row in rows:
-        key = (row["task"], row["prompt_type"], row["sanitization_config"]["variant"], row["control"])
+        key = (row["task"], row["prompt_type"], row["sanitization_config"]["variant"], row["control"],
+               row.get("model", "unknown"), row.get("web_search", False),
+               row["sanitization_config"].get("alias_scope", "document"), row.get("language", "unknown"))
         groups[key].append(row)
     result = []
     for key, items in sorted(groups.items()):
         counts = {score: sum(item["score"] == score for item in items)
                   for score in ("correct", "wrong", "refused", "invalid", "error")}
-        result.append(dict(zip(("task", "prompt_type", "variant", "control"), key)) | counts | {
+        result.append(dict(zip(("task", "prompt_type", "variant", "control", "model", "web_search",
+                                "alias_scope", "language"), key)) | counts | {
             "attempted": len(items), "correct_rate": counts["correct"] / len(items),
             "wrong_rate": counts["wrong"] / len(items), "refused_rate": counts["refused"] / len(items),
             "web_search_used": sum(item.get("web_search_used", False) for item in items),
