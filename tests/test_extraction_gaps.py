@@ -153,6 +153,20 @@ class ExtractionGapTests(unittest.TestCase):
         with self.assertRaisesRegex(ExtractionError, "missing footnote 2"):
             extract_to_markdown(path)
 
+    def test_docx_missing_note_part_fails_with_reference_context(self):
+        from docx import Document
+        from docx.oxml import parse_xml
+
+        document = Document()
+        document.add_paragraph("Body Contact")._p.append(parse_xml(
+            '<w:r xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'
+            '<w:footnoteReference w:id="1"/></w:r>'
+        ))
+        path = self.root / "missing-notes.docx"
+        document.save(path)
+        with self.assertRaisesRegex(ExtractionError, "references footnotes.*no footnotes part"):
+            extract_to_markdown(path)
+
     def test_multiframe_tiff_routes_every_page_to_ocr(self):
         from PIL import Image
 
