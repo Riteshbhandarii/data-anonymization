@@ -39,7 +39,8 @@ def ocr_words(image: Image.Image, language: str = "eng+fin") -> list[Word]:
     """Read the words of an image with their boxes, in reading order."""
     import pytesseract
 
-    data = pytesseract.image_to_data(image, lang=language, output_type=pytesseract.Output.DICT)
+    data = pytesseract.image_to_data(_visible_rgb(image), lang=language,
+                                   output_type=pytesseract.Output.DICT)
     return [
         Word(text.strip(), data["left"][i], data["top"][i], data["width"][i], data["height"][i],
              (data["block_num"][i], data["par_num"][i], data["line_num"][i]))
@@ -74,12 +75,24 @@ def words_in_spans(ranges: Sequence[tuple[int, int]], spans: Iterable) -> list[i
 def draw_boxes(image: Image.Image, boxes: Iterable[tuple[int, int, int, int]],
                padding: int = PADDING) -> Image.Image:
     """Return an RGB copy with every box filled black; the input is not changed."""
-    redacted = image.convert("RGB")
+    redacted = _visible_rgb(image)
     draw = ImageDraw.Draw(redacted)
     for left, top, right, bottom in boxes:
         grow = max(padding, (bottom - top) // 3)
         draw.rectangle((left - grow, top - grow, right + grow, bottom + grow), fill="black")
     return redacted
+
+
+def _visible_rgb(image: Image.Image) -> Image.Image:
+    """Composite transparency onto the same white background used for OCR.
+
+    Dropping alpha alone exposes hidden RGB values that OCR never inspected.
+    Starting from fresh pixels also leaves source metadata out of the result.
+    """
+    rgba = image.convert("RGBA")
+    visible = Image.new("RGB", image.size, "white")
+    visible.paste(rgba, (0, 0), rgba.getchannel("A"))
+    return visible
 
 
 def redact_image(image: Image.Image, detector, *, language: str = "en", ocr_language: str = "eng+fin",
