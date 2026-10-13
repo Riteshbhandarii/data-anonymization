@@ -1,6 +1,6 @@
 import json
-from pathlib import Path
 from collections import defaultdict
+from pathlib import Path
 
 TEST_FILES = [
     ("bench_final", "docx", "en_docx_00"),
