@@ -34,6 +34,9 @@ The output includes `scored.csv`, `summary.csv`, `paired.csv` and `summary.md`.
 Exact matching uses the existing Unicode/case/whitespace normalization in
 `eval.study.score_answer`. Wrong answers, refusals, invalid answers and unrun
 requests are separate; all remain in the planned-request denominator.
+The CSV separates `planned` from `attempted`, so blank rows increase the accuracy
+denominator without inventing model calls. Mixed models are rejected even when
+one model produced an invalid answer.
 
 Retention is measured on paired questions the model answered correctly on raw
 text. A sanitized answer becoming wrong or refused is a loss. A wrong raw
