@@ -743,3 +743,6 @@ print(format_language_path)
 print(location_path)
 
 print("\nEvaluation complete.")
+
+if missing_results or bad_labels:
+    raise SystemExit(1)
