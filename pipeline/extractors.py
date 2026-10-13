@@ -73,6 +73,7 @@ def _extract_docx(path: Path, ocr_language: str) -> str:
     parts.append("## Document content")
     parts.extend(_docx_blocks(document.element.body, document))
     image_texts = _docx_images(document.element.body, document.part, ocr_language)
+    story_elements = [document.element.body]
 
     tracked = _docx_tracked_changes(document.element.body)
     if tracked:
@@ -95,6 +96,7 @@ def _extract_docx(path: Path, ocr_language: str) -> str:
             if part_name in seen_parts:
                 continue
             seen_parts.add(part_name)
+            story_elements.append(story._element)
             blocks = _docx_blocks(story._element, story)
             if blocks:
                 label = name.replace("_", " ").capitalize()
@@ -102,6 +104,7 @@ def _extract_docx(path: Path, ocr_language: str) -> str:
                 parts.extend(blocks)
             image_texts.extend(_docx_images(story._element, story.part, ocr_language))
 
+    parts.extend(_docx_notes(document, story_elements, ocr_language))
     if image_texts:
         parts.extend(["### Embedded image text", *image_texts])
 
@@ -160,6 +163,40 @@ def _docx_images(element: Any, part: Any, ocr_language: str) -> list[str]:
     return texts
 
 
+def _docx_notes(document: Any, stories: list[Any], ocr_language: str) -> list[str]:
+    """Read referenced footnotes and endnotes once, in reference order."""
+    from docx.oxml import parse_xml
+    from docx.oxml.ns import qn
+
+    parts = []
+    for kind, title in (("footnote", "Footnotes"), ("endnote", "Endnotes")):
+        references = list(dict.fromkeys(
+            node.get(qn("w:id")) for story in stories
+            for node in story.iter(qn(f"w:{kind}Reference"))
+        ))
+        if not references:
+            continue
+        relationship = next((relation for relation in document.part.rels.values()
+                             if not relation.is_external and relation.reltype.endswith(f"/{kind}s")), None)
+        if relationship is None:
+            raise ExtractionError(f"Document references {kind}s but has no {kind}s part")
+        root = parse_xml(relationship.target_part.blob)
+        notes = {node.get(qn("w:id")): node for node in root if node.tag == qn(f"w:{kind}")}
+        parts.append(f"## {title}")
+        image_texts = []
+        for identifier in references:
+            if identifier not in notes:
+                raise ExtractionError(f"Document references missing {kind} {identifier}")
+            note = notes[identifier]
+            parts.append(f"### {kind.capitalize()} {identifier}")
+            parts.extend(_docx_blocks(note, document))
+            parts.extend(_docx_tracked_changes(note))
+            image_texts.extend(_docx_images(note, relationship.target_part, ocr_language))
+        if image_texts:
+            parts.extend(["### Embedded image text", *image_texts])
+    return parts
+
+
 def _docx_text(element: Any, *, include_deleted: bool = False) -> str:
     """Read accepted text, including runs inside hyperlinks and tracked inserts."""
     from docx.oxml.ns import qn
@@ -176,6 +213,9 @@ def _docx_text(element: Any, *, include_deleted: bool = False) -> str:
             parts.append("\t")
         elif node.tag in {qn("w:br"), qn("w:cr")}:
             parts.append("\n")
+        elif node.tag in {qn("w:footnoteReference"), qn("w:endnoteReference")}:
+            kind = "footnote" if node.tag == qn("w:footnoteReference") else "endnote"
+            parts.append(f"[{kind}:{node.get(qn('w:id'))}]")
     return "".join(parts)
 
 
