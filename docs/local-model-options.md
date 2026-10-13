@@ -123,6 +123,17 @@ It found no whole addresses with the LOCATION type in either language. It
 outperformed Qwen standalone here but remained below the combined baseline.
 Gemma as a final pass and the full public-dataset matrix have not been run.
 
+## Corrected-code smoke check
+
+A new offline CPU run after the audit uses the same 14-document, 146-body-label
+corpus and the corrected combined detector. It still covers **136/146 (93.2%)**,
+with zero failed documents. Typed precision is **197/238 (82.8%)**; the corrected
+window/deduplication behavior changes detection counts, so this is kept separate
+from the archived 227/268 result above. The safe aggregate artifact is
+[local-combined-audit-smoke.json](../eval/baselines/local-combined-audit-smoke.json),
+with its source commit and unchanged corpus digest. This confirms a functioning
+cached-weight path on short templates, not a full public-dataset rerun.
+
 Official model references: [Qwen 3.5 9B](https://huggingface.co/Qwen/Qwen3.5-9B),
 [Gemma 4 E4B](https://huggingface.co/google/gemma-4-E4B-it),
 [Privacy Filter](https://huggingface.co/openai/privacy-filter),
