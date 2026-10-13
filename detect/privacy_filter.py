@@ -119,10 +119,10 @@ class PrivacyFilterDetector:
             self._load()
         import torch
 
-        spans = []
+        spans = {}
         id2label = self._model.config.id2label
         labels = [id2label[i] for i in range(len(id2label))]
-        for offset, piece in windows(text, WINDOW):
+        for offset, piece in windows(text, WINDOW, overlap=400):
             encoded = self._tokenizer(piece, return_offsets_mapping=True, return_tensors="pt")
             offsets = encoded.pop("offset_mapping")[0].tolist()
             with torch.no_grad():
@@ -136,6 +136,9 @@ class PrivacyFilterDetector:
                     start += 1
                 while end > start and piece[end - 1].isspace():
                     end -= 1
-                spans.append(SimpleNamespace(start=offset + start, end=offset + end,
-                                             entity_type=LABELS[category], score=score))
-        return spans + pattern_spans(text)
+                if start == end:
+                    continue
+                key = (offset + start, offset + end, LABELS[category])
+                if key not in spans or score > spans[key].score:
+                    spans[key] = SimpleNamespace(start=key[0], end=key[1], entity_type=key[2], score=score)
+        return list(spans.values()) + pattern_spans(text)
