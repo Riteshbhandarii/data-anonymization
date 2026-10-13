@@ -106,17 +106,21 @@ def mention_state(start: int, end: int, corpus_type: str, spans) -> str:
     return state
 
 
-def split_text(text: str, limit: int = MAX_CHUNK):
-    """Yield (offset, piece) with pieces under the limit, cut at line breaks."""
+def split_text(text: str, limit: int = MAX_CHUNK, *, overlap: int = 0):
+    """Yield bounded pieces; optional overlap preserves identifiers across cuts."""
+    if limit <= 0 or not 0 <= overlap < limit:
+        raise ValueError("Chunk limit must be positive and overlap in [0, limit)")
     start = 0
     while start < len(text):
         end = min(len(text), start + limit)
         if end < len(text):
             cut = text.rfind("\n", start, end)
-            if cut > start:
+            if cut > start + limit // 2:
                 end = cut + 1
         yield start, text[start:end]
-        start = end
+        if end == len(text):
+            break
+        start = max(start + 1, end - overlap)
 
 
 class Offset:
@@ -131,10 +135,14 @@ def detect_long(detector, text: str, language: str):
     """Detect piecewise so one huge spreadsheet cannot exceed spaCy's limit."""
     if len(text) <= MAX_CHUNK:
         return list(detector.detect(text, language=language))
-    spans = []
-    for offset, piece in split_text(text):
-        spans.extend(Offset(s, offset) for s in detector.detect(piece, language=language))
-    return spans
+    spans = {}
+    for offset, piece in split_text(text, MAX_CHUNK, overlap=min(1000, MAX_CHUNK // 4)):
+        for item in detector.detect(piece, language=language):
+            shifted = Offset(item, offset)
+            key = (shifted.start, shifted.end, shifted.entity_type)
+            if key not in spans or shifted.score > spans[key].score:
+                spans[key] = shifted
+    return list(spans.values())
 
 
 def merge_rows(path: Path, columns: list[str], keys: tuple[str, ...], replace: set[tuple],
@@ -188,7 +196,7 @@ class Doc:
     text: str
     mentions: list = field(default_factory=list)  # dicts: type,start,end,identifier_type
     labels: list = field(default_factory=list)    # fake only: value-based labels
-    annotated: list = field(default_factory=list)  # every annotated (start, end), skipped types too
+    annotated: list | None = None  # None: unlabelled dataset; []: labelled negative document
     source: Path | None = None
     format: str = ""
 
@@ -266,6 +274,8 @@ def load_ai4privacy(args) -> list[Doc]:
     for lang in ("en", "fi"):
         rows = (CORPUS_ROOT / "ai4privacy" / f"validation_{lang}.jsonl").read_text(
             encoding="utf-8").splitlines()
+        if not rows:
+            raise ValueError(f"ai4privacy {lang!r} has no documents")
         picked = random.Random(42).sample(rows, min(args.ai4p_rows, len(rows)))
         for line in picked:
             row = json.loads(line)
@@ -288,9 +298,8 @@ def load_real_uk(args) -> list[Doc]:
         path = REAL_UK / row["filename"]
         try:
             text = normalize_markdown(extract_to_markdown(path, ocr_language="eng"))
-        except Exception as exc:  # noqa: BLE001
-            print(f"  extraction failed {row['filename']}: {exc}", flush=True)
-            continue
+        except Exception as exc:
+            raise RuntimeError(f"Extraction failed for declared real-uk document {path.name}") from exc
         if args.max_chars and len(text) > args.max_chars:
             print(f"  {path.name}: truncated {len(text)} -> {args.max_chars} characters", flush=True)
             text = text[: args.max_chars]
@@ -338,6 +347,8 @@ def run_dataset(dataset: str, methods: list[str], args, out: Path):
     extract_seconds = round(time.time() - t_extract, 1)  # once per dataset, shared by all methods
     if args.limit:
         docs = docs[: args.limit]
+    if not docs:
+        raise ValueError(f"Requested dataset {dataset!r} has no documents")
     print(f"   {len(docs)} documents", flush=True)
     rows, detections, runtimes, precision = [], [], [], []
     for method in methods:
@@ -363,7 +374,7 @@ def run_dataset(dataset: str, methods: list[str], args, out: Path):
             records.extend(score_doc(dataset, doc, spans))
             for s in spans:
                 counts[doc.doc_id][s.entity_type] += 1
-            if doc.annotated:
+            if doc.annotated is not None:
                 found_spans[doc.language] += len(spans)
                 extra_spans[doc.language] += unlabelled(spans, doc.annotated)
             if i % 25 == 0 or i == len(docs):
@@ -420,7 +431,8 @@ def write_summary(out: Path):
     if (out / "runtime.csv").exists():
         with (out / "runtime.csv").open(encoding="utf-8") as f:
             runtime = list(csv.DictReader(f))
-    methods = [m for m in METHOD_NAMES if any(r["method"] == m for r in rows)]
+    methods = [m for m in METHOD_NAMES if any(r["method"] == m for r in rows)
+               or any(r["method"] == m for r in runtime)]
     lines = ["# Dataset runs", "",
              ("Whole-value recall: a mention counts only when one correctly typed detection "
              "holds all of it. Partial detections are counted separately and still leak."), "",
@@ -515,6 +527,12 @@ def main(argv=None):
                    help="truncate real-uk documents beyond this length (0 = never)")
     p.add_argument("--pack", help="also build the manual-testing pack in this directory")
     args = p.parse_args(argv)
+    for name in ("limit", "tab_docs", "max_chars"):
+        if getattr(args, name) < 0:
+            p.error(f"--{name.replace('_', '-')} must be nonnegative")
+    for name in ("turku_sentences", "ai4p_rows"):
+        if getattr(args, name) <= 0:
+            p.error(f"--{name.replace('_', '-')} must be positive")
 
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
