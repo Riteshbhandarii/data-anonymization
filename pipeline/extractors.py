@@ -113,7 +113,7 @@ def _extract_docx(path: Path, ocr_language: str) -> str:
 
 def _docx_blocks(element: Any, parent: Any) -> list[str]:
     """Read paragraphs and tables in body, header, or footer order."""
-    from docx.table import Table
+    from docx.table import Table, _Cell
     from docx.text.paragraph import Paragraph
 
     parts: list[str] = []
@@ -139,7 +139,12 @@ def _docx_blocks(element: Any, parent: Any) -> list[str]:
                 ["\n".join(_docx_blocks(cell._tc, cell)) for cell in row.cells]
                 for row in table.rows
             ]
-            parts.append(_rows_to_markdown(rows, empty_message="_Empty table._"))
+            if isinstance(parent, _Cell):
+                # An outer table escapes its cells once. Rendering an inner
+                # Markdown table first double-escapes literal pipes.
+                parts.append("\n".join(" | ".join(row) for row in rows))
+            else:
+                parts.append(_rows_to_markdown(rows, empty_message="_Empty table._"))
         elif child.tag.endswith(("}sdt", "}sdtContent", "}customXml")):
             parts.extend(_docx_blocks(child, parent))
 
