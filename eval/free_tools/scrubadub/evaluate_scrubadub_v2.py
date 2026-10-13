@@ -1,9 +1,11 @@
-
-from pathlib import Path
-from collections import defaultdict
 import csv
 import json
+import logging
 import re
+from collections import defaultdict
+from pathlib import Path
+
+logger = logging.getLogger(__name__)
 
 # ============================================================
 # CONFIGURATION
@@ -209,6 +211,7 @@ for number, label_path in enumerate(
             })
 
     except Exception as error:
+        logger.exception("Failed to process %s", label_path)
         bad_labels.append(
             (label_path.name, str(error))
         )
