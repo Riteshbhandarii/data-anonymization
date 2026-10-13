@@ -144,6 +144,7 @@ Public and synthetic only. Nothing real enters this repository.
 - [docs/techniques.md](docs/techniques.md), anonymization techniques and where each one breaks
 - [docs/evaluation.md](docs/evaluation.md), the re-identification test protocol
 - [docs/model-evaluation.md](docs/model-evaluation.md), preparing and running controlled model experiments
+- [docs/local-model-options.md](docs/local-model-options.md), measured free local detectors and LM Studio final-pass trials
 - [docs/assigned-task-results.md](docs/assigned-task-results.md), task status and reproducible local results
 - [docs/ocr-survey.md](docs/ocr-survey.md), OCR options and measurements
 - [docs/open-questions.md](docs/open-questions.md), decisions not yet made
