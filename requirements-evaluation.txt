@@ -2,5 +2,6 @@
 -r requirements-validation.txt
 presidio-analyzer>=2.2.364,<3
 spacy>=3.8,<3.9
+presidio-image-redactor>=0.0.60,<0.1
 openai>=2.11,<3
 # Download en_core_web_sm and fi_core_news_sm separately; see eval/README.md.
