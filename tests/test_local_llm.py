@@ -21,7 +21,7 @@ def server(content, *, finish="stop", redirect=None):
         def do_POST(self):
             requests.append(json.loads(self.rfile.read(int(self.headers["Content-Length"]))))
             if redirect:
-                self.send_response(307)
+                self.send_response(302)
                 self.send_header("Location", redirect)
                 self.end_headers()
                 return
