@@ -1,13 +1,14 @@
 import argparse
 import json
+import logging
 import time
 from pathlib import Path
 
 from google.cloud import dlp_v2
 from google.protobuf.json_format import MessageToDict
 
-
 PROJECT_ID = "data-anonymization-research"
+logger = logging.getLogger(__name__)
 
 TEST_FILES = [
     ("bench_final/docx/en_docx_00.docx", "en", "docx"),
@@ -106,6 +107,7 @@ def inspect_file(client, path, language, fmt, output_dir):
         })
 
     except Exception as error:
+        logger.exception("Google DLP inspection failed for %s", path)
         print(f"ERROR: {error}")
 
         summary.update({
@@ -183,6 +185,9 @@ def main():
         )
 
     print(f"\nSaved: {summary_path}")
+
+    if any(result["status"] != "success" for result in summaries):
+        raise SystemExit(1)
 
 
 if __name__ == "__main__":
