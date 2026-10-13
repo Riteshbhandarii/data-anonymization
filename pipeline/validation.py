@@ -50,7 +50,7 @@ def location_ranges(markdown: str, source: Path) -> list[tuple[str, int, int]]:
             location = "metadata"
         elif line == "## Document content" or re.match(r"^## (Slide|Page) \d+", line):
             location = "body"
-        elif line == "### Speaker notes":
+        elif line in {"### Speaker notes", "## Footnotes", "## Endnotes"}:
             location = "notes"
         elif line == "### Embedded image text":
             location = "embedded_image"
