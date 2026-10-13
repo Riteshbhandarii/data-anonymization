@@ -97,10 +97,16 @@ class LocalLLMDetector:
                               headers={"Content-Type": "application/json"})
             with self.opener.open(request, timeout=self.timeout) as response:
                 result = json.load(response)
+            if (not isinstance(result, dict) or not isinstance(result.get("choices"), list)
+                    or len(result["choices"]) != 1 or not isinstance(result["choices"][0], dict)):
+                raise ValueError("Local model returned an invalid completion envelope")
             choice = result["choices"][0]
             if choice.get("finish_reason") != "stop":
                 raise ValueError("Local model did not finish its JSON response")
-            entities = json.loads(choice["message"]["content"])
+            message = choice.get("message")
+            if not isinstance(message, dict) or not isinstance(message.get("content"), str):
+                raise TypeError("Local model returned invalid message content")
+            entities = json.loads(message["content"])
             if not isinstance(entities, dict) or set(entities) != {"entities"} or not isinstance(entities["entities"], list):
                 raise ValueError("Local model returned invalid entities JSON")
             for item in entities["entities"]:
@@ -126,11 +132,11 @@ class FinalPassDetector:
         self.base, self.final = base, final
 
     def detect(self, text, language="en"):
+        from redact import validate_spans
+
         spans = list(self.base.detect(text, language))
         masked = list(text)
-        for span in spans:
-            if not 0 <= span.start < span.end <= len(text):
-                raise ValueError("Base detector returned an invalid span")
+        for span in validate_spans(text, spans):
             for i in range(span.start, span.end):
                 if masked[i] not in "\n\r":
                     masked[i] = "█"
