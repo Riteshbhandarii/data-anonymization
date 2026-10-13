@@ -1,5 +1,9 @@
+import logging
 from pathlib import Path
+
 import pandas as pd
+
+logger = logging.getLogger(__name__)
 
 BASE_DIR = Path(__file__).resolve().parent
 XLSX_DIR = BASE_DIR / "xlsx"
@@ -42,6 +46,7 @@ def combine_xlsx(language):
             dataframes.append(df)
 
         except Exception as error:
+            logger.exception("Failed to process %s", file)
             print("  ERROR:", error)
 
     if not dataframes:
