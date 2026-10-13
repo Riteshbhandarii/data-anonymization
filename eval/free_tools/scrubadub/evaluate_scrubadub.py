@@ -1,13 +1,15 @@
-from pathlib import Path
-from collections import defaultdict
 import csv
 import json
+import logging
 import re
-
+from collections import defaultdict
+from pathlib import Path
 
 # ============================================================
 # CONFIGURATION
 # ============================================================
+
+logger = logging.getLogger(__name__)
 
 BASE_DIR = Path(__file__).resolve().parent
 
@@ -142,6 +144,7 @@ for number, label_path in enumerate(label_files, start=1):
             label = json.load(f)
 
     except Exception as error:
+        logger.exception("Failed to process %s", label_path)
 
         bad_labels.append(
             (label_path.name, str(error))
@@ -174,6 +177,7 @@ for number, label_path in enumerate(label_files, start=1):
         )
 
     except Exception as error:
+        logger.exception("Failed to process %s", label_path)
 
         missing_results.append(
             f"{original_file} ({error})"
