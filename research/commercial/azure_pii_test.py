@@ -157,6 +157,9 @@ def main():
 
     print(f"\nSaved API result to {output_json}")
 
+    if status.lower() != "succeeded":
+        raise SystemExit(1)
+
 
 if __name__ == "__main__":
     main()
