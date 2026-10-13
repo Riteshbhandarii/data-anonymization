@@ -56,8 +56,8 @@ ACCEPT = {
     "DATE": {"DATE_TIME"},
     "EMAIL": {"EMAIL_ADDRESS"},
     "PHONE": {"PHONE_NUMBER"},
-    "IBAN": {"IBAN_CODE"},
-    "CREDITCARD": {"CREDIT_CARD"},
+    "IBAN": {"IBAN_CODE", "ACCOUNT_NUMBER"},
+    "CREDITCARD": {"CREDIT_CARD", "ACCOUNT_NUMBER"},
 }
 
 # TAB (ECHR judgments). NO_MASK mentions are not required to be hidden and are
