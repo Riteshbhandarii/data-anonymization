@@ -1,12 +1,14 @@
-from pathlib import Path
 import csv
+import logging
+from pathlib import Path
 
 import scrubadub
 from docx import Document
-from pypdf import PdfReader
-from pptx import Presentation
 from openpyxl import load_workbook
+from pptx import Presentation
+from pypdf import PdfReader
 
+logger = logging.getLogger(__name__)
 
 # ============================================================
 # 1. EXTRACT TEXT FROM EACH FILE FORMAT
@@ -84,7 +86,7 @@ def extract_pptx(path):
                 if text:
                     lines.append(text)
 
-        try:
+        if slide.has_notes_slide:
             notes_slide = slide.notes_slide
 
             note_text = []
@@ -100,8 +102,6 @@ def extract_pptx(path):
                 lines.append("[SPEAKER NOTES]")
                 lines.extend(note_text)
 
-        except Exception:
-            pass
 
     return "\n".join(lines)
 
@@ -187,10 +187,7 @@ for folder, extension in extensions.items():
         if filename.startswith("anonymized_"):
             continue
 
-        if not (
-            filename.startswith("en_")
-            or filename.startswith("fi_")
-        ):
+        if not filename.startswith(("en_", "fi_")):
             continue
 
         files.append(path)
@@ -248,160 +245,161 @@ output_folder.mkdir(exist_ok=True)
 
 summary_path = output_folder / "scrubadub_summary.csv"
 
-summary_file = open(
+with open(
     summary_path,
     "w",
     newline="",
     encoding="utf-8"
-)
+) as summary_file:
 
-summary_writer = csv.writer(summary_file)
+    summary_writer = csv.writer(summary_file)
 
-summary_writer.writerow([
-    "filename",
-    "format",
-    "language",
-    "status",
-    "original_characters",
-    "anonymized_characters",
-    "changed",
-    "error"
-])
-
-
-# ============================================================
-# 7. PROCESS EVERY FILE
-# ============================================================
-
-success_count = 0
-error_count = 0
-changed_count = 0
+    summary_writer.writerow([
+        "filename",
+        "format",
+        "language",
+        "status",
+        "original_characters",
+        "anonymized_characters",
+        "changed",
+        "error"
+    ])
 
 
-for number, path in enumerate(files, start=1):
+    # ============================================================
+    # 7. PROCESS EVERY FILE
+    # ============================================================
 
-    print(
-        f"[{number}/{len(files)}] "
-        f"Testing {path}"
-    )
+    success_count = 0
+    error_count = 0
+    changed_count = 0
 
-    file_format = path.suffix.lower().replace(".", "")
 
-    if path.name.lower().startswith("en_"):
-        language = "EN"
+    for number, path in enumerate(files, start=1):
 
-    elif path.name.lower().startswith("fi_"):
-        language = "FI"
-
-    else:
-        language = "UNKNOWN"
-
-    try:
-
-        # Extract original text
-        original = extract_text(path)
-
-        # Run scrubadub
-        anonymized = scrubadub.clean(original)
-
-        # Determine whether scrubadub changed anything
-        changed = original != anonymized
-
-        if changed:
-            changed_count += 1
-
-        # ----------------------------------------------------
-        # Save detailed result
-        # ----------------------------------------------------
-
-        result_name = (
-            f"{path.stem}_scrubadub_result.txt"
+        print(
+            f"[{number}/{len(files)}] "
+            f"Testing {path}"
         )
 
-        result_path = output_folder / result_name
+        file_format = path.suffix.lower().replace(".", "")
 
-        with open(
-            result_path,
-            "w",
-            encoding="utf-8"
-        ) as result_file:
+        if path.name.lower().startswith("en_"):
+            language = "EN"
 
-            result_file.write(
-                f"FILE: {path}\n"
+        elif path.name.lower().startswith("fi_"):
+            language = "FI"
+
+        else:
+            language = "UNKNOWN"
+
+        try:
+
+            # Extract original text
+            original = extract_text(path)
+
+            # Run scrubadub
+            anonymized = scrubadub.clean(original)
+
+            # Determine whether scrubadub changed anything
+            changed = original != anonymized
+
+            if changed:
+                changed_count += 1
+
+            # ----------------------------------------------------
+            # Save detailed result
+            # ----------------------------------------------------
+
+            result_name = (
+                f"{path.stem}_scrubadub_result.txt"
             )
 
-            result_file.write(
-                f"FORMAT: {file_format.upper()}\n"
-            )
+            result_path = output_folder / result_name
 
-            result_file.write(
-                f"LANGUAGE: {language}\n"
-            )
+            with open(
+                result_path,
+                "w",
+                encoding="utf-8"
+            ) as result_file:
 
-            result_file.write(
-                f"CHANGED BY SCRUBADUB: {changed}\n"
-            )
+                result_file.write(
+                    f"FILE: {path}\n"
+                )
 
-            result_file.write(
-                "\n"
-                + "=" * 70
-                + "\nORIGINAL\n"
-                + "=" * 70
-                + "\n\n"
-            )
+                result_file.write(
+                    f"FORMAT: {file_format.upper()}\n"
+                )
 
-            result_file.write(original)
+                result_file.write(
+                    f"LANGUAGE: {language}\n"
+                )
 
-            result_file.write(
-                "\n\n"
-                + "=" * 70
-                + "\nANONYMIZED BY SCRUBADUB\n"
-                + "=" * 70
-                + "\n\n"
-            )
+                result_file.write(
+                    f"CHANGED BY SCRUBADUB: {changed}\n"
+                )
 
-            result_file.write(anonymized)
+                result_file.write(
+                    "\n"
+                    + "=" * 70
+                    + "\nORIGINAL\n"
+                    + "=" * 70
+                    + "\n\n"
+                )
 
-        # ----------------------------------------------------
-        # Add summary row
-        # ----------------------------------------------------
+                result_file.write(original)
 
-        summary_writer.writerow([
-            path.name,
-            file_format,
-            language,
-            "SUCCESS",
-            len(original),
-            len(anonymized),
-            changed,
-            ""
-        ])
+                result_file.write(
+                    "\n\n"
+                    + "=" * 70
+                    + "\nANONYMIZED BY SCRUBADUB\n"
+                    + "=" * 70
+                    + "\n\n"
+                )
 
-        success_count += 1
+                result_file.write(anonymized)
 
-    except Exception as error:
+            # ----------------------------------------------------
+            # Add summary row
+            # ----------------------------------------------------
 
-        print(f"    ERROR: {error}")
+            summary_writer.writerow([
+                path.name,
+                file_format,
+                language,
+                "SUCCESS",
+                len(original),
+                len(anonymized),
+                changed,
+                ""
+            ])
 
-        summary_writer.writerow([
-            path.name,
-            file_format,
-            language,
-            "ERROR",
-            "",
-            "",
-            "",
-            str(error)
-        ])
+            success_count += 1
 
-        error_count += 1
+        except Exception as error:
+            logger.exception("Failed to process %s", path)
+
+            print(f"    ERROR: {error}")
+
+            summary_writer.writerow([
+                path.name,
+                file_format,
+                language,
+                "ERROR",
+                "",
+                "",
+                "",
+                str(error)
+            ])
+
+            error_count += 1
 
 
-# ============================================================
-# 8. FINISH
-# ============================================================
+    # ============================================================
+    # 8. FINISH
+    # ============================================================
 
-summary_file.close()
+
 
 
 print("\n" + "=" * 70)
