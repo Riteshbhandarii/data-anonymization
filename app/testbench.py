@@ -25,6 +25,7 @@ from app.logic import (
     highlight_html,
     label_intervals,
     recall_table,
+    run_signature,
     score_labels,
     split_sections,
     type_colours,
@@ -94,7 +95,9 @@ def sidebar():
             folder = OUT / "app-uploads"
             folder.mkdir(parents=True, exist_ok=True)
             path = folder / Path(uploaded.name).name
-            path.write_bytes(uploaded.getvalue())
+            content = uploaded.getvalue()
+            if not path.exists() or path.read_bytes() != content:
+                path.write_bytes(content)
             stem = path.stem
     elif source == "Synthetic corpus":
         try:
@@ -127,7 +130,7 @@ def sidebar():
 
 def run_stages(cfg):
     from redact import redact, validate_spans
-    res = {"cfg": cfg, "times": {}, "errors": {}}
+    res = {"cfg": cfg, "signature": run_signature(cfg), "times": {}, "errors": {}}
     path = Path(cfg["path"])
     ocr = "fin+eng" if cfg["lang"] == "fi" else "eng"
     text, duration, error = timed("Extraction", lambda: extract_cached(str(path), path.stat().st_mtime, ocr))
@@ -146,7 +149,7 @@ def run_stages(cfg):
         res["errors"]["detect"] = error
         return res
     if cfg["labels"] is not None:
-        res["scored"] = score_labels(text, cfg["labels"], results)
+        res["scored"] = score_labels(text, cfg["labels"], results, path)
     cleaned, duration, error = timed(
         "Redaction", lambda: redact(text, validate_spans(text, results), mode=cfg["mode"]),
     )
@@ -154,10 +157,16 @@ def run_stages(cfg):
     if error:
         res["errors"]["clean"] = error
         return res
-    folder = OUT / "app-runs" / cfg["method"]
-    folder.mkdir(parents=True, exist_ok=True)
-    res["saved"] = folder / f"{cfg['stem']}_anonymized.md"
-    res["saved"].write_text(cleaned, encoding="utf-8")
+    def save():
+        from pipeline.core import _save_markdown
+        folder = OUT / "app-runs" / cfg["method"]
+        folder.mkdir(parents=True, exist_ok=True)
+        return _save_markdown(folder, path.name, cleaned)
+
+    res["saved"], duration, error = timed("Saving", save)
+    res["times"]["save"] = duration
+    if error:
+        res["errors"]["save"] = error
     return res
 
 
@@ -258,6 +267,7 @@ def tab_clean(res):
         return
     if stage_error(res, "clean"):
         return
+    stage_error(res, "save")
     summary_row(res)
     original_intervals, clean_intervals = changed_intervals(res["text"], res["clean"])
     left, right = st.columns(2)
@@ -268,7 +278,7 @@ def tab_clean(res):
         st.subheader("Anonymized")
         document_view(res["clean"], clean_intervals, {"REPLACED": "#a7f3d0"})
     st.download_button("Download Markdown", res["clean"].encode("utf-8"),
-                       file_name=res["saved"].name, mime="text/markdown", type="primary")
+                       file_name="anonymized.md", mime="text/markdown", type="primary")
 
 
 def recall_chart(recalls):
@@ -391,6 +401,9 @@ def main():
         with st.spinner("Processing document. The first run loads the detector model."):
             st.session_state["res"] = run_stages(cfg)
     res = st.session_state.get("res")
+    if res is not None and res.get("signature") != run_signature(cfg):
+        st.info("The document or settings changed. Select Run document to process this selection.")
+        res = None
     if res is not None:
         actual = res["cfg"]
         st.html('<div class="run-context">' + html.escape(

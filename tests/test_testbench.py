@@ -24,12 +24,16 @@ class TestbenchTests(unittest.TestCase):
         app = AppTest.from_string("from app.testbench import main\nmain()", default_timeout=10)
         if res is not None:
             app.session_state["res"] = res
+            with patch.object(testbench, "sidebar", return_value={**res["cfg"], "run": False}):
+                return app.run()
         return app.run()
 
     def result(self, labelled=True, real=False):
         text = "## Document content\nAnna met Eva.\n\n| Name |\n| --- |\n| Anna |"
-        return {
-            "cfg": {"path": self.root / "source.md", "method": "basic", "lang": "en",
+        path = self.root / "source.md"
+        path.write_text(text)
+        result = {
+            "cfg": {"path": path, "method": "basic", "lang": "en",
                     "is_real": real, "mode": "replace"},
             "text": text, "clean": text.replace("Anna", "[PERSON]"),
             "results": [SimpleNamespace(start=text.index("Anna"), end=text.index("Anna") + 4,
@@ -42,6 +46,8 @@ class TestbenchTests(unittest.TestCase):
             "times": {"extract": 0.1, "detect": 0.2, "clean": 0.1}, "errors": {},
             "saved": self.root / "source_anonymized.md",
         }
+        result["signature"] = testbench.run_signature(result["cfg"])
+        return result
 
     def test_upload_without_file_explains_disabled_run_and_offers_gliner(self):
         app = self.app()

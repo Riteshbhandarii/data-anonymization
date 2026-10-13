@@ -5,8 +5,10 @@ import re
 from collections import defaultdict
 from difflib import SequenceMatcher
 from itertools import pairwise
+from pathlib import Path
 
-from eval.bench import TYPE_MAP, found
+from eval.pipeline_bench import occurrences, score_label
+from pipeline.validation import location_ranges
 
 PALETTE = ["#fde68a", "#bfdbfe", "#fbcfe8", "#bbf7d0", "#ddd6fe", "#fed7aa",
            "#a5f3fc", "#fecaca", "#e9d5ff", "#d9f99d", "#fcd5ce", "#c7d2fe"]
@@ -330,22 +332,36 @@ def changed_intervals(original, clean, label="REPLACED"):
     return before, after
 
 
-def score_labels(text, entities, results):
-    """Score each labelled value with eval.bench.found through TYPE_MAP.
+def run_signature(cfg):
+    """Identify the selected input and options so earlier results stay distinct."""
+    if cfg["path"] is None:
+        return None
+    path = Path(cfg["path"])
+    try:
+        stat = path.stat()
+        stamp = (stat.st_mtime_ns, stat.st_size)
+    except OSError:
+        stamp = (None, None)
+    return (str(path.resolve()), *stamp,
+            cfg["lang"], cfg["method"], cfg["mode"])
+
+
+def score_labels(text, entities, results, source=None):
+    """Score labels in their actual source locations with pipeline scoring rules.
 
     Returns dicts with type, value, location and status in
     covered / partial / missed / absent (value not in the extracted text).
     """
-    by_type = defaultdict(list)
-    for r in results:
-        by_type[TYPE_MAP.get(r.entity_type)].append(r)
+    ranges = location_ranges(text, Path(source) if source is not None else Path("document.txt"))
     scored = []
     for e in entities:
-        if e["value"] not in text:
+        matches = occurrences(text, e["value"], ranges, e["location"])
+        result = score_label(text, e, results, ranges)
+        if not matches:
             status = "absent"
         else:
-            status = found(text, e["value"], by_type[e["type"]]) or "missed"
-        scored.append({**e, "status": status})
+            status = "covered" if result["whole"] else "partial" if result["partial"] else "missed"
+        scored.append({**e, "status": status, "occurrences": result["occurrences"]})
     return scored
 
 
@@ -354,6 +370,11 @@ def label_intervals(text, scored):
     items = []
     for e in scored:
         if e["status"] == "absent":
+            continue
+        if "occurrences" in e:
+            for match in e["occurrences"]:
+                status = "covered" if match["detection"] == "whole" else match["detection"]
+                items.append((match["start"], match["end"], status, 1))
             continue
         start = text.find(e["value"])
         while start >= 0:

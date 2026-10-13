@@ -1,7 +1,9 @@
 """Check the testbench helpers without loading any spaCy model."""
 
+import tempfile
 import unittest
 from html.parser import HTMLParser
+from pathlib import Path
 from time import perf_counter
 from types import SimpleNamespace
 
@@ -10,6 +12,7 @@ from app.logic import (
     highlight_html,
     label_intervals,
     recall_table,
+    run_signature,
     score_labels,
     split_sections,
     summarize,
@@ -66,6 +69,44 @@ class AppLogicTests(unittest.TestCase):
     def test_wrong_type_does_not_count(self):
         scored = score_labels(self.text, self.entities()[:1], [span(5, 9, "LOCATION")])
         self.assertEqual(scored[0]["status"], "missed")
+
+    def test_body_label_cannot_be_covered_by_metadata(self):
+        text = "## Document metadata\nAuthor: Anna\n\n## Document content\nNo name here."
+        start = text.index("Anna")
+        labels = [{"type": "PERSON", "value": "Anna", "location": "body"}]
+        self.assertEqual("absent", score_labels(text, labels, [span(start, start + 4, "PERSON")])[0]["status"])
+
+    def test_repeated_labels_are_scored_and_highlighted_only_in_their_location(self):
+        text = "## Document metadata\nAuthor: Anna\n\n## Document content\nAnna met Anna."
+        first = text.index("Anna", text.index("Document content"))
+        labels = [{"type": "PERSON", "value": "Anna", "location": "body"}]
+        scored = score_labels(text, labels, [span(first, first + 4, "PERSON")])
+        self.assertEqual("partial", scored[0]["status"])
+        self.assertEqual([(first, first + 4, "covered", 1),
+                          (text.rindex("Anna"), text.rindex("Anna") + 4, "missed", 1)],
+                         label_intervals(text, scored))
+
+    def test_normalized_values_keep_original_highlight_offsets(self):
+        text = "Märta\\|Example<br>Oy"
+        labels = [{"type": "COMPANY", "value": "Märta|Example Oy", "location": "body"}]
+        scored = score_labels(text, labels, [span(0, len(text), "ORGANIZATION")])
+        self.assertEqual("covered", scored[0]["status"])
+        self.assertEqual([(0, len(text), "covered", 1)], label_intervals(text, scored))
+
+    def test_result_signature_changes_with_file_and_selected_options(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "uploaded.txt"
+            path.write_text("first")
+            cfg = {"path": path, "lang": "en", "method": "basic", "mode": "replace"}
+            original = run_signature(cfg)
+            self.assertEqual(original, run_signature(cfg))
+            for key, value in (("lang", "fi"), ("method", "rules"), ("mode", "pseudonymize")):
+                self.assertNotEqual(original, run_signature({**cfg, key: value}))
+            path.write_text("a different document")
+            self.assertNotEqual(original, run_signature(cfg))
+            path.unlink()
+            self.assertNotEqual(original, run_signature(cfg))
+            self.assertIsNone(run_signature({**cfg, "path": None}))
 
     def test_summary_counts_and_misses(self):
         scored = score_labels(self.text, self.entities(), [span(5, 9, "PERSON")])

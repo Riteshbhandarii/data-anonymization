@@ -115,6 +115,11 @@ counts and correct/wrong/refused rates. Compare utility `correct_rate` with the
 matching raw row, and compare re-identification rows with both control rows.
 Record the difference rather than combining privacy and utility into one score.
 
+Reports also separate model, requested web-search condition, alias scope and
+input language. Combining these conditions would obscure the search ablation
+or compare different experiments as one accuracy figure. Older JSONL rows
+without a language are grouped as `unknown`; do not infer one.
+
 The invented identities in the example are not a benchmark of real-world web
 re-identification: they have no established public footprint. Their purpose is
 to exercise the protocol and compare relational task behavior. Use a separately
