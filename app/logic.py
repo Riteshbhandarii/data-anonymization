@@ -337,8 +337,12 @@ def run_signature(cfg):
     if cfg["path"] is None:
         return None
     path = Path(cfg["path"])
-    stat = path.stat()
-    return (str(path.resolve()), stat.st_mtime_ns, stat.st_size,
+    try:
+        stat = path.stat()
+        stamp = (stat.st_mtime_ns, stat.st_size)
+    except OSError:
+        stamp = (None, None)
+    return (str(path.resolve()), *stamp,
             cfg["lang"], cfg["method"], cfg["mode"])
 
 

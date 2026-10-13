@@ -104,6 +104,8 @@ class AppLogicTests(unittest.TestCase):
                 self.assertNotEqual(original, run_signature({**cfg, key: value}))
             path.write_text("a different document")
             self.assertNotEqual(original, run_signature(cfg))
+            path.unlink()
+            self.assertNotEqual(original, run_signature(cfg))
             self.assertIsNone(run_signature({**cfg, "path": None}))
 
     def test_summary_counts_and_misses(self):
