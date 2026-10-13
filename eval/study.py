@@ -68,6 +68,7 @@ def prepare(suite_path, detector, *, alias_scope="document", ocr_language="eng+f
     ids = [doc["id"] for doc in documents]
     if len(ids) != len(set(ids)) or len(documents) < 2:
         raise ValueError("A suite needs at least two documents with unique IDs")
+    documents_by_id = {doc["id"]: doc for doc in documents}
     shared_aliases = AliasMap()
     versions, hashes = {}, {}
     for doc in documents:
@@ -92,10 +93,10 @@ def prepare(suite_path, detector, *, alias_scope="document", ocr_language="eng+f
         if (not isinstance(accepted, list) or not accepted
                 or any(not isinstance(value, str) or not value.strip() for value in accepted)):
             raise ValueError("Every question needs a nonempty list of accepted answer strings")
+        input_document = documents_by_id[input_id or doc["id"]]
         requests.append({
-            "document_id": doc["id"], "format": Path(doc["file"]).suffix.lstrip("."),
-            "language": next(item["language"] for item in documents
-                             if item["id"] == (input_id or doc["id"])),
+            "document_id": doc["id"], "format": Path(input_document["file"]).suffix.lstrip("."),
+            "language": input_document["language"],
             "input_id": input_id or doc["id"], "pair_id": pair_id,
             "sanitization_config": {"variant": variant, "alias_scope": alias_scope},
             "task": task, "prompt_type": prompt_type, "control": control,
