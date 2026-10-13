@@ -77,6 +77,18 @@ class ScoringTests(unittest.TestCase):
         self.assertEqual([[0], [2]], find_occurrences(repeated, "Anna"))
         self.assertEqual([], find_occurrences(WORDS, "Turku"))
 
+    def test_unicode_normalization_preserves_matching_word_indices(self):
+        words = [word("Ma\u0308kela\u0308", 0), word("and", 80), word("Mäkelä", 120)]
+        self.assertEqual([[0], [2]], find_occurrences(words, "Mäkelä"))
+        self.assertEqual([[0, 1, 2]], find_occurrences(words, "Mäkelä and Mäkelä"))
+
+    def test_decomposed_unicode_remains_a_leak_after_redaction(self):
+        words = [word("Mäkelä", 0)]
+        after_words = [word("Ma\u0308kela\u0308", 0)]
+        image = draw_boxes(Image.new("RGB", (100, 40), "white"), [words[0].box])
+        result = score_image(words, image, after_words, [{"type": "PERSON", "value": "Mäkelä"}])
+        self.assertEqual("leaked", result["entities"][0]["state"])
+
     def test_value_states(self):
         self.assertEqual("unread", value_state([], [], False))
         self.assertEqual("leaked", value_state([[0]], [True], True))
