@@ -30,6 +30,21 @@ def load_script(name):
     return module
 
 
+def load_google_script():
+    types = SimpleNamespace(WORD_DOCUMENT=1, PDF=2, EXCEL_DOCUMENT=3,
+                            POWERPOINT_DOCUMENT=4, CSV=5)
+    cloud = ModuleType("google.cloud")
+    cloud.dlp_v2 = SimpleNamespace(ByteContentItem=SimpleNamespace(BytesType=types),
+                                   DlpServiceClient=Mock())
+    protobuf_json = ModuleType("google.protobuf.json_format")
+    protobuf_json.MessageToDict = Mock()
+    modules = {"google": ModuleType("google"), "google.cloud": cloud,
+               "google.protobuf": ModuleType("google.protobuf"),
+               "google.protobuf.json_format": protobuf_json}
+    with patch.dict(sys.modules, modules):
+        return load_script("google_dlp_test")
+
+
 class AzureRunnerTests(unittest.TestCase):
     def test_terminal_status_sets_exit_code_and_preserves_response(self):
         for status in ("succeeded", "failed", "cancelled"):
@@ -130,3 +145,27 @@ class LiminaScoringTests(unittest.TestCase):
             result = json.loads((root / "score_summary.json").read_text())
             self.assertEqual(result["expected_body_identifiers"], 1)
             self.assertEqual(result["coverage"]["overall"]["ALL"]["total"], 1)
+
+
+class GoogleRunnerTests(unittest.TestCase):
+    def test_batch_failure_exits_nonzero_after_saving_summary(self):
+        for status in ("success", "missing", "error"):
+            with self.subTest(status=status), tempfile.TemporaryDirectory() as folder:
+                module = load_google_script()
+                summary = {"format": "csv", "language": "en", "status": status}
+                original_cwd = Path.cwd()
+                try:
+                    os.chdir(folder)
+                    with patch.object(sys, "argv", ["google", "--limit", "1"]), \
+                            patch.object(module, "inspect_file", return_value=summary), \
+                            redirect_stdout(io.StringIO()):
+                        if status == "success":
+                            module.main()
+                        else:
+                            with self.assertRaises(SystemExit) as error:
+                                module.main()
+                            self.assertEqual(error.exception.code, 1)
+                    result = Path("commercial_google_results/summary.json")
+                    self.assertEqual(json.loads(result.read_text()), [summary])
+                finally:
+                    os.chdir(original_cwd)
