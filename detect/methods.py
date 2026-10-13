@@ -41,6 +41,22 @@ METHODS = {
         "good": "GLiNER's names and addresses with Presidio's IBAN, email, dates and "
                 "ID numbers.",
         "weak": "As slow as GLiNER, and more detections to review than either part."},
+    "privacy-filter": {
+        "label": "OpenAI Privacy Filter + patterns", "family": "Token classifier",
+        "about": "openai/privacy-filter, a 1.5B mixture of experts (50M active), "
+                 "run on CPU. Plus our three patterns.",
+        "good": "Few detections off the labels (TAB 98.5%, ai4privacy 94-99%); "
+                "ID and card numbers.",
+        "weak": "Finds almost nothing in court judgments and Finnish news: TAB 28%, "
+                "Turku 0%. No organization label."},
+    "gliner2": {
+        "label": "GLiNER2-PII + patterns", "family": "Zero-shot transformer",
+        "about": "fastino/gliner2-privacy-filter-PII-multi, run on CPU. "
+                 "Plus our three patterns.",
+        "good": "Names, places, companies and dates; the best Turku recall (78%), "
+                "though Finnish is not a training language.",
+        "weak": "Leaves titles such as \"Mr\" outside person names, so most TAB "
+                "PERSON hits are partial."},
 }
 
 
@@ -54,6 +70,16 @@ def _gliner():
     return GlinerDetector()
 
 
+def _privacy_filter():
+    from detect.privacy_filter import PrivacyFilterDetector
+    return PrivacyFilterDetector()
+
+
+def _gliner2():
+    from detect.gliner2_detector import Gliner2Detector
+    return Gliner2Detector()
+
+
 def _combined():
     from detect.combined import CombinedDetector
     return CombinedDetector(get_detector("rules"), get_detector("gliner"))
@@ -65,6 +91,8 @@ BUILDERS = {
     "rules-lg": lambda: _presidio("lg", True),
     "gliner": _gliner,
     "combined": _combined,
+    "privacy-filter": _privacy_filter,
+    "gliner2": _gliner2,
 }
 
 
