@@ -153,6 +153,12 @@ def verdict(entity_type, planted, covered, partial, recognized=None):
 
 
 def main(root, baseline=False, size="sm", custom=False):
+    stems = manifest(root)
+    with open(os.path.join(root, "corpus.json"), encoding="utf-8") as f:
+        corpus = json.load(f)
+    actual = fingerprint(root, stems)
+    if not stems or actual != corpus.get("corpus_sha256"):
+        raise SystemExit("Corpus does not match its own provenance or contains no documents")
     models = MODEL_SETS[size]
     analyzer = build_analyzer(models, custom)
     # (lang, fmt, type) -> [planted, covered, partial]
@@ -164,7 +170,6 @@ def main(root, baseline=False, size="sm", custom=False):
     # Driven from the manifest rather than the directory listing. A smaller --n
     # into a used output directory leaves older documents behind, and scoring
     # those against the new corpus.json describes two different corpora.
-    stems = manifest(root)
     for stem in stems:
         with open(os.path.join(root, "labels", f"{stem}.json"), encoding="utf-8") as f:
             doc = json.load(f)
