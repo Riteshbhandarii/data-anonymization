@@ -150,13 +150,15 @@ Extension matching is case-insensitive. All readers return Markdown strings thro
 |---|---|
 | `.txt`, `.md` | Read UTF-8 text, accepting an optional UTF-8 byte-order mark |
 | `.csv` | Read comma-separated rows and build a Markdown table; the first row becomes the header |
-| `.docx` | Read core metadata, body paragraphs/headings/lists/nested tables/content controls, primary/first-page/even-page headers and footers, review comments and authors, tracked changes, and OCR text from embedded pictures |
+| `.docx` | Read core metadata, body paragraphs/headings/lists/nested tables/content controls, primary/first-page/even-page headers and footers, referenced footnotes/endnotes, review comments and authors, tracked changes, and OCR text from embedded pictures |
 | `.xlsx` | Read core metadata and all worksheets, including hidden worksheets; retain saved computed formula values, formula expressions, and cell comments/authors |
 | `.pptx` | Read core metadata and build a section per slide with titles, text, tables, speaker notes, and OCR text from embedded pictures (including groups) |
 | `.pdf` | Read document metadata and annotation comments/authors; build a section per page with native text and OCR embedded image regions, or OCR the full page when it has no text |
 | `.png`, `.jpg`, `.jpeg`, `.tif`, `.tiff`, `.bmp` | Read every image frame through OCR and return a text section |
 
 Core metadata is emitted under `## Document metadata`, followed by the document content sections. DOCX and PPTX properties include author, last modified by, title, subject, keywords, comments, and other core text properties. XLSX includes the equivalent workbook properties, and PDF includes its document information fields. Shared Word headers and footers are emitted once per defining part, including their paragraphs and tables.
+
+Referenced Word footnotes and endnotes retain source ID markers in the body and appear once in reference order under their own sections. Validation classifies their text as `notes`. A missing referenced note or note part raises `ExtractionError` instead of silently omitting it.
 
 XLSX extraction reads the cached result saved by a spreadsheet application; it does not calculate formulas. Formula expressions are also retained in each worksheet section, because they can contain identifiers absent from the computed result. A formula with a missing cache or an error value raises `ExtractionError` identifying the workbook, sheet, and cell. Recalculate and save the workbook in Excel or LibreOffice, then retry. A valid cached empty string is accepted.
 
