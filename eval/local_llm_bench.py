@@ -17,6 +17,7 @@ from pathlib import Path
 
 from detect.local_llm import FinalPassDetector, LocalLLMDetector
 from eval.bench import TYPE_MAP, fingerprint, found, judge, manifest, occurrences
+from redact import validate_spans
 
 
 def benchmark(root, detector):
@@ -37,8 +38,8 @@ def benchmark(root, detector):
         lang = document["language"]
         started = time.perf_counter()
         try:
-            spans = detector.detect(text, lang)
-        except (OSError, ValueError, KeyError, TypeError, IndexError) as error:
+            spans = validate_spans(text, detector.detect(text, lang))
+        except (OSError, ValueError, KeyError, TypeError, IndexError, RuntimeError) as error:
             # Deliberately omit error messages: providers can echo private text.
             errors[type(error).__name__] += 1
             spans = []

@@ -1,5 +1,10 @@
 # Free local model options
 
+The numbers in this note are archived pre-audit experiments. Detector windowing,
+negative-document precision and local-response validation have since been
+corrected. Keep the recorded runs as history; rerun the matrix and the same-corpus
+local trials before presenting these figures as current-code measurements.
+
 Issue [#29](https://github.com/Riteshbhandarii/data-anonymization/issues/29)
 collects the measured options. Detection runs locally; spaCy, GLiNER, GLiNER2
 and Privacy Filter need a one-time weight download. The LLM route uses cached
