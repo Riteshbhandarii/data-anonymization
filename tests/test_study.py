@@ -121,6 +121,16 @@ class StudyTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "question IDs must be unique"):
             prepare(self.suite_path, FixtureDetector())
 
+    def test_unrelated_control_records_the_actual_input_format(self):
+        suite = json.loads(self.suite_path.read_text(encoding="utf-8"))
+        suite["documents"][2]["file"] = "b1.txt"
+        (self.suite_path.parent / "b1.md").rename(self.suite_path.parent / "b1.txt")
+        self.suite_path.write_text(json.dumps(suite), encoding="utf-8")
+        requests = prepare(self.suite_path, FixtureDetector())["requests"]
+        unrelated = next(row for row in requests if row["document_id"] == "a1" and row["control"] == "unrelated")
+        self.assertEqual("txt", unrelated["format"])
+        self.assertEqual(["Aster Example Analytics"], unrelated["ground_truth"])
+
     def test_summary_keeps_experiment_conditions_separate(self):
         base = {"task": "reidentification", "prompt_type": "naming:company", "control": "target",
                 "sanitization_config": {"variant": "redacted", "alias_scope": "document"},
