@@ -106,7 +106,7 @@ def score_recorded(plan, answer_rows):
                      "question_id": request["prompt_type"],
                      "variant": request["sanitization_config"]["variant"],
                      "model": model, "answer": text, "refused": refused, "score": score})
-    models = {row["model"] for row in rows if row["score"] not in ("invalid", "unanswered")}
+    models = {row["model"] for row in rows if row["score"] != "unanswered" and row["model"]}
     if len(models) > 1:
         raise ValueError("Use one model for the entire comparison; mixed models confound the result")
     return rows
@@ -117,7 +117,8 @@ def summarize_utility(rows):
     for variant in VARIANTS:
         chosen = [row for row in rows if row["variant"] == variant]
         counts = {score: sum(row["score"] == score for row in chosen) for score in SCORES}
-        summary.append({"variant": variant, "attempted": len(chosen), **counts,
+        summary.append({"variant": variant, "planned": len(chosen),
+                        "attempted": len(chosen) - counts["unanswered"], **counts,
                         "correct_rate": counts["correct"] / len(chosen) if chosen else 0.0})
     groups = defaultdict(dict)
     for row in rows:
@@ -152,7 +153,7 @@ def write_report(rows, directory):
              "| Variant | Correct / planned | Wrong | Refused | Invalid | Unanswered |",
              "|---|---:|---:|---:|---:|---:|"]
     for row in summary:
-        lines.append(f"| {row['variant']} | {row['correct']}/{row['attempted']} | {row['wrong']} | "
+        lines.append(f"| {row['variant']} | {row['correct']}/{row['planned']} | {row['wrong']} | "
                      f"{row['refused']} | {row['invalid']} | {row['unanswered']} |")
     lines += ["", "Retention measures only paired questions that the model answered correctly on raw text.", "",
               "| Variant | Retained / raw-correct | Lost | Gained | Incomplete pairs |",

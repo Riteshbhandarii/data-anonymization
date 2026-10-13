@@ -52,13 +52,15 @@ class UtilityBenchTests(unittest.TestCase):
         self.assertEqual((1, 1), (summary[0]["correct"], summary[0]["invalid"]))
         self.assertEqual((1, 1), (summary[1]["refused"], summary[1]["unanswered"]))
         self.assertEqual(0.5, summary[0]["correct_rate"])
+        self.assertEqual((2, 1), (summary[1]["planned"], summary[1]["attempted"]))
         self.assertEqual((1, 1), (pairs[0]["lost"], pairs[0]["incomplete"]))
         self.assertEqual(2, pairs[1]["incomplete"])
         self.assertIsNone(pairs[1]["retention"])
 
     def test_duplicate_unknown_ids_and_mixed_models_are_rejected(self):
         for answers in ([answer("a-raw", "yes")] * 2, [answer("unknown", "yes")],
-                        [answer("a-raw", "yes"), answer("a-redacted", "yes", model="different")]):
+                        [answer("a-raw", "yes"), answer("a-redacted", "yes", model="different")],
+                        [answer("a-raw", "yes"), answer("a-redacted", "yes", refused="invalid", model="different")]):
             with self.subTest(answers=answers), self.assertRaises(ValueError):
                 score_recorded(plan(), answers)
 
