@@ -1,12 +1,12 @@
 import argparse
 import base64
+import binascii
 import json
 import os
 import time
 from pathlib import Path
 
 import requests
-
 
 DEFAULT_API_URL = "https://api.getlimina.ai/community/v4"
 
@@ -158,6 +158,7 @@ def process_file(api_url, api_key, item, output_root):
     processed_file = result.get("processed_file")
 
     redacted_path = None
+    redaction_error = None
 
     if processed_file:
         redacted_path = (
@@ -171,9 +172,12 @@ def process_file(api_url, api_key, item, output_root):
                 validate=True,
             )
             redacted_path.write_bytes(redacted_bytes)
-        except Exception as exc:
+        except (binascii.Error, ValueError, TypeError, OSError) as exc:
             print(f"Could not decode redacted file: {exc}")
             redacted_path = None
+            redaction_error = str(exc)
+    else:
+        redaction_error = "API response did not include a processed file"
 
     entities = result.get("entities", [])
     languages = result.get("languages_detected", {})
@@ -190,7 +194,7 @@ def process_file(api_url, api_key, item, output_root):
         "file": str(source),
         "language": item["language"],
         "format": item["format"],
-        "status": "success",
+        "status": "success" if redacted_path else "redaction_error",
         "http_status": response.status_code,
         "entity_count": len(entities),
         "entities_present": result.get("entities_present"),
@@ -198,6 +202,7 @@ def process_file(api_url, api_key, item, output_root):
         "page_count": result.get("page_count"),
         "raw_json": str(raw_path),
         "redacted_file": str(redacted_path) if redacted_path else None,
+        "error": redaction_error,
     }
 
 
@@ -284,6 +289,9 @@ def main():
         )
 
     print(f"\nSummary: {summary_path}")
+
+    if any(result["status"] != "success" for result in summaries):
+        raise SystemExit(1)
 
 
 if __name__ == "__main__":
