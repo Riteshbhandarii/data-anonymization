@@ -3,7 +3,7 @@
 import unittest
 from types import SimpleNamespace
 
-from PIL import Image
+from PIL import Image, ImageDraw, ImageFont
 
 from eval.screenshot_bench import (
     blacked,
@@ -68,6 +68,28 @@ class DrawingTests(unittest.TestCase):
         self.assertEqual([WORDS[1].box, WORDS[2].box], boxes)
         gray = redacted.convert("L")
         self.assertEqual([False, True, True, False, False], [blacked(gray, word.box) for word in WORDS])
+
+    def test_transparent_hidden_text_is_discarded_instead_of_exposed(self):
+        image = Image.new("RGB", (500, 60), "white")
+        ImageDraw.Draw(image).text((5, 5), "hidden-email@example.test",
+                                  font=ImageFont.load_default(size=24), fill="black")
+        image.putalpha(0)
+        # OCR sees the white composite, so it returns no words or detections.
+        detector = SimpleNamespace(detect=lambda text, language: [])
+        redacted, boxes = redact_image(image, detector, words=[])
+        self.assertEqual([], boxes)
+        self.assertEqual((255, 255), redacted.convert("L").getextrema())
+        self.assertEqual((0, 255), image.convert("RGB").convert("L").getextrema())
+
+    def test_palette_transparency_is_removed_and_visible_pixels_are_preserved(self):
+        image = Image.new("P", (3, 1))
+        image.putpalette([0, 0, 0, 255, 0, 0] + [0] * 762)
+        image.info["transparency"] = 0
+        image.putpixel((1, 0), 1)
+        redacted = draw_boxes(image, [])
+        self.assertEqual([(255, 255, 255), (255, 0, 0), (255, 255, 255)],
+                         [redacted.getpixel((index, 0)) for index in range(3)])
+        self.assertEqual({}, redacted.info)
 
 
 class ScoringTests(unittest.TestCase):
