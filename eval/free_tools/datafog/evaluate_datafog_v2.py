@@ -342,3 +342,6 @@ for path in summary_paths:
     print(path)
 
 print("\nEvaluation V2 complete.")
+
+if missing_results or bad_labels:
+    raise SystemExit(1)

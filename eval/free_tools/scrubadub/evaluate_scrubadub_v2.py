@@ -412,3 +412,5 @@ for path in summary_paths:
 
 print("\nScrubadub V2 evaluation complete.")
 
+if missing_results or bad_labels:
+    raise SystemExit(1)
