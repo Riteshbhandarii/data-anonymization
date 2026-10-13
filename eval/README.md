@@ -94,3 +94,10 @@ evaluation is separate from offline harness tests.
 `ocr_bench.py` compares local OCR engines on the same generated PNG files.
 See [ocr-survey.md](../docs/ocr-survey.md) for supported engines, commands,
 language configurations and measured results.
+
+## Screenshot redaction
+
+`screenshot_bench.py` redacts the generated PNG files with every detection
+method and Presidio Image Redactor, then checks the output pixels for what is
+still readable. See [screenshot-redaction.md](../docs/screenshot-redaction.md)
+for the tool overview, scoring rules, commands and measured results.
