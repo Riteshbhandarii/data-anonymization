@@ -146,6 +146,7 @@ Public and synthetic only. Nothing real enters this repository.
 - [docs/model-evaluation.md](docs/model-evaluation.md), preparing and running controlled model experiments
 - [docs/assigned-task-results.md](docs/assigned-task-results.md), task status and reproducible local results
 - [docs/ocr-survey.md](docs/ocr-survey.md), OCR options and measurements
+- [docs/screenshot-redaction.md](docs/screenshot-redaction.md), cleaning screenshots before they are pasted: tools and measured image recall
 - [docs/open-questions.md](docs/open-questions.md), decisions not yet made
 
 ## Licence
