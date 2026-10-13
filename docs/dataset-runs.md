@@ -1,5 +1,11 @@
 # Dataset runs
 
+These recorded numbers predate the pre-review audit fixes to GLiNER/Privacy
+Filter windows, outer document chunks and negative-document precision. They
+describe the historical implementation, not the corrected one. Rerun the
+matrix before quoting them as corrected-code accuracy or runtime; the original
+aggregate tables are retained rather than silently recalculated.
+
 Every free detection method over every dataset we have. Aggregate numbers only:
 the anonymized outputs and the manual-test pack are built locally and never
 committed.
@@ -8,11 +14,16 @@ Reproduce:
 
 ```bash
 export PATH="/opt/homebrew/bin:$PATH"
+python -m pip install -r requirements-models.txt
 python -m eval.run_matrix --out outputs/runs --tab-docs 0   # fake, tab, turku, ai4privacy, real-uk
 python -m eval.make_pack --runs outputs/runs --pack outputs/pack
 ```
 
 `--datasets` and `--methods` rerun a subset and merge into the existing CSVs.
+Use a new pack directory when rebuilding a manual test; existing recorded
+answers must be preserved. `requirements-models.txt` pins GLiNER, GLiNER2 and
+Transformers to the tested local environment; model weights are downloaded
+separately on first use and can then be reused offline.
 `--tab-docs 0` scores the whole TAB test split (127 documents); the default is
 a 40-document sample. The `gliner` and `combined` methods need
 `pip install gliner` and a one-time model download
