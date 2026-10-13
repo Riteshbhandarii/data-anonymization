@@ -22,7 +22,7 @@ jobs:
       - run: pip install Faker==40.39.0 reportlab python-docx python-pptx openpyxl pypdf pillow ruff
 
       - name: Lint
-        run: ruff check corpus/ eval/ tests/
+        run: ruff check corpus/ eval/ app/ tests/
 
       - name: Generate a small corpus
         run: python3 corpus/generate.py --out ./corpus-out --n 2
@@ -71,7 +71,11 @@ jobs:
         run: python -m pip install -r requirements-validation.txt
 
       - name: Lint pipeline, redaction, corpus and evaluation code
-        run: ruff check app/ corpus/ pipeline/ detect/ redact/ eval/ tests/
+        run: |
+          ruff check app/ corpus/ pipeline/ detect/ redact/ eval/ tests/
+          if [ -d research ]; then
+            ruff check research/
+          fi
 
       - name: Run pipeline regression tests
         run: python -m unittest discover -s tests -v
