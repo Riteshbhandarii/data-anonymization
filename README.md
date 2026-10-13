@@ -147,6 +147,7 @@ Public and synthetic only. Nothing real enters this repository.
 - [docs/evaluation.md](docs/evaluation.md), the re-identification test protocol
 - [docs/model-evaluation.md](docs/model-evaluation.md), preparing and running controlled model experiments
 - [docs/utility-impact.md](docs/utility-impact.md), manual paired utility scoring and the first local-model measurement
+- [docs/local-model-options.md](docs/local-model-options.md), measured free local detectors and LM Studio final-pass trials
 - [docs/assigned-task-results.md](docs/assigned-task-results.md), task status and reproducible local results
 - [docs/ocr-survey.md](docs/ocr-survey.md), OCR options and measurements
 - [docs/screenshot-redaction.md](docs/screenshot-redaction.md), cleaning screenshots before they are pasted: tools and measured image recall

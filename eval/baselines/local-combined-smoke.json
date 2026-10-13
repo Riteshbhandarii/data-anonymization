@@ -1,0 +1,376 @@
+{
+  "schema_version": 1,
+  "corpus": {
+    "seed": 42,
+    "n": 1,
+    "documents": 14,
+    "identifiers": 192,
+    "faker": "40.39.0",
+    "corpus_sha256": "27934f5e7fc88d0748be7b53d2d79ecfd797ad82c94c68d6fa16fd421c2e40ae"
+  },
+  "scope": "Body labels only; no extraction measurement. All occurrences must be covered. QUASI_IDENTIFIER has no synthetic ground truth; its effectiveness is unmeasured.",
+  "documents": 14,
+  "failed_documents": 0,
+  "error_types": {},
+  "recall": [
+    {
+      "language": "en",
+      "entity_type": "ADDRESS",
+      "planted": 6,
+      "covered": 6,
+      "partial": 0
+    },
+    {
+      "language": "en",
+      "entity_type": "COMPANY",
+      "planted": 7,
+      "covered": 4,
+      "partial": 0
+    },
+    {
+      "language": "en",
+      "entity_type": "DATE",
+      "planted": 11,
+      "covered": 11,
+      "partial": 0
+    },
+    {
+      "language": "en",
+      "entity_type": "EMAIL",
+      "planted": 7,
+      "covered": 7,
+      "partial": 0
+    },
+    {
+      "language": "en",
+      "entity_type": "IBAN",
+      "planted": 7,
+      "covered": 7,
+      "partial": 0
+    },
+    {
+      "language": "en",
+      "entity_type": "INVOICE",
+      "planted": 5,
+      "covered": 5,
+      "partial": 0
+    },
+    {
+      "language": "en",
+      "entity_type": "PERSON",
+      "planted": 13,
+      "covered": 13,
+      "partial": 0
+    },
+    {
+      "language": "en",
+      "entity_type": "PERSONAL_ID",
+      "planted": 5,
+      "covered": 5,
+      "partial": 0
+    },
+    {
+      "language": "en",
+      "entity_type": "PHONE",
+      "planted": 7,
+      "covered": 7,
+      "partial": 0
+    },
+    {
+      "language": "en",
+      "entity_type": "PLATE",
+      "planted": 5,
+      "covered": 5,
+      "partial": 0
+    },
+    {
+      "language": "fi",
+      "entity_type": "ADDRESS",
+      "planted": 6,
+      "covered": 5,
+      "partial": 1
+    },
+    {
+      "language": "fi",
+      "entity_type": "COMPANY",
+      "planted": 7,
+      "covered": 2,
+      "partial": 1
+    },
+    {
+      "language": "fi",
+      "entity_type": "DATE",
+      "planted": 11,
+      "covered": 11,
+      "partial": 0
+    },
+    {
+      "language": "fi",
+      "entity_type": "EMAIL",
+      "planted": 7,
+      "covered": 7,
+      "partial": 0
+    },
+    {
+      "language": "fi",
+      "entity_type": "IBAN",
+      "planted": 7,
+      "covered": 7,
+      "partial": 0
+    },
+    {
+      "language": "fi",
+      "entity_type": "INVOICE",
+      "planted": 5,
+      "covered": 5,
+      "partial": 0
+    },
+    {
+      "language": "fi",
+      "entity_type": "PERSON",
+      "planted": 13,
+      "covered": 12,
+      "partial": 0
+    },
+    {
+      "language": "fi",
+      "entity_type": "PERSONAL_ID",
+      "planted": 5,
+      "covered": 5,
+      "partial": 0
+    },
+    {
+      "language": "fi",
+      "entity_type": "PHONE",
+      "planted": 7,
+      "covered": 7,
+      "partial": 0
+    },
+    {
+      "language": "fi",
+      "entity_type": "PLATE",
+      "planted": 5,
+      "covered": 5,
+      "partial": 0
+    }
+  ],
+  "precision": [
+    {
+      "language": "en",
+      "entity_type": "ADDRESS",
+      "detections": 7,
+      "correct": 6,
+      "other_type": 1,
+      "unlabelled": 0
+    },
+    {
+      "language": "en",
+      "entity_type": "COMPANY",
+      "detections": 5,
+      "correct": 5,
+      "other_type": 0,
+      "unlabelled": 0
+    },
+    {
+      "language": "en",
+      "entity_type": "DATE",
+      "detections": 30,
+      "correct": 22,
+      "other_type": 8,
+      "unlabelled": 0
+    },
+    {
+      "language": "en",
+      "entity_type": "EMAIL",
+      "detections": 13,
+      "correct": 13,
+      "other_type": 0,
+      "unlabelled": 0
+    },
+    {
+      "language": "en",
+      "entity_type": "IBAN",
+      "detections": 10,
+      "correct": 9,
+      "other_type": 1,
+      "unlabelled": 0
+    },
+    {
+      "language": "en",
+      "entity_type": "INVOICE",
+      "detections": 10,
+      "correct": 10,
+      "other_type": 0,
+      "unlabelled": 0
+    },
+    {
+      "language": "en",
+      "entity_type": "NRP",
+      "detections": 3,
+      "correct": 0,
+      "other_type": 3,
+      "unlabelled": 0
+    },
+    {
+      "language": "en",
+      "entity_type": "PERSON",
+      "detections": 15,
+      "correct": 13,
+      "other_type": 2,
+      "unlabelled": 0
+    },
+    {
+      "language": "en",
+      "entity_type": "PERSONAL_ID",
+      "detections": 13,
+      "correct": 13,
+      "other_type": 0,
+      "unlabelled": 0
+    },
+    {
+      "language": "en",
+      "entity_type": "PHONE",
+      "detections": 14,
+      "correct": 13,
+      "other_type": 1,
+      "unlabelled": 0
+    },
+    {
+      "language": "en",
+      "entity_type": "PLATE",
+      "detections": 10,
+      "correct": 10,
+      "other_type": 0,
+      "unlabelled": 0
+    },
+    {
+      "language": "en",
+      "entity_type": "UK_NHS",
+      "detections": 1,
+      "correct": 0,
+      "other_type": 1,
+      "unlabelled": 0
+    },
+    {
+      "language": "en",
+      "entity_type": "URL",
+      "detections": 7,
+      "correct": 0,
+      "other_type": 7,
+      "unlabelled": 0
+    },
+    {
+      "language": "en",
+      "entity_type": "US_DRIVER_LICENSE",
+      "detections": 5,
+      "correct": 0,
+      "other_type": 5,
+      "unlabelled": 0
+    },
+    {
+      "language": "fi",
+      "entity_type": "ADDRESS",
+      "detections": 6,
+      "correct": 6,
+      "other_type": 0,
+      "unlabelled": 0
+    },
+    {
+      "language": "fi",
+      "entity_type": "COMPANY",
+      "detections": 4,
+      "correct": 4,
+      "other_type": 0,
+      "unlabelled": 0
+    },
+    {
+      "language": "fi",
+      "entity_type": "DATE",
+      "detections": 21,
+      "correct": 21,
+      "other_type": 0,
+      "unlabelled": 0
+    },
+    {
+      "language": "fi",
+      "entity_type": "EMAIL",
+      "detections": 14,
+      "correct": 14,
+      "other_type": 0,
+      "unlabelled": 0
+    },
+    {
+      "language": "fi",
+      "entity_type": "IBAN",
+      "detections": 10,
+      "correct": 9,
+      "other_type": 1,
+      "unlabelled": 0
+    },
+    {
+      "language": "fi",
+      "entity_type": "INVOICE",
+      "detections": 10,
+      "correct": 10,
+      "other_type": 0,
+      "unlabelled": 0
+    },
+    {
+      "language": "fi",
+      "entity_type": "PERSON",
+      "detections": 14,
+      "correct": 12,
+      "other_type": 2,
+      "unlabelled": 0
+    },
+    {
+      "language": "fi",
+      "entity_type": "PERSONAL_ID",
+      "detections": 14,
+      "correct": 14,
+      "other_type": 0,
+      "unlabelled": 0
+    },
+    {
+      "language": "fi",
+      "entity_type": "PHONE",
+      "detections": 15,
+      "correct": 13,
+      "other_type": 2,
+      "unlabelled": 0
+    },
+    {
+      "language": "fi",
+      "entity_type": "PLATE",
+      "detections": 10,
+      "correct": 10,
+      "other_type": 0,
+      "unlabelled": 0
+    },
+    {
+      "language": "fi",
+      "entity_type": "URL",
+      "detections": 7,
+      "correct": 0,
+      "other_type": 7,
+      "unlabelled": 0
+    }
+  ],
+  "runtime": [
+    {
+      "language": "en",
+      "documents": 7,
+      "seconds": 8.881066749949241,
+      "seconds_per_document": 1.2687238214213201
+    },
+    {
+      "language": "fi",
+      "documents": 7,
+      "seconds": 1.0838279169984162,
+      "seconds_per_document": 0.15483255957120232
+    }
+  ],
+  "model": "combined",
+  "base_method": null,
+  "scope_note": "Same n1 body corpus as the local LLM smoke trial; GLiNER CPU"
+}
