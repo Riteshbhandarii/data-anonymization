@@ -617,3 +617,6 @@ print("\nSummary:")
 print(
     summary_path.resolve()
 )
+
+if not files or error_count:
+    raise SystemExit(1)
