@@ -64,6 +64,25 @@ plan, CSV answers and reports stay under Git-ignored
 | Generic replacement | 1/9 | 2 | 6 | 1/9 |
 | Consistent pseudonyms | 1/9 | 2 | 6 | 1/9 |
 
+The same model and settings were then run on the identical suite with the
+`combined` detector from #53 (27 additional requests, no errors). This second
+run used the locally integrated detector/UI/screenshot branches; aggregate
+scoring used the same code above. Its plan and raw answers are saved under
+`outputs/utility-qwen-combined/` in the integration checkout.
+
+| Combined-detector variant | Correct / questions | Wrong | Refused | Retained / raw-correct |
+|---|---:|---:|---:|---:|
+| Raw | 9/9 | 0 | 0 | — |
+| Generic replacement | 5/9 | 1 | 3 | 5/9 |
+| Consistent pseudonyms | 6/9 | 0 | 3 | 6/9 |
+
+The combined detector preserves project names and detects the company, which
+the rules-only run missed. Numbered aliases also restore the contact comparison
+on all three documents in this run. Both sanitized variants still fail all
+three total-hours questions because the retained Presidio date recognizer
+removes `hours 18` and `hours 12`. Higher recall therefore leaves a measurable
+utility problem even when the combined detector improves other tasks.
+
 The three questions ask for the total hours, the project with more hours and
 whether both projects have the same contact. Presidio's small-model rules
 configuration tags the fragments `hours 18` and `hours 12` as `DATE_TIME`,
@@ -75,5 +94,5 @@ Pseudonymization alone does not repair these detection mistakes.
 
 This nine-question experiment cannot establish general accuracy. Its purpose
 is to make the cost measurable and expose over-redaction that high recall can
-hide. Repeat the paired study with the combined/new methods, Finnish questions
+hide. Repeat the paired study with the other new methods, Finnish questions
 and the public model selected for #44 before claiming deployment utility.
