@@ -5,6 +5,12 @@ and the established pipeline split. Build work and the owner's survey pathways
 both have deliverables below. **Group agreement and a named #27 issue owner
 are still pending; publishing this plan does not invent either.**
 
+The owner authorized integration on 2026-10-14. All ten intended PRs are
+merged into `main`; duplicate #49 is closed. #30's confirmed screenshot/snips
+meaning and tool survey are complete. Remaining human work is #44's public-AI
+experiment, #45's real-document hand labels, and group acceptance/ownership
+under #32, followed by the paper/cookbook.
+
 | Pathway / work | Confirmed owner or contributor | Reviewable deliverable / evidence | Remaining finish condition |
 |---|---|---|---|
 | Commercial products, free and paid (#27) | Commercial research contributors: @SiriwitW (#46), @anuntachin (#51); #27 has no assignee | [Nine-option inventory](product-options.md), free-tool research #51 and commercial research #46 | Review the inventory; group confirms one accountable #27 owner |
@@ -24,24 +30,17 @@ The pipeline split is documented in
 Research contributor names above come from PR authors; they are not new
 assignments made on their behalf.
 
-## Review and execution order
+## Execution order after integration
 
-1. Review #50 (UI), then [#58 (core audit)](https://github.com/Riteshbhandarii/data-anonymization/pull/58),
-   then #52 (screenshots), #53 (combined/precision), #54 (new detectors) and
-   #56 (local models). #58 is stacked on #50; #56 is stacked on #54.
-   #53/#54 and #50 edit the same detector registry, and #53/#54 both change
-   GLiNER windowing. The tested local integration retains #54's builder
-   registry and pattern helper while keeping all UI labels and regressions.
-   Apply those resolutions during owner-approved integration and rerun checks.
-2. Review #46 and #51 independently. #49 is superseded by the clean free-tool
-   branch #51; keep the duplicate out of the integration rather than including
-   both versions of its research.
-3. Review #55 and this product/work-plan PR independently. All approval and
-   merge decisions remain with the owner; automatic merge is disabled.
-4. Complete the manual public-AI run (#44) and the real-document annotation
+1. Use the merged pipeline, UI, model methods and utility workflow on `main`.
+   The [audit](pre-review-audit.md) records fixed defects and reader limits;
+   the [current matrix](dataset-audit-runs.md) records the measured tradeoffs.
+   Registry/window conflicts retained #54's builders and pattern helper,
+   with all UI labels and regression tests. #49's duplicate work was excluded.
+2. Complete the manual public-AI run (#44) and the real-document annotation
    study (#45). CI checks software and synthetic extraction; it cannot supply
    these results or certify anonymized documents safe to upload.
-5. Write the final comparison/cookbook/paper from the measured results and
+3. Write the final comparison/cookbook/paper from the measured results and
    explicit limitations. Confirm the plan and outstanding ownership in the
    group before closing #32.
 
@@ -56,8 +55,8 @@ stale UI results, detector window boundaries, negative-document precision and
 manual-study accounting. #58 records the findings and unsupported reader
 features. The combined local checkout passes 222 regression tests, 43 scoring
 tests, full Ruff and unchanged acceptance gates on the 70-document extraction
-corpus. All eleven open PR heads pass corpus/scoring/pipeline CI; no PR was
-merged. #49 remains open only as a superseded duplicate.
+corpus. The ten intended PRs and updated conflict-resolution heads passed
+corpus/scoring/pipeline CI before merging. #49 is closed as superseded.
 
 The corrected labelled matrix in #58 reruns all seven methods on the same
 885 documents: 140 fake, full TAB 127, Turku 18 and ai4privacy 300 per language.
