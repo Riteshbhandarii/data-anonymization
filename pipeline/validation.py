@@ -50,7 +50,7 @@ def location_ranges(markdown: str, source: Path) -> list[tuple[str, int, int]]:
             location = "metadata"
         elif line == "## Document content" or re.match(r"^## (Slide|Page) \d+", line):
             location = "body"
-        elif line == "### Speaker notes":
+        elif line in {"### Speaker notes", "## Footnotes", "## Endnotes"}:
             location = "notes"
         elif line == "### Embedded image text":
             location = "embedded_image"
@@ -157,15 +157,15 @@ def evaluate_corpus(
         raise ValueError(f"No JSON label files found in {root / 'labels'}")
 
     documents = []
-    seen_files: set[str] = set()
+    seen_files: set[Path] = set()
     for label_file in label_files:
         label = json.loads(label_file.read_text(encoding="utf-8"))
         source = (root / label["file"]).resolve()
         if not source.is_relative_to(root):
             raise ValueError(f"Label source path leaves the corpus directory: {label_file.name}")
-        if label["file"] in seen_files:
+        if source in seen_files:
             raise ValueError(f"Duplicate labels for document: {label['file']}")
-        seen_files.add(label["file"])
+        seen_files.add(source)
         if not label["entities"]:
             raise ValueError(f"No entity labels in {label_file.name}")
 
