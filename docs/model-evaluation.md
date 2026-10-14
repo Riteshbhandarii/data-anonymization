@@ -165,3 +165,8 @@ citations for inspection. Keep those citations attached when sharing excerpts.
 CI tests controls, scoring, request limits and the provider boundary with an
 injected fake client. It does not use credentials, download detector models, or
 call paid APIs.
+
+For a free manual utility experiment, export only the paired utility prompts
+with `python -m eval.utility_bench prepare <plan.json> --out <new-pack-directory>`.
+The [utility guide](utility-impact.md) covers recording, paired scoring and the
+first measured local-model result. This route makes no API calls.
