@@ -14,7 +14,7 @@ spacy
 # by name. See eval/README.md for the download commands.
 
 # corpus generation
-faker
+Faker==40.39.0
 reportlab
 
 # eval

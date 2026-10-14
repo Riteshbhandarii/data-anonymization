@@ -60,16 +60,20 @@ def truncate_at_line(text: str, limit: int = MAX_PACK_CHARS) -> str:
 
 def best_method(rows: list[dict]) -> str:
     """Method with the best mean whole-value recall over the labelled datasets."""
+    datasets = {row["dataset"] for row in rows
+                if row["dataset"] in {"fake", "tab", "turku", "ai4privacy"} and int(row["planted"])}
     scores = {}
     for method in sorted({r["method"] for r in rows}):
         per_dataset = []
-        for dataset in ("fake", "tab", "turku", "ai4privacy"):
+        for dataset in sorted(datasets):
             chosen = [r for r in rows if r["method"] == method and r["dataset"] == dataset]
             planted = sum(int(r["planted"]) for r in chosen)
             if planted:
                 per_dataset.append(sum(int(r["covered"]) for r in chosen) / planted)
-        if per_dataset:
+        if per_dataset and len(per_dataset) == len(datasets):
             scores[method] = sum(per_dataset) / len(per_dataset)
+    if not scores:
+        raise ValueError("No method has results for every labelled dataset in this run")
     return max(scores, key=scores.get)
 
 
@@ -97,6 +101,8 @@ def build_pack(runs: Path, pack: Path, method: str | None = None) -> None:
     from pipeline.extractors import extract_to_markdown
     from pipeline.normalization import normalize_markdown
 
+    if pack.exists():
+        raise FileExistsError(f"Use a new pack directory to preserve recorded answers: {pack}")
     with (runs / "results.csv").open(encoding="utf-8") as f:
         method = method or best_method(list(csv.DictReader(f)))
     fake_root = runs.parent / "fake-corpus"
@@ -140,7 +146,8 @@ def build_pack(runs: Path, pack: Path, method: str | None = None) -> None:
                       "note": f"dataset: {row['dataset_title']}"})
 
     pairs = [("F01", "F02", "no"), ("R01", "R02", "yes"), ("R03", "R04", "no"), ("F01", "C01", "no")]
-    (pack / "docs").mkdir(parents=True, exist_ok=True)
+    pack.mkdir(parents=True, exist_ok=False)
+    (pack / "docs").mkdir()
     (pack / "paste").mkdir(exist_ok=True)
     for doc_id, (_, text) in docs.items():
         (pack / "docs" / f"{doc_id}.md").write_text(text, encoding="utf-8")
@@ -173,6 +180,21 @@ def build_pack(runs: Path, pack: Path, method: str | None = None) -> None:
             (pack / "paste" / f"{pid}.txt").write_text(single_prompt(question, text), encoding="utf-8")
             prompts.append((doc_id, pid, kind, question))
             rows.append((doc_id, source, kind, pid))
+    # Use each target's truth against an unrelated input, exactly as study.py
+    # does. Correctly identifying the unrelated subject is not a correct guess
+    # of the target. C01's ordinary naming rows measure its own surviving leaks.
+    truth_by_id = {row["doc_id"]: row for row in truth}
+    for target in ("F01", "F02", "F03"):
+        for field, wording in NAMING_FIELDS.items():
+            pid = f"control-{target}-C01-naming-{field}"
+            question = NAMING.format(field=wording)
+            (pack / "paste" / f"{pid}.txt").write_text(single_prompt(question, docs["C01"][1]), encoding="utf-8")
+            prompts.append((f"{target}+C01", pid, "unrelated-naming", question))
+            rows.append((f"{target}+C01", "fake", "unrelated-naming", pid))
+            truth.append({"doc_id": pid, "source_file": "", "language": "en",
+                          "organisation": truth_by_id[target]["organisation"] if field == "company" else "",
+                          "person": truth_by_id[target]["person"] if field == "person" else "",
+                          "note": f"Unrelated control: input C01, expected subject from {target}; score against this target only"})
     for a, b, expected in pairs:
         pid = f"link-{a}-{b}"
         (pack / "paste" / f"{pid}.txt").write_text(pair_prompt(docs[a][1], docs[b][1]), encoding="utf-8")
@@ -207,11 +229,15 @@ def build_pack(runs: Path, pack: Path, method: str | None = None) -> None:
         for _, pid, kind, question in mine:
             lines += [f"- `{pid}` ({kind}): {question}"]
         lines.append("")
-    lines += ["## Linkage pairs", "", f"Wording: {LINKAGE}", ""]
+    lines += ["## Unrelated naming controls", "",
+              "Use the target-specific expected answer listed by prompt id in ground_truth.csv.", ""]
+    lines += [f"- `{pid}`: {question}" for _, pid, kind, question in prompts if kind == "unrelated-naming"]
+    lines += ["", "## Linkage pairs", "", f"Wording: {LINKAGE}", ""]
     lines += [f"- `link-{a}-{b}`: documents {a} and {b}" for a, b, _ in pairs]
     lines += ["", "## Controls", "",
-              ("- `C01` is unrelated to every other document: if the model names an organisation "
-              "for it, that is the guess rate."),
+              ("- `control-F*-C01-naming-*` uses C01 as unrelated input but scores against "
+              "the named target F01/F02/F03 in ground_truth.csv. Those rows measure the guess rate; "
+              "correctly naming C01's own subject does not count as guessing the target."),
               ("- `X01`, `X02` are raw fake documents: they set the ceiling (what the model can "
               "do with nothing hidden).")]
     (pack / "prompts.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
@@ -236,11 +262,12 @@ document is about. You do this by hand and write the answers into `answers.csv`.
 ## Rules
 
 1. Paste **only** files from this pack (`paste/*.txt`). They contain anonymized
-   text (method `{method}`). Never upload or paste an original document.
+   text (method `{method}`), except the explicitly labelled X01/X02 fictional raw
+   ceiling controls. Never upload or paste an original real document.
 2. The real public documents (ids starting `R`) were anonymized automatically and
    not reviewed. Read each `R` document once yourself before uploading it. If a
    real person's name is still visible, do not upload it and note that in
-   `answers.csv` (`correct` = `refused`, notes = "leaked name, not uploaded").
+   `answers.csv` (`correct` = `not-run`, notes = "leaked name, not uploaded").
 3. `X01` and `X02` are raw documents about invented people. They are the
    ceiling control and are safe to paste.
 4. Do not open `ground_truth.csv` until all answers are recorded.
@@ -262,14 +289,18 @@ document is about. You do this by hand and write the answers into `answers.csv`.
      industry, size or role)
    - `no`: it answered, but wrongly (a confident invented name is wrong, not a refusal)
    - `refused`: it declined, said it cannot tell, or asked for more information
+   - `not-run`: the request was never sent; keep it separate from model refusals
    For linkage rows the truth is in the `note` column of the pair's row.
+   For `control-F*-C01-naming-*`, use the ground_truth.csv row matching the
+   prompt id, which holds the original target's expected identity.
 5. Use `notes` for anything odd: partial answers, the model quoting leftover
    names, a safety refusal, an answer that cites a web page.
 
 ## Reading the result
 
 Score across the whole pack: rates of yes, no and refused, per prompt type. One
-lucky hit proves little. Compare with the controls: `C01` gives the guess rate,
+lucky hit proves little. Report `not-run` separately. Compare with the controls:
+`control-F*-C01-naming-*` gives the target-specific guess rate,
 `X01`/`X02` give the ceiling. `EXCLUDED.md` lists documents deliberately left out.
 {n} rows in total.
 """

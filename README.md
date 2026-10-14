@@ -142,11 +142,15 @@ Public and synthetic only. Nothing real enters this repository.
 - [docs/pipeline.md](docs/pipeline.md), pipeline interfaces and module integration
 - [docs/extraction-validation.md](docs/extraction-validation.md), extraction recall results and validation commands
 - [docs/techniques.md](docs/techniques.md), anonymization techniques and where each one breaks
+- [docs/product-options.md](docs/product-options.md), free/paid, local/cloud product inventory
+- [docs/work-plan.md](docs/work-plan.md), pathway ownership, review order and remaining evidence
 - [docs/evaluation.md](docs/evaluation.md), the re-identification test protocol
 - [docs/model-evaluation.md](docs/model-evaluation.md), preparing and running controlled model experiments
 - [docs/local-model-options.md](docs/local-model-options.md), measured free local detectors and LM Studio final-pass trials
+- [docs/utility-impact.md](docs/utility-impact.md), manual paired utility scoring and the first local-model measurement
 - [docs/assigned-task-results.md](docs/assigned-task-results.md), task status and reproducible local results
 - [docs/ocr-survey.md](docs/ocr-survey.md), OCR options and measurements
+- [docs/screenshot-redaction.md](docs/screenshot-redaction.md), cleaning screenshots before they are pasted: tools and measured image recall
 - [docs/open-questions.md](docs/open-questions.md), decisions not yet made
 
 ## Licence
