@@ -76,6 +76,16 @@ class ValidationTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "No JSON label files"):
             evaluate_corpus(self.root)
 
+    def test_path_aliases_cannot_double_count_the_same_document(self) -> None:
+        self.add_document("Alex Example", [
+            {"type": "PERSON", "value": "Alex Example", "location": "body"},
+        ])
+        original = json.loads((self.root / "labels" / "example.json").read_text())
+        original["file"] = "./example.txt"
+        (self.root / "labels" / "alias.json").write_text(json.dumps(original))
+        with self.assertRaisesRegex(ValueError, "Duplicate labels"):
+            evaluate_corpus(self.root)
+
     def test_missing_required_location_is_explicitly_not_tested(self) -> None:
         self.add_document("Alex Example", [
             {"type": "PERSON", "value": "Alex Example", "location": "body"},

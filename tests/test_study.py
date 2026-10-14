@@ -113,6 +113,39 @@ class StudyTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "list of accepted answer strings"):
             prepare(self.suite_path, FixtureDetector())
 
+    def test_duplicate_utility_questions_are_rejected(self):
+        suite = json.loads(self.suite_path.read_text(encoding="utf-8"))
+        utility = suite["documents"][0]["utility"]
+        utility.append(utility[0])
+        self.suite_path.write_text(json.dumps(suite), encoding="utf-8")
+        with self.assertRaisesRegex(ValueError, "question IDs must be unique"):
+            prepare(self.suite_path, FixtureDetector())
+
+    def test_unrelated_control_records_the_actual_input_format(self):
+        suite = json.loads(self.suite_path.read_text(encoding="utf-8"))
+        suite["documents"][2]["file"] = "b1.txt"
+        (self.suite_path.parent / "b1.md").rename(self.suite_path.parent / "b1.txt")
+        self.suite_path.write_text(json.dumps(suite), encoding="utf-8")
+        requests = prepare(self.suite_path, FixtureDetector())["requests"]
+        unrelated = next(row for row in requests if row["document_id"] == "a1" and row["control"] == "unrelated")
+        self.assertEqual("txt", unrelated["format"])
+        self.assertEqual(["Aster Example Analytics"], unrelated["ground_truth"])
+
+    def test_summary_keeps_experiment_conditions_separate(self):
+        base = {"task": "reidentification", "prompt_type": "naming:company", "control": "target",
+                "sanitization_config": {"variant": "redacted", "alias_scope": "document"},
+                "model": "model-A", "web_search": False, "language": "en", "score": "wrong"}
+        rows = [base, {**base, "web_search": True, "score": "correct"},
+                {**base, "model": "model-B", "score": "correct"},
+                {**base, "language": "fi", "score": "correct"},
+                {**base, "sanitization_config": {"variant": "redacted", "alias_scope": "corpus"},
+                 "score": "correct"}]
+        result = summarize(rows)
+        self.assertEqual(5, len(result))
+        self.assertEqual(5, sum(row["attempted"] for row in result))
+        self.assertEqual(4, sum(row["correct"] for row in result))
+        self.assertEqual({0.0, 1.0}, {row["correct_rate"] for row in result})
+
     def test_required_search_failure_and_malformed_provider_results_are_counted(self):
         plan = {**self.plan, "requests": [self.plan["requests"][0]]}
         for result, expected in (

@@ -38,7 +38,7 @@ def extract_to_markdown(file_path: str | Path, ocr_language: str = "eng") -> str
         if suffix == ".csv":
             return _extract_csv(path)
         if suffix == ".docx":
-            return _extract_docx(path)
+            return _extract_docx(path, ocr_language)
         if suffix == ".xlsx":
             return _extract_xlsx(path)
         if suffix == ".pptx":
@@ -65,13 +65,15 @@ def _extract_csv(path: Path) -> str:
     return _rows_to_markdown(rows, empty_message="_Empty CSV file._")
 
 
-def _extract_docx(path: Path) -> str:
+def _extract_docx(path: Path, ocr_language: str) -> str:
     from docx import Document
 
     document = Document(path)
     parts = _office_metadata(document.core_properties)
     parts.append("## Document content")
     parts.extend(_docx_blocks(document.element.body, document))
+    image_texts = _docx_images(document.element.body, document.part, ocr_language)
+    story_elements = [document.element.body]
 
     tracked = _docx_tracked_changes(document.element.body)
     if tracked:
@@ -94,18 +96,24 @@ def _extract_docx(path: Path) -> str:
             if part_name in seen_parts:
                 continue
             seen_parts.add(part_name)
+            story_elements.append(story._element)
             blocks = _docx_blocks(story._element, story)
             if blocks:
                 label = name.replace("_", " ").capitalize()
                 parts.append(f"## {label} (section {index})")
                 parts.extend(blocks)
+            image_texts.extend(_docx_images(story._element, story.part, ocr_language))
+
+    parts.extend(_docx_notes(document, story_elements, ocr_language))
+    if image_texts:
+        parts.extend(["### Embedded image text", *image_texts])
 
     return "\n\n".join(parts)
 
 
 def _docx_blocks(element: Any, parent: Any) -> list[str]:
     """Read paragraphs and tables in body, header, or footer order."""
-    from docx.table import Table
+    from docx.table import Table, _Cell
     from docx.text.paragraph import Paragraph
 
     parts: list[str] = []
@@ -128,12 +136,69 @@ def _docx_blocks(element: Any, parent: Any) -> list[str]:
         elif child.tag.endswith("}tbl"):
             table = Table(child, parent)
             rows = [
-                ["\n".join(_docx_text(p) for p in cell._tc.iterchildren()
-                           if p.tag.endswith("}p")) for cell in row.cells]
+                ["\n".join(_docx_blocks(cell._tc, cell)) for cell in row.cells]
                 for row in table.rows
             ]
-            parts.append(_rows_to_markdown(rows, empty_message="_Empty table._"))
+            if isinstance(parent, _Cell):
+                # An outer table escapes its cells once. Rendering an inner
+                # Markdown table first double-escapes literal pipes.
+                parts.append("\n".join(" | ".join(row) for row in rows))
+            else:
+                parts.append(_rows_to_markdown(rows, empty_message="_Empty table._"))
+        elif child.tag.endswith(("}sdt", "}sdtContent", "}customXml")):
+            parts.extend(_docx_blocks(child, parent))
 
+    return parts
+
+
+def _docx_images(element: Any, part: Any, ocr_language: str) -> list[str]:
+    """Read embedded pictures in the body, tables, headers, and footers."""
+    from docx.oxml.ns import qn
+
+    texts = []
+    for node in element.iter():
+        if node.tag == qn("a:blip"):
+            relationship = node.get(qn("r:embed"))
+        elif node.tag == "{urn:schemas-microsoft-com:vml}imagedata":
+            relationship = node.get(qn("r:id"))
+        else:
+            continue
+        if relationship:
+            texts.append(_ocr_image_bytes(part.related_parts[relationship].blob, ocr_language))
+    return texts
+
+
+def _docx_notes(document: Any, stories: list[Any], ocr_language: str) -> list[str]:
+    """Read referenced footnotes and endnotes once, in reference order."""
+    from docx.oxml import parse_xml
+    from docx.oxml.ns import qn
+
+    parts = []
+    for kind, title in (("footnote", "Footnotes"), ("endnote", "Endnotes")):
+        references = list(dict.fromkeys(
+            node.get(qn("w:id")) for story in stories
+            for node in story.iter(qn(f"w:{kind}Reference"))
+        ))
+        if not references:
+            continue
+        relationship = next((relation for relation in document.part.rels.values()
+                             if not relation.is_external and relation.reltype.endswith(f"/{kind}s")), None)
+        if relationship is None:
+            raise ExtractionError(f"Document references {kind}s but has no {kind}s part")
+        root = parse_xml(relationship.target_part.blob)
+        notes = {node.get(qn("w:id")): node for node in root if node.tag == qn(f"w:{kind}")}
+        parts.append(f"## {title}")
+        image_texts = []
+        for identifier in references:
+            if identifier not in notes:
+                raise ExtractionError(f"Document references missing {kind} {identifier}")
+            note = notes[identifier]
+            parts.append(f"### {kind.capitalize()} {identifier}")
+            parts.extend(_docx_blocks(note, document))
+            parts.extend(_docx_tracked_changes(note))
+            image_texts.extend(_docx_images(note, relationship.target_part, ocr_language))
+        if image_texts:
+            parts.extend(["### Embedded image text", *image_texts])
     return parts
 
 
@@ -153,6 +218,9 @@ def _docx_text(element: Any, *, include_deleted: bool = False) -> str:
             parts.append("\t")
         elif node.tag in {qn("w:br"), qn("w:cr")}:
             parts.append("\n")
+        elif node.tag in {qn("w:footnoteReference"), qn("w:endnoteReference")}:
+            kind = "footnote" if node.tag == qn("w:footnoteReference") else "endnote"
+            parts.append(f"[{kind}:{node.get(qn('w:id'))}]")
     return "".join(parts)
 
 
@@ -197,7 +265,8 @@ def _docx_comments(document: Any) -> list[str]:
 def _extract_xlsx(path: Path) -> str:
     from openpyxl import load_workbook
 
-    workbook = load_workbook(path, read_only=True, data_only=False)
+    # Streaming worksheets discard cell comments; the source view needs them.
+    workbook = load_workbook(path, data_only=False)
     try:
         cached_workbook = load_workbook(path, read_only=True, data_only=True)
         try:
@@ -215,13 +284,22 @@ def _extract_xlsx(path: Path) -> str:
                 "Content status": properties.contentStatus,
                 "Version": properties.version,
             })
+            comments = []
             for sheet in workbook.worksheets:
                 parts.append(f"## Sheet: {sheet.title}")
                 cached_sheet = cached_workbook[sheet.title]
                 rows: list[list[str]] = []
-                for source_row, cached_row in zip(sheet.iter_rows(), cached_sheet.iter_rows()):
+                formulas = []
+                cached_rows = cached_sheet.iter_rows(max_row=sheet.max_row, max_col=sheet.max_column)
+                for source_row, cached_row in zip(sheet.iter_rows(), cached_rows, strict=True):
                     values = []
                     for source_cell, cached_cell in zip(source_row, cached_row):
+                        if source_cell.comment is not None:
+                            comment = source_cell.comment
+                            comments.append(
+                                f"- Sheet: {sheet.title}; cell: {source_cell.coordinate}; "
+                                f"author: {comment.author}\n\n{comment.text}"
+                            )
                         value = cached_cell.value
                         # An explicitly stored empty string is a valid formula
                         # result; an untyped missing numeric cache is not.
@@ -235,10 +313,16 @@ def _extract_xlsx(path: Path) -> str:
                                 "Recalculate and save the workbook in a spreadsheet "
                                 "application before extraction."
                             )
+                        if source_cell.data_type == "f":
+                            formulas.append(f"- {source_cell.coordinate}: {source_cell.value}")
                         values.append("" if value is None else str(value))
                     if any(value.strip() for value in values):
                         rows.append(values)
                 parts.append(_rows_to_markdown(rows, empty_message="_Empty sheet._"))
+                if formulas:
+                    parts.extend(["### Formula expressions", *formulas])
+            if comments:
+                parts.extend(["## Review comments", *comments])
         finally:
             cached_workbook.close()
     finally:
@@ -298,6 +382,7 @@ def _extract_pdf(path: Path, ocr_language: str) -> str:
     import pymupdf
 
     parts: list[str] = []
+    comments: list[str] = []
     with pymupdf.open(path) as document:
         parts.extend(_metadata_section({
             key.capitalize(): value
@@ -305,6 +390,11 @@ def _extract_pdf(path: Path, ocr_language: str) -> str:
             if key not in {"format", "encryption"}
         }))
         for index, page in enumerate(document, start=1):
+            for annotation in page.annots() or ():
+                for name in ("title", "subject", "content"):
+                    value = annotation.info.get(name)
+                    if value:
+                        comments.append(f"- Page {index}; {name}: {value}")
             parts.append(f"## Page {index}")
             text = page.get_text("text").strip()
             if not text:
@@ -330,6 +420,8 @@ def _extract_pdf(path: Path, ocr_language: str) -> str:
                 image_texts.append(_append_ocr_lines("", ocr_text).strip())
             if image_texts:
                 parts.extend(["### Embedded image text", *image_texts])
+    if comments:
+        parts.extend(["## Review comments", *comments])
     return "\n\n".join(parts)
 
 
@@ -368,10 +460,11 @@ def _metadata_section(values: dict[str, Any]) -> list[str]:
 
 
 def _extract_image(path: Path, ocr_language: str) -> str:
-    from PIL import Image
+    from PIL import Image, ImageSequence
 
     with Image.open(path) as image:
-        text = _run_tesseract(image, ocr_language)
+        text = "\n\n".join(_run_tesseract(frame, ocr_language).strip()
+                            for frame in ImageSequence.Iterator(image))
     return f"## OCR text\n\n{text.strip()}"
 
 
