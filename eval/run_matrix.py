@@ -11,6 +11,7 @@ Writes, under --out:
     results.csv                                 recall counts, one row per group
     detections_real_uk.csv                      detections per type, no recall
     runtime.csv                                 detection seconds per dataset/method
+    precision.csv                               detections and how many hit no annotation
     summary.md                                  tables and caveats
 
 Outputs contain anonymized real text and must not be committed. Only code and
@@ -80,6 +81,7 @@ AI4P_TYPES = {
 }
 
 MAX_CHUNK = 100_000
+PRECISION_COLUMNS = ["dataset", "method", "language", "detections", "unlabelled"]
 RESULT_COLUMNS = ["dataset", "method", "entity_type", "language", "planted", "covered", "partial",
                   "location", "identifier_type", "format"]
 
@@ -104,17 +106,21 @@ def mention_state(start: int, end: int, corpus_type: str, spans) -> str:
     return state
 
 
-def split_text(text: str, limit: int = MAX_CHUNK):
-    """Yield (offset, piece) with pieces under the limit, cut at line breaks."""
+def split_text(text: str, limit: int = MAX_CHUNK, *, overlap: int = 0):
+    """Yield bounded pieces; optional overlap preserves identifiers across cuts."""
+    if limit <= 0 or not 0 <= overlap < limit:
+        raise ValueError("Chunk limit must be positive and overlap in [0, limit)")
     start = 0
     while start < len(text):
         end = min(len(text), start + limit)
         if end < len(text):
             cut = text.rfind("\n", start, end)
-            if cut > start:
+            if cut > start + limit // 2:
                 end = cut + 1
         yield start, text[start:end]
-        start = end
+        if end == len(text):
+            break
+        start = max(start + 1, end - overlap)
 
 
 class Offset:
@@ -129,10 +135,14 @@ def detect_long(detector, text: str, language: str):
     """Detect piecewise so one huge spreadsheet cannot exceed spaCy's limit."""
     if len(text) <= MAX_CHUNK:
         return list(detector.detect(text, language=language))
-    spans = []
-    for offset, piece in split_text(text):
-        spans.extend(Offset(s, offset) for s in detector.detect(piece, language=language))
-    return spans
+    spans = {}
+    for offset, piece in split_text(text, MAX_CHUNK, overlap=min(1000, MAX_CHUNK // 4)):
+        for item in detector.detect(piece, language=language):
+            shifted = Offset(item, offset)
+            key = (shifted.start, shifted.end, shifted.entity_type)
+            if key not in spans or shifted.score > spans[key].score:
+                spans[key] = shifted
+    return list(spans.values())
 
 
 def merge_rows(path: Path, columns: list[str], keys: tuple[str, ...], replace: set[tuple],
@@ -163,6 +173,16 @@ def tally(records, dataset: str, method: str) -> list[dict]:
             for (t, lang, loc, ident, fmt), (p, c, q) in sorted(groups.items())]
 
 
+def unlabelled(spans, annotated) -> int:
+    """Detections that overlap no annotated span of any type.
+
+    Not every one is a mistake (a dataset may leave some personal data
+    unannotated), so this is an upper bound on false positives. Overlap with a
+    skipped type (TAB NO_MASK, Turku PRO) is not counted against the detector.
+    """
+    return sum(not any(s.start < e and s.end > b for b, e in annotated) for s in spans)
+
+
 def safe_name(doc_id: str) -> str:
     return re.sub(r"[^\w.-]+", "_", doc_id)
 
@@ -176,6 +196,7 @@ class Doc:
     text: str
     mentions: list = field(default_factory=list)  # dicts: type,start,end,identifier_type
     labels: list = field(default_factory=list)    # fake only: value-based labels
+    annotated: list | None = None  # None: unlabelled dataset; []: labelled negative document
     source: Path | None = None
     format: str = ""
 
@@ -208,18 +229,22 @@ def load_fake(args) -> list[Doc]:
 
 def load_tab(args) -> list[Doc]:
     data = json.loads((CORPUS_ROOT / "tab" / "echr_test.json").read_text(encoding="utf-8"))
-    data = sorted(data, key=lambda d: d["doc_id"])[::3][: args.tab_docs]
+    data = sorted(data, key=lambda d: d["doc_id"])
+    if args.tab_docs:  # every third document, so a small sample still spans the split
+        data = data[::3][: args.tab_docs]
     docs = []
     for d in data:
         mentions = {}
         annotator = min(d["annotations"])
-        for m in d["annotations"][annotator]["entity_mentions"]:
+        spans = d["annotations"][annotator]["entity_mentions"]
+        annotated = [(m["start_offset"], m["end_offset"]) for m in spans]
+        for m in spans:
             if m["identifier_type"] == "NO_MASK" or m["entity_type"] not in TAB_TYPES:
                 continue
             mentions[(m["start_offset"], m["end_offset"])] = {
                 "type": TAB_TYPES[m["entity_type"]], "start": m["start_offset"],
                 "end": m["end_offset"], "identifier_type": m["identifier_type"]}
-        docs.append(Doc(d["doc_id"], "en", d["text"], list(mentions.values())))
+        docs.append(Doc(d["doc_id"], "en", d["text"], list(mentions.values()), annotated=annotated))
     return docs
 
 
@@ -228,15 +253,16 @@ def load_turku(args) -> list[Doc]:
     docs, sentences = [], 0
     for ann in sorted(folder.glob("*.ann")):
         text = ann.with_suffix(".txt").read_text(encoding="utf-8")
-        mentions = []
+        mentions, annotated = [], []
         for line in ann.read_text(encoding="utf-8").splitlines():
             parts = line.split("\t")
             if len(parts) < 3 or not parts[0].startswith("T"):
                 continue
             kind, start, end = parts[1].split()[:3]
+            annotated.append((int(start), int(end)))
             if kind in TURKU_TYPES:
                 mentions.append({"type": TURKU_TYPES[kind], "start": int(start), "end": int(end)})
-        docs.append(Doc(ann.stem, "fi", text, mentions))
+        docs.append(Doc(ann.stem, "fi", text, mentions, annotated=annotated))
         sentences += len(re.findall(r"[.!?](\s|$)", text))
         if sentences >= args.turku_sentences:
             break
@@ -248,12 +274,16 @@ def load_ai4privacy(args) -> list[Doc]:
     for lang in ("en", "fi"):
         rows = (CORPUS_ROOT / "ai4privacy" / f"validation_{lang}.jsonl").read_text(
             encoding="utf-8").splitlines()
+        if not rows:
+            raise ValueError(f"ai4privacy {lang!r} has no documents")
         picked = random.Random(42).sample(rows, min(args.ai4p_rows, len(rows)))
         for line in picked:
             row = json.loads(line)
             mentions = [{"type": AI4P_TYPES[m["label"]], "start": m["start"], "end": m["end"]}
                         for m in row["privacy_mask"] if m["label"] in AI4P_TYPES]
-            docs.append(Doc(f"{lang}_{row['uid']}", lang, row["source_text"], mentions))
+            annotated = [(m["start"], m["end"]) for m in row["privacy_mask"]]
+            docs.append(Doc(f"{lang}_{row['uid']}", lang, row["source_text"], mentions,
+                            annotated=annotated))
     return docs
 
 
@@ -268,9 +298,8 @@ def load_real_uk(args) -> list[Doc]:
         path = REAL_UK / row["filename"]
         try:
             text = normalize_markdown(extract_to_markdown(path, ocr_language="eng"))
-        except Exception as exc:  # noqa: BLE001
-            print(f"  extraction failed {row['filename']}: {exc}", flush=True)
-            continue
+        except Exception as exc:
+            raise RuntimeError(f"Extraction failed for declared real-uk document {path.name}") from exc
         if args.max_chars and len(text) > args.max_chars:
             print(f"  {path.name}: truncated {len(text)} -> {args.max_chars} characters", flush=True)
             text = text[: args.max_chars]
@@ -318,8 +347,10 @@ def run_dataset(dataset: str, methods: list[str], args, out: Path):
     extract_seconds = round(time.time() - t_extract, 1)  # once per dataset, shared by all methods
     if args.limit:
         docs = docs[: args.limit]
+    if not docs:
+        raise ValueError(f"Requested dataset {dataset!r} has no documents")
     print(f"   {len(docs)} documents", flush=True)
-    rows, detections, runtimes = [], [], []
+    rows, detections, runtimes, precision = [], [], [], []
     for method in methods:
         detector = get_method(method)
         t0 = time.time()
@@ -330,6 +361,8 @@ def run_dataset(dataset: str, methods: list[str], args, out: Path):
         folder.mkdir(parents=True, exist_ok=True)
         records, seconds, chars = [], 0.0, 0
         counts = collections.defaultdict(collections.Counter)
+        found_spans = collections.Counter()
+        extra_spans = collections.Counter()
         for i, doc in enumerate(docs, 1):
             t = time.time()
             spans = validate_spans(doc.text, detect_long(detector, doc.text, doc.language)) \
@@ -341,6 +374,9 @@ def run_dataset(dataset: str, methods: list[str], args, out: Path):
             records.extend(score_doc(dataset, doc, spans))
             for s in spans:
                 counts[doc.doc_id][s.entity_type] += 1
+            if doc.annotated is not None:
+                found_spans[doc.language] += len(spans)
+                extra_spans[doc.language] += unlabelled(spans, doc.annotated)
             if i % 25 == 0 or i == len(docs):
                 print(f"   {dataset}/{method}: {i}/{len(docs)} docs, {seconds:.0f}s", flush=True)
         if dataset == "real-uk":
@@ -348,13 +384,16 @@ def run_dataset(dataset: str, methods: list[str], args, out: Path):
                            for d, c in counts.items() for t, n in sorted(c.items())]
         else:
             rows += tally(records, dataset, method)
+        precision += [{"dataset": dataset, "method": method, "language": lang,
+                       "detections": found_spans[lang], "unlabelled": extra_spans[lang]}
+                      for lang in sorted(found_spans)]
         runtimes.append({"dataset": dataset, "method": method, "documents": len(docs),
                          "characters": chars, "detect_seconds": round(seconds, 1),
                          "model_load_seconds": round(load_seconds, 1),
                          "extract_seconds": extract_seconds,
                          "device": getattr(detector, "device", "cpu")})
         print(f"   {dataset}/{method} done in {seconds:.0f}s (+{load_seconds:.0f}s load)", flush=True)
-    return rows, detections, runtimes
+    return rows, detections, runtimes, precision
 
 
 # ---------------------------------------------------------------- summary
@@ -372,6 +411,13 @@ def cell(rows, **where) -> str:
     return f"{covered / planted:.1%} ({covered}/{planted})" if planted else "-"
 
 
+def precision_cell(rows, **where):
+    chosen = [r for r in rows if all(r[k] == v for k, v in where.items())]
+    found = sum(int(r["detections"]) for r in chosen)
+    extra = sum(int(r["unlabelled"]) for r in chosen)
+    return f"{(found - extra) / found:.1%} ({found - extra}/{found})" if found else "-"
+
+
 def table(header, body):
     lines = ["| " + " | ".join(header) + " |", "|" + "---|" * len(header)]
     lines += ["| " + " | ".join(map(str, r)) + " |" for r in body]
@@ -385,7 +431,8 @@ def write_summary(out: Path):
     if (out / "runtime.csv").exists():
         with (out / "runtime.csv").open(encoding="utf-8") as f:
             runtime = list(csv.DictReader(f))
-    methods = [m for m in METHOD_NAMES if any(r["method"] == m for r in rows)]
+    methods = [m for m in METHOD_NAMES if any(r["method"] == m for r in rows)
+               or any(r["method"] == m for r in runtime)]
     lines = ["# Dataset runs", "",
              ("Whole-value recall: one accepted detection must contain the full value or mention. "
              "Accepted types vary by dataset; some classes accept any type (see caveats). "
@@ -410,6 +457,22 @@ def write_summary(out: Path):
         lines.append(table([key, *methods], [[k, *[cell(rows, dataset=dataset, method=m, **{key: k}, **extra)
                                                    for m in methods]] for k in keys]))
 
+    precision = []
+    if (out / "precision.csv").exists():
+        with (out / "precision.csv").open(encoding="utf-8") as f:
+            precision = list(csv.DictReader(f))
+    if precision:
+        lines.extend(["", "## Precision (share of detections that hit an annotation)", "",
+                      ("Only the span-labelled datasets. A detection over no annotation of any "
+                       "type counts against the method; some are unannotated personal data, "
+                       "so this is a lower bound on precision."), ""])
+        groups = sorted({(r["dataset"], r["language"]) for r in precision},
+                        key=lambda g: (DATASETS.index(g[0]), g[1]))
+        lines.append(table(["dataset", *methods],
+                           [[f"{d}, {lang}", *[precision_cell(precision, dataset=d, language=lang,
+                                                              method=m) for m in methods]]
+                            for d, lang in groups]))
+
     breakdown("Fake corpus by entity type (all locations)", "fake", "entity_type")
     breakdown("Fake corpus by location", "fake", "location")
     breakdown("Fake corpus by language", "fake", "language")
@@ -425,6 +488,7 @@ def write_summary(out: Path):
                            [[r["dataset"], r["method"], r.get("device", ""), r["documents"],
                              r["characters"], r.get("extract_seconds", ""), r["detect_seconds"],
                              r["model_load_seconds"]] for r in runtime]))
+    tab_docs = "/".join(sorted({r["documents"] for r in runtime if r["dataset"] == "tab"})) or "-"
     lines.extend(["", "## Caveats", "",
                   ("- The fake corpus is template text with generated names. It is an upper bound; "
                   "real documents score lower."),
@@ -438,8 +502,9 @@ def write_summary(out: Path):
                   "type, which flatters them."),
                   ("- Presidio LOCATION is mostly cities and countries, so ADDRESS, CITY and "
                   "STREET recall measures partial luck as much as design."),
-                  ("- Sampled subsets: TAB test split every third document, Turku test files up "
-                  "to a sentence budget, ai4privacy 300 random rows per language (seed 42)."),
+                  (f"- Subsets: TAB {tab_docs} of the 127 test documents (a sample takes every "
+                   "third), Turku test files up to a sentence budget, ai4privacy 300 random rows "
+                   "per language (seed 42)."),
                   ("- real-uk has no labels. Its counts are in detections_real_uk.csv and say "
                   "what was found, not whether it was right."),
                   "- Large spreadsheets may be truncated (see --max-chars) to keep run time sane."])
@@ -455,23 +520,33 @@ def main(argv=None):
     p.add_argument("--methods", nargs="+", default=METHOD_NAMES, choices=METHOD_NAMES)
     p.add_argument("--limit", type=int, default=0, help="documents per dataset, for smoke tests")
     p.add_argument("--fake-dir", help="existing generated fake corpus; generated if omitted")
-    p.add_argument("--tab-docs", type=int, default=40)
+    p.add_argument("--tab-docs", type=int, default=40,
+                   help="sample size, every third test document (0 = the whole split)")
     p.add_argument("--turku-sentences", type=int, default=300)
     p.add_argument("--ai4p-rows", type=int, default=300)
     p.add_argument("--max-chars", type=int, default=400_000,
                    help="truncate real-uk documents beyond this length (0 = never)")
     p.add_argument("--pack", help="also build the manual-testing pack in this directory")
     args = p.parse_args(argv)
+    for name in ("limit", "tab_docs", "max_chars"):
+        if getattr(args, name) < 0:
+            p.error(f"--{name.replace('_', '-')} must be nonnegative")
+    for name in ("turku_sentences", "ai4p_rows"):
+        if getattr(args, name) <= 0:
+            p.error(f"--{name.replace('_', '-')} must be positive")
 
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
     for dataset in args.datasets:
-        rows, detections, runtimes = run_dataset(dataset, args.methods, args, out)
+        rows, detections, runtimes, precision = run_dataset(dataset, args.methods, args, out)
         merge_rows(out / "results.csv", RESULT_COLUMNS, ("dataset", "method"),
                    {(dataset, m) for m in args.methods}, rows)
         if dataset == "real-uk":
             merge_rows(out / "detections_real_uk.csv", ["doc", "method", "entity_type", "count"],
                        ("method",), {(m,) for m in args.methods}, detections)
+        if precision:
+            merge_rows(out / "precision.csv", PRECISION_COLUMNS, ("dataset", "method"),
+                       {(dataset, m) for m in args.methods}, precision)
         merge_rows(out / "runtime.csv", ["dataset", "method", "documents", "characters",
                                          "detect_seconds", "model_load_seconds", "extract_seconds",
                                          "device"],

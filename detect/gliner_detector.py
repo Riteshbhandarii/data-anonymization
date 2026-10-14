@@ -33,8 +33,10 @@ LABELS = {
 WINDOW = 700
 
 
-def windows(text: str, size: int = WINDOW):
-    """Yield (offset, piece) covering the text, cut at whitespace where possible."""
+def windows(text: str, size: int = WINDOW, *, overlap: int = 0):
+    """Yield bounded windows; overlap keeps identifiers intact at a cut."""
+    if size <= 0 or not 0 <= overlap < size:
+        raise ValueError("Window size must be positive and overlap in [0, size)")
     start = 0
     while start < len(text):
         end = min(len(text), start + size)
@@ -43,7 +45,9 @@ def windows(text: str, size: int = WINDOW):
             if cut > start + size // 2:
                 end = cut
         yield start, text[start:end]
-        start = end
+        if end == len(text):
+            break
+        start = max(start + 1, end - overlap)
 
 
 def select_device(environ=None) -> str:
@@ -72,12 +76,17 @@ class GlinerDetector:
         if self._model is None:
             from gliner import GLiNER
             self._model = GLiNER.from_pretrained(self.model_name).to(self.device)
-        spans = []
-        for offset, piece in windows(text):
+        # A punctuation character can be one word token. Cap characters too,
+        # so a dense piece cannot silently exceed the model's word limit.
+        limit = min(WINDOW, self._model.config.max_len)
+        spans = {}
+        for offset, piece in windows(text, limit, overlap=min(150, limit // 2)):
             for item in self._model.predict_entities(piece, list(LABELS), threshold=self.threshold):
-                spans.append(SimpleNamespace(
-                    start=offset + item["start"], end=offset + item["end"],
-                    entity_type=LABELS[item["label"]], score=float(item["score"])))
+                key = (offset + item["start"], offset + item["end"], LABELS[item["label"]])
+                score = float(item["score"])
+                if key not in spans or score > spans[key].score:
+                    spans[key] = SimpleNamespace(start=key[0], end=key[1], entity_type=key[2], score=score)
+        spans = list(spans.values())
         # Imported here so the module loads without presidio (CI tests only the helpers).
         from detect.pattern_recognizers import (
             INVOICE_PATTERN,

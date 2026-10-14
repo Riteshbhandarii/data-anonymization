@@ -6,9 +6,17 @@ import unittest
 from pathlib import Path
 from types import SimpleNamespace
 
+from detect.combined import route
 from detect.gliner_detector import select_device, windows
 from eval.make_pack import answer_rows, best_method, pair_prompt, truncate_at_line
-from eval.run_matrix import detect_long, mention_state, merge_rows, split_text, tally
+from eval.run_matrix import (
+    detect_long,
+    mention_state,
+    merge_rows,
+    split_text,
+    tally,
+    unlabelled,
+)
 
 
 def span(start, end, kind):
@@ -115,6 +123,29 @@ class PackTests(unittest.TestCase):
         text = pair_prompt("one", "two")
         self.assertIn("Document A:\none", text)
         self.assertIn("Document B:\ntwo", text)
+
+
+class UnlabelledTests(unittest.TestCase):
+    def test_counts_only_detections_touching_no_annotation(self):
+        spans = [span(0, 5, "PERSON"), span(8, 12, "DATE_TIME"), span(40, 45, "LOCATION")]
+        self.assertEqual(1, unlabelled(spans, [(3, 6), (10, 20)]))
+
+    def test_no_annotations_means_every_detection_is_unlabelled(self):
+        self.assertEqual(2, unlabelled([span(0, 1, "PERSON"), span(2, 3, "PERSON")], []))
+
+
+class CombinedRouteTests(unittest.TestCase):
+    def test_presidio_names_companies_and_places_give_way_to_the_model(self):
+        presidio = [span(0, 5, "IBAN_CODE"), span(6, 9, "PERSON"), span(10, 14, "LOCATION"),
+                    span(15, 19, "US_SSN"), span(20, 24, "DATE_TIME")]
+        model = [span(6, 9, "PERSON"), span(20, 24, "DATE_TIME"), span(30, 35, "PHONE_NUMBER")]
+        kept = sorted((s.start, s.entity_type) for s in route(presidio, model))
+        self.assertEqual([(0, "IBAN_CODE"), (6, "PERSON"), (15, "US_SSN"), (20, "DATE_TIME"),
+                          (20, "DATE_TIME"), (30, "PHONE_NUMBER")], kept)
+
+    def test_presidio_types_the_model_lacks_are_kept(self):
+        kept = route([span(0, 3, "NRP"), span(4, 8, "ORGANIZATION")], [])
+        self.assertEqual([(0, "NRP")], [(s.start, s.entity_type) for s in kept])
 
 
 if __name__ == "__main__":
