@@ -1,16 +1,44 @@
 # Free local model options
 
-The numbers in this note are archived pre-audit experiments. Detector windowing,
-negative-document precision and local-response validation have since been
-corrected. Keep the recorded runs as history; rerun the matrix and the same-corpus
-local trials before presenting these figures as current-code measurements.
+The overview table and four local-LLM trials below are archived pre-audit
+experiments. Corrected-code evidence is recorded separately in the new labelled
+matrix and CPU smoke sections. Keep their sources, metrics and denominators
+separate.
 
 Issue [#29](https://github.com/Riteshbhandarii/data-anonymization/issues/29)
 collects the measured options. Detection runs locally; spaCy, GLiNER, GLiNER2
 and Privacy Filter need a one-time weight download. The LLM route uses cached
 weights through LM Studio's loopback server and needs no API key or paid API.
 
-The main dataset results below come from [the dataset runs](dataset-runs.md)
+## Corrected-code labelled matrix (2026-10-14)
+
+The [current combined-PR report](https://github.com/Riteshbhandarii/data-anonymization/blob/c34f6ba316831480cc5dc7d453e31cb913a54909/docs/dataset-audit-runs.md)
+records all seven registered methods on the same 885 documents, including the
+full 127-document TAB test split. All 28 method/dataset runs completed offline;
+corpus hashes, package versions, exact counts and timing scope are archived
+with #58. These measurements supersede the old labelled matrix below.
+Whole-value coverage uses dataset-specific accepted types, including any type
+for some classes; partial spans remain separate.
+
+| Method | Fake, all locations | Full TAB | Turku FI | ai4privacy EN | ai4privacy FI |
+|---|---|---|---|---|---|
+| basic | 61.4% (1178/1919) | 65.4% (3344/5112) | 51.0% (51/100) | 54.2% (1076/1986) | 38.7% (756/1953) |
+| rules | 80.0% (1536/1919) | 65.4% (3344/5112) | 51.0% (51/100) | 54.2% (1076/1986) | 42.1% (822/1953) |
+| rules-lg | 84.2% (1615/1919) | 67.7% (3463/5112) | 77.0% (77/100) | 58.1% (1154/1986) | 46.7% (912/1953) |
+| gliner | 89.9% (1725/1919) | 76.4% (3906/5112) | 80.0% (80/100) | 77.9% (1547/1986) | 80.6% (1575/1953) |
+| combined | 96.4% (1849/1919) | 83.5% (4269/5112) | 80.0% (80/100) | 88.5% (1757/1986) | 83.8% (1636/1953) |
+| privacy-filter | 82.4% (1582/1919) | 28.6% (1461/5112) | 0.0% (0/100) | 80.6% (1600/1986) | 63.4% (1238/1953) |
+| gliner2 | 94.3% (1809/1919) | 67.2% (3434/5112) | 78.0% (78/100) | 83.0% (1648/1986) | 83.8% (1636/1953) |
+
+Combined lower-bound precision is 63.7% on TAB and 26.5% on Turku. Recall and
+unlabelled detections must be assessed together; annotations are incomplete.
+This lower bound accepts any annotated type and differs from the separate
+fourteen-document smoke's typed precision. Qwen/Gemma and unlabelled real-uk
+runs are outside this rerun; their older figures remain archived.
+
+## Archived model and hardware overview
+
+The archived dataset results below come from [the dataset runs](dataset-runs.md)
 and PRs [#53](https://github.com/Riteshbhandarii/data-anonymization/pull/53)
 and [#54](https://github.com/Riteshbhandarii/data-anonymization/pull/54).
 Fake recall covers 1,919 labels in all extracted locations. TAB covers 5,112
