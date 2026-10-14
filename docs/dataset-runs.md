@@ -1,10 +1,12 @@
 # Dataset runs
 
-These recorded numbers predate the pre-review audit fixes to GLiNER windows,
-outer document chunks and negative-document precision. They describe the
-historical implementation, not the corrected one. Rerun the matrix before
-quoting them as corrected-code accuracy or runtime; the original aggregate
-tables are retained rather than silently recalculated.
+These tables are archived pre-audit measurements. Detector windows,
+outer document chunks and negative-document precision were corrected.
+The [current labelled matrix](https://github.com/Riteshbhandarii/data-anonymization/blob/c34f6ba316831480cc5dc7d453e31cb913a54909/docs/dataset-audit-runs.md)
+reruns all seven methods on the same 885 documents, including full TAB, with
+exact counts, hashes and precision tradeoffs. Use that report for the corrected
+labelled selections; unlabelled real-uk timings/counts remain historical.
+The original aggregate tables below are retained as recorded.
 
 Every free detection method over every dataset we have. Aggregate numbers only:
 the anonymized outputs and the manual-test pack are built locally and never
