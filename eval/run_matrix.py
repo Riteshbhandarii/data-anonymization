@@ -387,8 +387,9 @@ def write_summary(out: Path):
             runtime = list(csv.DictReader(f))
     methods = [m for m in METHOD_NAMES if any(r["method"] == m for r in rows)]
     lines = ["# Dataset runs", "",
-             ("Whole-value recall: a mention counts only when one correctly typed detection "
-             "holds all of it. Partial detections are counted separately and still leak."), "",
+             ("Whole-value recall: one accepted detection must contain the full value or mention. "
+             "Accepted types vary by dataset; some classes accept any type (see caveats). "
+             "Partial detections are counted separately and can leave identifying text visible."), "",
              "## Headline recall", ""]
     view = [("fake, all locations", {"dataset": "fake"}),
             ("fake, body only", {"dataset": "fake", "location": "body"}),
