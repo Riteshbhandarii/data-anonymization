@@ -33,6 +33,8 @@ TYPE_MAP = {
     "EMAIL_ADDRESS": "EMAIL",
     "PHONE_NUMBER": "PHONE",
     "IBAN_CODE": "IBAN",
+    # OpenAI Privacy Filter's account_number, which covers IBANs and cards alike.
+    "ACCOUNT_NUMBER": "IBAN",
     "LOCATION": "ADDRESS",
     "ORGANIZATION": "COMPANY",
     "DATE_TIME": "DATE",

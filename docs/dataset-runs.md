@@ -16,11 +16,16 @@ Reproduce:
 
 ```bash
 export PATH="/opt/homebrew/bin:$PATH"
+python -m pip install -r requirements-models.txt
 python -m eval.run_matrix --out outputs/runs --tab-docs 0   # fake, tab, turku, ai4privacy, real-uk
 python -m eval.make_pack --runs outputs/runs --pack outputs/pack
 ```
 
 `--datasets` and `--methods` rerun a subset and merge into the existing CSVs.
+Use a new pack directory when rebuilding a manual test; existing recorded
+answers must be preserved. `requirements-models.txt` pins GLiNER, GLiNER2 and
+Transformers to the tested local environment; model weights are downloaded
+separately on first use and can then be reused offline.
 `--tab-docs 0` scores the whole TAB test split (127 documents); the default is
 a 40-document sample. The `gliner` and `combined` methods need
 `pip install gliner` and a one-time model download
@@ -30,7 +35,8 @@ picks cuda, then mps, then cpu; `GLINER_DEVICE` overrides.
 Methods: `basic` (Presidio, small spaCy), `rules` (+ our patterns), `rules-lg`
 (+ large spaCy), `gliner` (GLiNER plus the same three patterns), `combined`
 (every GLiNER span, plus `rules` without its spaCy PERSON, ORGANIZATION and
-LOCATION; see `detect/combined.py`).
+LOCATION; see `detect/combined.py`), and `privacy-filter` and `gliner2` (see
+[below](#openai-privacy-filter-and-gliner2-pii)).
 
 Scoring is whole-value: a mention counts only if one correctly typed detection
 holds all of it; partial detections are recorded separately and still leak.
@@ -109,6 +115,72 @@ numbers are a lower bound on precision. The fake corpus is measured by
 - Large spaCy models help Finnish and companies (Turku 51% to 77%) but not
   codes and numbers.
 
+## OpenAI Privacy Filter and GLiNER2-PII
+
+Two more local models, each with the same three patterns as `gliner`. Both
+download open weights once and run on the CPU; no text leaves the machine.
+
+| method | model | licence | size | Finnish |
+|---|---|---|---|---|
+| `privacy-filter` | `openai/privacy-filter` | Apache 2.0 | 1.5B parameters, 50M active per token (mixture of experts); 2.8 GB | "primarily English" per the model card |
+| `gliner2` | `fastino/gliner2-privacy-filter-PII-multi` | Apache 2.0 | 205M parameters; 1.2 GB | not one of its seven training languages |
+
+```bash
+pip install gliner2          # transformers >= 5.6 is already needed for privacy-filter
+HF_HUB_OFFLINE=1 python -m eval.run_matrix --out outputs/runs --tab-docs 0 \
+    --methods privacy-filter gliner2
+```
+
+| dataset | gliner | combined | privacy-filter | gliner2 |
+|---|---|---|---|---|
+| fake, all locations | 86.9% (1668/1919) | 95.9% (1840/1919) | 82.4% (1582/1919) | 94.3% (1809/1919) |
+| tab, all masked mentions | 70.7% (3616/5112) | 81.1% (4147/5112) | 28.1% (1439/5112) | 67.2% (3434/5112) |
+| tab, DIRECT | 61.0% (228/374) | 61.2% (229/374) | 49.5% (185/374) | 25.4% (95/374) |
+| tab, QUASI | 71.5% (3388/4738) | 82.7% (3918/4738) | 26.5% (1254/4738) | 70.5% (3339/4738) |
+| ai4privacy, en | 75.9% (1507/1986) | 87.7% (1741/1986) | 80.6% (1600/1986) | 83.0% (1648/1986) |
+| **ai4privacy, fi** | 79.0% (1543/1953) | 82.5% (1611/1953) | 63.4% (1238/1953) | 83.8% (1636/1953) |
+| **turku (fi)** | 76.0% (76/100) | 76.0% (76/100) | 0.0% (0/100) | 78.0% (78/100) |
+
+Lower-bound precision, as above:
+
+| dataset | gliner | combined | privacy-filter | gliner2 |
+|---|---|---|---|---|
+| tab, en | 61.7% (5336/8655) | 69.7% (8277/11868) | 98.5% (1532/1556) | 65.5% (6678/10190) |
+| turku, fi | 34.0% (86/253) | 29.7% (88/296) | no detections | 48.7% (95/195) |
+| ai4privacy, en | 84.1% (1108/1318) | 89.8% (2627/2927) | 99.3% (1325/1334) | 89.1% (1453/1631) |
+| ai4privacy, fi | 88.8% (1241/1398) | 90.9% (1976/2173) | 94.3% (1240/1315) | 91.8% (1545/1683) |
+
+- **Finnish.** GLiNER2-PII is the best single model on both Finnish sets
+  (ai4privacy fi 83.8%, Turku 78%), above GLiNER (79.0%, 76%), even though
+  Finnish is not one of its training languages. Privacy Filter drops to 63.4%
+  on ai4privacy fi and finds nothing at all on Turku.
+- **Privacy Filter appears to treat court and news text as not private.** On
+  synthetic PII text it is precise and the best method on ID numbers
+  (ai4privacy IDCARDNUM 91.5%, DRIVERLICENSENUM 84.7%). On court judgments and
+  news it mostly stays silent: TAB 28.1%, no ADDRESS or COMPANY, and 0
+  detections on the Turku news texts. In one TAB judgment the official `opf`
+  package tags the four applicants, their lawyer and a date in a
+  300-character excerpt, and returns nothing once the excerpt is extended to
+  700 characters; it also returns nothing on four Turku documents with names.
+  Our decoding behaves the same, so this is the model and not our windows. It
+  has no organization label, so COMPANY is 0% everywhere. On real-uk it
+  returns 1 038 detections, against 24 431 for GLiNER and 57 512 for
+  GLiNER2-PII.
+- **GLiNER2-PII leaves titles out.** TAB marks "Mr Ruslan Kurkaev" as the
+  person; GLiNER2-PII returns "Ruslan Kurkaev". Whole-value scoring counts
+  that as partial, so TAB PERSON is 41.9% whole but 96.4% whole or partial
+  (GLiNER 94.8% and 95.7%). Of the 233 DIRECT person mentions, 124 are
+  partial, which is most of its DIRECT gap. Otherwise it is close to GLiNER on
+  TAB and better on fake COMPANY (80.0% against 70.0%) and PHONE (100% against
+  93.1%).
+- Neither beats the combined detector overall. GLiNER2-PII is a candidate to
+  replace GLiNER inside it, which would need the title issue handled first.
+
+Runtime on CPU (detection only): Privacy Filter takes 43 s for the fake
+corpus, 175 s for TAB, 140 s for ai4privacy and 1 036 s for real-uk. For
+GLiNER2-PII it is 26, 184, 89 and 808 s. Privacy Filter ran faster on the CPU
+than on MPS here (2.0 s against 3.0 s for 20 000 characters).
+
 ## Runtime (detection only)
 
 The combined detector costs GLiNER plus Presidio: 22 s for the 140 fake
@@ -132,5 +204,6 @@ roughly doubled against the first run, so treat timings as rough.
   sentences (18 files, 100 mentions), ai4privacy 300 random rows per language.
 - real-uk has 17 files in its manifest (not 18), none missing. It has no labels,
   so only detection counts exist. Two spreadsheets over 400 000 characters are
-  truncated to that length. Only the combined detector was rerun on it; the
-  other methods' real-uk counts are from the first run.
+  truncated to that length. Only the combined detector and the two models
+  above were run on it this time; the other methods' real-uk counts are from
+  the first run.
