@@ -13,16 +13,16 @@ under #32, followed by the paper/cookbook.
 
 | Pathway / work | Confirmed owner or contributor | Reviewable deliverable / evidence | Remaining finish condition |
 |---|---|---|---|
-| Commercial products, free and paid (#27) | Commercial research contributors: @SiriwitW (#46), @anuntachin (#51); #27 has no assignee | [Nine-option inventory](product-options.md), free-tool research #51 and commercial research #46 | Review the inventory; group confirms one accountable #27 owner |
-| Own algorithms/toolkit | @Riteshbhandarii: detection/evaluation; @wycffff: extraction/redaction | Existing pipeline and techniques; combined method and precision #53; hidden-content and evaluation audit #58 | Review pending changes; maintain per-language/per-type metrics and reader limits |
-| Local models (#29, #43) | @Riteshbhandarii | Model methods #54; overview/LM Studio experiments and corrected smoke #56; seven-method corrected labelled matrix #58 | Review #54/#56/#58; keep current matrix and archived local-LLM trials separate |
-| Data clipping (#30) | @Riteshbhandarii | Meaning confirmed as screenshots/snips; image redaction and tool survey #52 | Review screenshot work; public-model logo/letterhead test remains in #44 |
+| Commercial products, free and paid (#27) | Commercial research contributors: @SiriwitW (#46), @anuntachin (#51); #27 closed after merging the survey | [Nine-option inventory](product-options.md), merged free-tool research #51 and commercial research #46 | Group confirms one accountable commercial pathway owner under #32 |
+| Own algorithms/toolkit | @Riteshbhandarii: detection/evaluation; @wycffff: extraction/redaction | Merged pipeline/techniques, combined/precision #53 and hidden-content/evaluation audit #58 | Maintain per-language/per-type metrics and reader limits |
+| Local models (#29, #43) | @Riteshbhandarii | Merged methods #54; overview/LM Studio experiments/corrected smoke #56; seven-method labelled matrix #58 | Keep current matrix and archived local-LLM trials separate |
+| Data clipping (#30, closed) | @Riteshbhandarii | Screenshot/snips meaning confirmed; merged image redaction/tool survey #52 | Public-model logo/letterhead test remains in #44 |
 | Is OCR needed (#31, closed) | @wycffff, extraction/redaction lane | Existing OCR routing, validation and OCR survey | Keep image-only extraction regressions and English/Finnish OCR evidence passing |
 | Number and kind of options (owner's point 6) | Each pathway owner; #27 ownership pending | Counts/categories in product inventory; methods and clipping surveys | Keep scope, local/cloud boundary and unsupported formats visible in each overview |
 | Work plan update (#32) | @Riteshbhandarii, project coordination | This plan and linked deliverables | Group accepts the plan and confirms remaining ownership |
-| UI (#48) | @wycffff | Findings-first interface, GLiNER selection and UI regressions #50 | Owner review; PR remains open |
-| Precision and full TAB (#11, #42, #45) | @Riteshbhandarii | Combined/precision #53; corrected seven-method full TAB/DIRECT/QUASI matrix #58 | Review #53/#58; hand-label about 20 real documents for the remaining part of #45 |
-| Downstream usefulness (#19) | @Riteshbhandarii + @wycffff | Paired manual workflow and actual local utility results #55 | Review measurement; repeat on the chosen public model as part of #44 |
+| UI (#48, closed) | @wycffff | Merged findings-first interface, GLiNER selection and regressions #50/#58 | Maintain UI workflow regressions |
+| Precision and full TAB (#11/#42 closed; #45 open) | @Riteshbhandarii | Merged combined/precision #53 and corrected seven-method full TAB/DIRECT/QUASI matrix #58 | Hand-label about 20 real documents for the remaining part of #45 |
+| Downstream usefulness (#19, closed) | @Riteshbhandarii + @wycffff | Merged paired manual workflow and actual local utility results #55 | Repeat on the chosen public model as part of #44 |
 | Public-AI experiment (#44) | @Riteshbhandarii | Existing manual pack, controls and prompts; utility workflow #55 | A person reviews real-public anonymized documents, runs free public-model prompts with/without search and records actual answers |
 
 The pipeline split is documented in
