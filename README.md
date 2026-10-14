@@ -146,6 +146,8 @@ Public and synthetic only. Nothing real enters this repository.
 - [docs/work-plan.md](docs/work-plan.md), pathway ownership, review order and remaining evidence
 - [docs/evaluation.md](docs/evaluation.md), the re-identification test protocol
 - [docs/model-evaluation.md](docs/model-evaluation.md), preparing and running controlled model experiments
+- [docs/pre-review-audit.md](docs/pre-review-audit.md), repaired defects, integration record and remaining reader limits
+- [docs/dataset-audit-runs.md](docs/dataset-audit-runs.md), corrected-code labelled results, exact counts and precision tradeoffs
 - [docs/local-model-options.md](docs/local-model-options.md), measured free local detectors and LM Studio final-pass trials
 - [docs/utility-impact.md](docs/utility-impact.md), manual paired utility scoring and the first local-model measurement
 - [docs/assigned-task-results.md](docs/assigned-task-results.md), task status and reproducible local results

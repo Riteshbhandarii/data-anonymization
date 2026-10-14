@@ -1,5 +1,10 @@
 # Pre-review audit
 
+Integration status, 2026-10-14: the owner authorized merging and cleanup.
+All ten intended PRs are merged into `main`; superseded #49 is closed.
+The audit findings and measurements below retain their original scope.
+Public-AI answers (#44) and real-document hand labels (#45) remain pending.
+
 Audit of the implemented pipeline, pending PRs and their combined behavior on
 2026-10-13. No PR was merged, no auto-merge was enabled, and no paid/public-model
 document request was made. This audit found defects beyond the initially failing
@@ -45,13 +50,15 @@ corpus hashes and the published source branch. Older figures remain archived;
 unlabelled real-uk timings/counts and Qwen/Gemma trials were not rerun here.
 The manual public-AI study (#44) and real-document labels (#45) remain pending.
 
-## Review order and remaining limits
+## Integration record and remaining limits
 
-This PR is stacked on #50. Review #50, this core audit, #52, #53, #54 and #56 in
-that order. #55 and the research/product PRs are independent. #49 remains a
-duplicate superseded by #51. The combined local trial keeps #54's detector
-registry and GLiNER pattern helper when resolving overlapping changes; all
-regressions from both branches are retained.
+The feature dependencies were merged in order: #50, #58, #52, #53, #54 and
+#56. Research #46/#51, utility #55 and product/work-plan #57 were also merged.
+#58 and #56 were retargeted to `main` after their parent PRs merged. Duplicate
+#49 was closed in favor of #51. Registry and window conflicts were resolved
+with #54's builder registry and GLiNER pattern helper, preserving all UI
+labels and regressions. Updated conflict-resolution heads passed CI before
+merging; branch protection remains intact.
 
 The supported-reader audit does not establish coverage for DOCX charts/OLE or
 external pictures, XLSX drawings/charts/threaded comments, PPTX master content
