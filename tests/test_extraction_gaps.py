@@ -19,6 +19,18 @@ class ExtractionGapTests(unittest.TestCase):
         self.addCleanup(self.directory.cleanup)
         self.root = Path(self.directory.name)
 
+    def test_nested_docx_table_pipes_are_escaped_once(self):
+        from docx import Document
+
+        document = Document()
+        outer = document.add_table(rows=1, cols=1)
+        inner = outer.cell(0, 0).add_table(rows=1, cols=1)
+        inner.cell(0, 0).text = "Aino | Example"
+        path = self.root / "nested-pipes.docx"
+        document.save(path)
+        text = _text_by_location(extract_to_markdown(path), path)["body"]
+        self.assertIn("Aino | Example", text)
+
     def test_docx_metadata_and_all_header_footer_variants(self):
         from docx import Document
         from docx.enum.section import WD_SECTION_START
@@ -59,6 +71,128 @@ class ExtractionGapTests(unittest.TestCase):
         ):
             self.assertEqual(markdown.count(f"Contact in {name}"), 1)
             self.assertEqual(markdown.count(f"Table contact in {name}"), 1)
+
+    def test_docx_nested_tables_and_content_controls_keep_their_text(self):
+        from docx import Document
+        from docx.oxml import parse_xml
+
+        document = Document()
+        outer = document.add_table(rows=1, cols=1).cell(0, 0)
+        outer.text = "Outer Contact"
+        outer.add_table(rows=1, cols=1).cell(0, 0).text = "nested-only@example.test"
+        document.element.body.insert(0, parse_xml(
+            '<w:sdt xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'
+            '<w:sdtContent><w:p><w:r><w:t>controlled-only@example.test</w:t></w:r></w:p>'
+            '</w:sdtContent></w:sdt>'
+        ))
+        path = self.root / "nested.docx"
+        document.save(path)
+        markdown = extract_to_markdown(path)
+        for value in ("Outer Contact", "nested-only@example.test", "controlled-only@example.test"):
+            self.assertIn(value, markdown)
+
+    def test_docx_body_table_and_header_images_reach_ocr(self):
+        from docx import Document
+        from docx.shared import Inches
+        from PIL import Image
+
+        image = self.root / "picture.png"
+        Image.new("RGB", (200, 80), "white").save(image)
+        document = Document()
+        document.add_picture(str(image), width=Inches(2))
+        document.add_table(rows=1, cols=1).cell(0, 0).paragraphs[0].add_run().add_picture(str(image))
+        document.sections[0].header.paragraphs[0].add_run().add_picture(str(image))
+        path = self.root / "pictures.docx"
+        document.save(path)
+        with patch("pipeline.extractors._ocr_image_bytes", side_effect=[
+            "body-image@example.test", "table-image@example.test", "header-image@example.test",
+        ]) as ocr:
+            sections = _text_by_location(extract_to_markdown(path, "eng+fin"), path)
+        self.assertEqual(3, ocr.call_count)
+        self.assertTrue(all(call.args[1] == "eng+fin" for call in ocr.call_args_list))
+        for value in ("body-image@example.test", "table-image@example.test", "header-image@example.test"):
+            self.assertIn(value, sections["embedded_image"])
+
+    def _docx_with_note_parts(self, *, broken_reference=False):
+        from docx import Document
+        from docx.opc.constants import RELATIONSHIP_TYPE as RT
+        from docx.opc.packuri import PackURI
+        from docx.opc.part import Part
+        from docx.oxml import parse_xml
+
+        document = Document()
+        paragraph = document.add_paragraph("Body Contact")
+        for kind, reltype in (("footnote", RT.FOOTNOTES), ("endnote", RT.ENDNOTES)):
+            for identifier in ("2", "1", "2"):
+                paragraph._p.append(parse_xml(
+                    '<w:r xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'
+                    f'<w:{kind}Reference w:id="{identifier}"/></w:r>'
+                ))
+            note_ids = ("1", "orphan") if broken_reference else ("1", "2", "orphan")
+            content = ''.join(
+                f'<w:{kind} w:id="{identifier}"><w:p><w:r><w:t>'
+                f'{kind}-{identifier}@example.test</w:t></w:r></w:p></w:{kind}>'
+                for identifier in note_ids
+            )
+            part = Part(
+                PackURI(f"/word/{kind}s.xml"),
+                f"application/vnd.openxmlformats-officedocument.wordprocessingml.{kind}s+xml",
+                ('<w:' + kind + 's xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'
+                 + content + f'</w:{kind}s>').encode(), document.part.package,
+            )
+            document.part.relate_to(part, reltype)
+        path = self.root / "notes.docx"
+        document.save(path)
+        return path
+
+    def test_docx_footnotes_and_endnotes_follow_references_and_have_notes_location(self):
+        path = self._docx_with_note_parts()
+        markdown = extract_to_markdown(path)
+        sections = _text_by_location(markdown, path)
+        self.assertIn("Body Contact", sections["body"])
+        for kind in ("footnote", "endnote"):
+            self.assertIn(f"[{kind}:2][{kind}:1][{kind}:2]", sections["body"])
+            for identifier in ("1", "2"):
+                value = f"{kind}-{identifier}@example.test"
+                self.assertEqual(1, markdown.count(value))
+                self.assertIn(value, sections["notes"])
+                self.assertNotIn(value, sections["body"])
+            self.assertLess(markdown.index(f"{kind}-2@"), markdown.index(f"{kind}-1@"))
+            self.assertNotIn(f"{kind}-orphan@", markdown)
+
+    def test_docx_missing_referenced_note_fails_instead_of_losing_text(self):
+        path = self._docx_with_note_parts(broken_reference=True)
+        with self.assertRaisesRegex(ExtractionError, "missing footnote 2"):
+            extract_to_markdown(path)
+
+    def test_docx_missing_note_part_fails_with_reference_context(self):
+        from docx import Document
+        from docx.oxml import parse_xml
+
+        document = Document()
+        document.add_paragraph("Body Contact")._p.append(parse_xml(
+            '<w:r xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'
+            '<w:footnoteReference w:id="1"/></w:r>'
+        ))
+        path = self.root / "missing-notes.docx"
+        document.save(path)
+        with self.assertRaisesRegex(ExtractionError, "references footnotes.*no footnotes part"):
+            extract_to_markdown(path)
+
+    def test_multiframe_tiff_routes_every_page_to_ocr(self):
+        from PIL import Image
+
+        path = self.root / "pages.tiff"
+        Image.new("RGB", (200, 80), "white").save(
+            path, save_all=True, append_images=[Image.new("RGB", (200, 80), "black")]
+        )
+        with patch("pipeline.extractors._run_tesseract", side_effect=[
+            "first-page@example.test", "second-page@example.test",
+        ]) as ocr:
+            markdown = extract_to_markdown(path, "eng+fin")
+        self.assertEqual(2, ocr.call_count)
+        self.assertIn("first-page@example.test", markdown)
+        self.assertIn("second-page@example.test", markdown)
 
     def test_pptx_metadata_and_speaker_notes(self):
         from pptx import Presentation
@@ -192,6 +326,42 @@ class ExtractionGapTests(unittest.TestCase):
         ):
             self.assertIn(value, markdown)
 
+    def test_xlsx_comments_on_blank_cells_and_hidden_sheets_are_returned(self):
+        from openpyxl import Workbook
+        from openpyxl.comments import Comment
+
+        workbook = Workbook()
+        workbook.active["A1"] = "Body Contact"
+        workbook.active["C3"].comment = Comment("blank-cell@example.test", "Visible Author")
+        hidden = workbook.create_sheet("Private")
+        hidden.sheet_state = "hidden"
+        hidden["A1"].comment = Comment("hidden-comment@example.test", "Hidden Author")
+        path = self.root / "comments.xlsx"
+        workbook.save(path)
+        workbook.close()
+        sections = _text_by_location(extract_to_markdown(path), path)
+        for value in ("blank-cell@example.test", "Visible Author", "hidden-comment@example.test", "Hidden Author"):
+            self.assertIn(value, sections["comment"])
+            self.assertNotIn(value, sections["body"])
+
+    def test_xlsx_incorrect_stored_dimensions_do_not_truncate_values(self):
+        from openpyxl import Workbook
+
+        workbook = Workbook()
+        workbook.active["A1"] = "First Contact"
+        workbook.active["C3"] = "last-contact@example.test"
+        path = self.root / "dimensions.xlsx"
+        workbook.save(path)
+        workbook.close()
+        with ZipFile(path) as archive:
+            entries = [(item, archive.read(item.filename)) for item in archive.infolist()]
+        with ZipFile(path, "w") as archive:
+            for item, data in entries:
+                if item.filename == "xl/worksheets/sheet1.xml":
+                    data = data.replace(b'ref="A1:C3"', b'ref="A1:A1"')
+                archive.writestr(item, data)
+        self.assertIn("last-contact@example.test", extract_to_markdown(path))
+
     def test_pdf_metadata_and_text_without_unnecessary_ocr(self):
         import pymupdf
 
@@ -210,6 +380,24 @@ class ExtractionGapTests(unittest.TestCase):
         ocr.assert_not_called()
         for value in ("PDF Author", "pdf-only@example.test", "PDF Keywords", "Visible Contact"):
             self.assertIn(value, markdown)
+
+    def test_pdf_annotation_content_and_author_have_comment_location(self):
+        import pymupdf
+
+        path = self.root / "annotations.pdf"
+        with pymupdf.open() as document:
+            page = document.new_page()
+            page.insert_text((40, 40), "Visible Contact")
+            annotation = page.add_text_annot((80, 80), "annotation-only@example.test")
+            annotation.set_info(title="Private Reviewer", subject="Private Subject")
+            annotation.update()
+            document.save(path)
+        with patch("pipeline.extractors._ocr_image_bytes") as ocr:
+            sections = _text_by_location(extract_to_markdown(path), path)
+        ocr.assert_not_called()
+        for value in ("annotation-only@example.test", "Private Reviewer", "Private Subject"):
+            self.assertIn(value, sections["comment"])
+            self.assertNotIn(value, sections["body"])
 
     def _mixed_pdf(self, rotation: int = 0) -> Path:
         import pymupdf
@@ -321,12 +509,27 @@ class ExtractionGapTests(unittest.TestCase):
                     data = ET.tostring(root, encoding="utf-8", xml_declaration=True)
                 archive.writestr(item, data)
 
-    def test_xlsx_formula_uses_cached_result_instead_of_expression(self):
+    def test_xlsx_formula_keeps_computed_result_and_expression(self):
         path = self._formula_workbook()
         self._set_formula_cache(path, "Formula Contact")
         markdown = extract_to_markdown(path)
         self.assertIn("Formula Contact", markdown)
-        self.assertNotIn("CONCAT", markdown)
+        self.assertIn('=CONCAT("Formula", " Contact")', markdown)
+
+    def test_xlsx_formula_literal_is_retained_when_absent_from_computed_result(self):
+        from openpyxl import Workbook
+
+        workbook = Workbook()
+        workbook.active.title = "Contacts"
+        workbook.active["A1"] = "Result"
+        workbook.active["A2"] = '=IF(FALSE,"formula-only@example.test","Public result")'
+        path = self.root / "private-formula.xlsx"
+        workbook.save(path)
+        workbook.close()
+        self._set_formula_cache(path, "Public result")
+        sections = _text_by_location(extract_to_markdown(path), path)
+        self.assertIn("Public result", sections["body"])
+        self.assertIn("formula-only@example.test", sections["body"])
 
     def test_xlsx_formula_without_cache_fails_with_cell_context(self):
         path = self._formula_workbook()
@@ -338,7 +541,7 @@ class ExtractionGapTests(unittest.TestCase):
         self._set_formula_cache(path, "")
         markdown = extract_to_markdown(path)
         self.assertIn("Computed name", markdown)
-        self.assertNotIn("CONCAT", markdown)
+        self.assertIn('=CONCAT("Formula", " Contact")', markdown)
 
     def test_xlsx_formula_error_cache_is_not_treated_as_content(self):
         path = self._formula_workbook()

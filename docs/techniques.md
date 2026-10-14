@@ -78,4 +78,5 @@ Which of the techniques above this repository already has, and where each one fi
 |---|---|---|
 | Reading hidden content: document properties, speaker notes, hidden sheets, headers, footers, comments, tracked changes | Office files | In review (#3) |
 | OCR for scans and embedded images | Scanned PDF, images inside documents | In review (#3), options compared under #31 |
+| Image redaction with solid boxes | Screenshots and snips pasted into a chat model | `redact/image.py`, measured in [screenshot-redaction.md](screenshot-redaction.md) (#30). Logos, signatures and stamps are not covered |
 | Rebuilding a redacted file in its original format | Users who need to keep editing the document | Not built; the pipeline outputs Markdown text. See the output format question in `open-questions.md` |
