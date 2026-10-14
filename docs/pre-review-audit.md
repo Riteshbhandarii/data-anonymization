@@ -30,11 +30,20 @@ old results, reruns preserve prior output, downloads have neutral filenames and
 save failures remain visible. No model weights or API credentials are needed
 for these tests. Existing extraction acceptance thresholds are unchanged.
 
-Historical model tables and aggregate artifacts remain archived. Corrected
-windowing and precision can change both accuracy and runtime: rerun the matrix
-before presenting old figures as current-code measurements. A green software
-check does not replace the manual public-AI study (#44) or real-document labels
-(#45).
+The combined proposed code passes 222 regression tests, 43 scoring tests,
+full Ruff and unchanged extraction acceptance on the 70-document corpus:
+946/960 values returned, with all 14 misses in OCR groups outside the 100%
+standard non-OCR gate.
+
+The [corrected-code labelled matrix](dataset-audit-runs.md) was rerun offline
+on 2026-10-14: all seven methods over 885 documents, including all 127 TAB test
+documents, complete all 28 method/dataset runs. Combined recall is 96.4% on
+fake, 83.5% on TAB, 80.0% on Turku and 88.5%/83.8% on ai4privacy English/Finnish.
+Lower-bound precision is 63.7% on TAB and 26.5% on Turku; keep those tradeoffs
+visible alongside recall. The report includes exact counts, package versions,
+corpus hashes and the published source branch. Older figures remain archived;
+unlabelled real-uk timings/counts and Qwen/Gemma trials were not rerun here.
+The manual public-AI study (#44) and real-document labels (#45) remain pending.
 
 ## Review order and remaining limits
 
