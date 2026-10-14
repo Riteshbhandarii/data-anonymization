@@ -40,7 +40,7 @@ from detect.methods import METHODS, get_detector
 CORPUS_ROOT = Path("~/Desktop/anonymization-corpus/external").expanduser()
 REAL_UK = Path("~/code/data-anonymization/corpus/real").expanduser()
 
-METHOD_NAMES = [*METHODS, "gliner"]
+METHOD_NAMES = list(METHODS)
 DATASETS = ["fake", "tab", "turku", "ai4privacy", "real-uk"]
 
 # Which detector entity types count as a hit for each scored type. A type with
@@ -306,9 +306,6 @@ def score_doc(dataset: str, doc: Doc, spans) -> list[dict]:
 
 
 def get_method(name: str):
-    if name == "gliner":
-        from detect.gliner_detector import GlinerDetector
-        return GlinerDetector()
     return get_detector(name)
 
 
