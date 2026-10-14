@@ -45,16 +45,14 @@ METHODS = {
         "label": "OpenAI Privacy Filter + patterns", "family": "Token classifier",
         "about": "openai/privacy-filter, a 1.5B mixture of experts (50M active), "
                  "run on CPU. Plus our three patterns.",
-        "good": "Few detections off the labels (TAB 98.5%, ai4privacy 94-99%); "
-                "ID and card numbers.",
-        "weak": "Finds almost nothing in court judgments and Finnish news: TAB 28%, "
-                "Turku 0%. No organization label."},
+        "good": "ID and card numbers; few off-label detections in historical runs.",
+        "weak": "Low recall on court judgments and Finnish news in historical runs. "
+                "No organization label."},
     "gliner2": {
         "label": "GLiNER2-PII + patterns", "family": "Zero-shot transformer",
         "about": "fastino/gliner2-privacy-filter-PII-multi, run on CPU. "
                  "Plus our three patterns.",
-        "good": "Names, places, companies and dates; the best Turku recall (78%), "
-                "though Finnish is not a training language.",
+        "good": "Names, places, companies and dates, including Finnish in historical runs.",
         "weak": "Leaves titles such as \"Mr\" outside person names, so most TAB "
                 "PERSON hits are partial."},
 }
