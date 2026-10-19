@@ -105,7 +105,10 @@ the machine. Email, logs and code, CAD and audio/video are desk research only.
   errors ([residual-misses](docs/residual-misses.md)).
 - Local LLMs were tested two ways: alone, and as an extra pass after
   `combined`. Alone they find fewer identifiers; as an extra pass they add at
-  most one ([comparison](docs/local-llm-comparison.md)).
+  most one ([comparison](docs/local-llm-comparison.md)). This test only covered
+  identifiers that rules already find; contextual items such as licence
+  numbers and project codes are untested
+  ([#73](https://github.com/Riteshbhandarii/data-anonymization/issues/73)).
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/figures/rq2-local-llm-dark.svg">
