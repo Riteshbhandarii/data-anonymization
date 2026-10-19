@@ -40,6 +40,8 @@ publicly available AI models?
 A local pipeline. It reads a file, turns it into Markdown, finds identifiers,
 replaces them and saves the result. Nothing leaves the machine.
 
+<img alt="Pipeline: company file, extract text, Markdown, find identifiers (optional local LLM pass), replace, review, then public AI. Everything before the public AI stays on the machine." src="docs/figures/pipeline.svg" width="100%">
+
 - **Formats:** TXT/MD, CSV, DOCX, XLSX, PPTX, PDF and images, with OCR for
   images and scans. Document properties, notes, comments and other hidden
   content are read too.
@@ -83,6 +85,11 @@ the machine. Email, logs and code, CAD and audio/video are desk research only.
 
 ### RQ2: accuracy of `combined`
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/figures/rq2-recall-dark.svg">
+  <img alt="Bar chart: combined finds 96.4% synthetic, 83.5% TAB, 80.0% Turku, 88.5% ai4privacy English, 83.8% ai4privacy Finnish; basic Presidio 61.4%, 65.4%, 51.0%, 54.2%, 38.7%." src="docs/figures/rq2-recall-light.svg" width="720">
+</picture>
+
 | Dataset | Values found / labelled |
 |---|---|
 | Synthetic English + Finnish, all locations | 1,849 / 1,919 (96.4%) |
@@ -106,6 +113,11 @@ Source: [dataset-audit-runs](docs/dataset-audit-runs.md).
 ChatGPT Free (self-reported GPT-6), 71 prompts, one run each
 ([results](docs/public-ai-results.md)).
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/figures/rq3-reidentification-dark.svg">
+  <img alt="Bar chart: ChatGPT Free named 1 of 18 from anonymized text, 0 of 4 real organisations, 4 of 4 from raw text, guessed 0 of 6 unrelated inputs, linked 4 of 4 document pairs." src="docs/figures/rq3-reidentification-light.svg" width="720">
+</picture>
+
 | Test | Result |
 |---|---|
 | Naming the person or company from anonymized text | 1 of 18 |
@@ -125,6 +137,11 @@ ChatGPT Free (self-reported GPT-6), 71 prompts, one run each
 Nine questions per language, answered by a local Qwen model
 ([utility-impact](docs/utility-impact.md)). Exact-answer scoring credits
 guesses, so the supported count is shown too.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/figures/rq4-usefulness-dark.svg">
+  <img alt="Bar chart: English raw 7, redacted 5 exact and 0 supported, pseudonyms 4 exact and 3 supported; Finnish raw 9, redacted 1 and 0, pseudonyms 6 and 3, out of 9." src="docs/figures/rq4-usefulness-light.svg" width="720">
+</picture>
 
 | Language | Raw | Redacted, exact / supported | Pseudonymized, exact / supported |
 |---|---:|---:|---:|

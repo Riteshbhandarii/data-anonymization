@@ -1,7 +1,8 @@
 # Limitations and open questions
 
-What the evidence in this repository does not show, and the decisions that
-are still open. Each limitation links to the result it qualifies.
+[Docs index](README.md) › Limitations
+
+This page lists what the evidence in this repository does not show, and the decisions that are still open. Each limitation links to the result it qualifies.
 
 ## Limits of the evidence
 
@@ -124,3 +125,10 @@ all. Whether it would accept these codes if enabled has not been measured.
 - For CAD and 3D: is the whole model file ever sent, or only the metadata and
   drawings extracted from it? A language model cannot read a STEP file, so the
   real exposure is the extraction.
+
+## Related
+
+- [Public AI results](public-ai-results.md)
+- [Utility impact](utility-impact.md)
+- [Local LLM comparison](local-llm-comparison.md)
+- [Options map](options-map.md)

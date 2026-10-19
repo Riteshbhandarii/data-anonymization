@@ -1,6 +1,8 @@
 # Anonymization techniques
 
-Grouped by what they actually do, with the failure mode for each.
+[Docs index](README.md) › Methods
+
+This page groups anonymization techniques by what they do, names where each one breaks, and ends with a map of which ones this repository builds.
 
 ## Removing or replacing identifiers
 
@@ -81,3 +83,10 @@ Measured results for each are linked from the [docs index](README.md).
 | OCR for scans and embedded images | Scanned PDF, images inside documents | Built with Tesseract; engines compared in [ocr-survey.md](ocr-survey.md) |
 | Image redaction with solid boxes | Screenshots and snips pasted into a chat model | `redact/image.py`, measured in [screenshot-redaction.md](screenshot-redaction.md). Logos, signatures and stamps are not covered |
 | Rebuilding a redacted file in its original format | Users who need to keep editing the document | Not built; the pipeline outputs Markdown text |
+
+## Related
+
+- [Pipeline](pipeline.md)
+- [Options map](options-map.md)
+- [Evaluation protocol](evaluation.md)
+- [Limitations](limitations.md)

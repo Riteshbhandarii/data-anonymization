@@ -1,9 +1,8 @@
-# Re-identification and utility experiments
+# Study helpers
 
-`eval/study.py` implements the experiment protocol for issues #18 and #19.
-It prepares document variants locally, runs independent model requests, and
-reports outcomes with raw and unrelated controls. The current implementation
-has been tested offline; no external-model result is claimed by those tests.
+[Docs index](README.md) › Methods
+
+`eval/study.py` implements the re-identification and utility protocol in [evaluation.md](evaluation.md). It prepares document variants locally, runs independent model requests, and reports outcomes with raw and unrelated controls. Offline tests cover it; those tests make no external-model call and claim no model result.
 
 ## Prepare a study
 
@@ -125,7 +124,7 @@ re-identification: they have no established public footprint. Their purpose is
 to exercise the protocol and compare relational task behavior. Use a separately
 agreed, suitable labelled dataset for a substantive re-identification study.
 
-## Run model requests later
+## Run model requests
 
 After reviewing the local plan and choosing a model, set `OPENAI_API_KEY` in the
 environment and explicitly execute:
@@ -169,4 +168,11 @@ call paid APIs.
 For a free manual utility experiment, export only the paired utility prompts
 with `python -m eval.utility_bench prepare <plan.json> --out <new-pack-directory>`.
 The [utility guide](utility-impact.md) covers recording, paired scoring and the
-first measured local-model result. This route makes no API calls.
+measured local-model result. This route makes no API calls.
+
+## Related
+
+- [Evaluation protocol](evaluation.md)
+- [Public AI results](public-ai-results.md)
+- [Utility impact](utility-impact.md)
+- [Pipeline](pipeline.md)

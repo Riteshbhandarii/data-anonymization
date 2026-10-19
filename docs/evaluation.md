@@ -1,6 +1,8 @@
 # Evaluation protocol
 
-Two independent questions. Do not collapse them into one score.
+[Docs index](README.md) › Methods
+
+This is the protocol the study follows for detection quality, residual re-identification risk and quality impact. Keep the three questions separate and do not collapse them into one score. Measured results are linked under Related.
 
 ## 1. Detection quality
 
@@ -43,3 +45,10 @@ One row per document per prompt: document id, format, sanitization config, promp
 The tradeoff nobody measures. Run the same downstream task on raw, redacted, and pseudonymized versions of the same document and compare output quality.
 
 This answers what compliance costs in accuracy, which is the question a project owner actually wants answered.
+
+## Related
+
+- [Model evaluation helpers](model-evaluation.md)
+- [Public AI results](public-ai-results.md) (RQ3)
+- [Utility impact](utility-impact.md) (RQ4)
+- [Dataset audit runs](dataset-audit-runs.md) (RQ2)

@@ -1,5 +1,7 @@
 # Azure AI Language – Document PII Redaction
 
+[Docs index](../README.md) › RQ1 · RQ2
+
 ## Overview
 
 Azure AI Language provides a PII detection and redaction service that can identify sensitive information from documents and create a redacted version of the original file.
@@ -270,3 +272,7 @@ Additional work required for:
 - Finnish personal identity codes
 - invoice numbers
 - vehicle registration plates
+
+## Related
+
+- [Options map](../options-map.md)

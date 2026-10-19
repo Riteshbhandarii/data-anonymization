@@ -1,5 +1,9 @@
 # Pipeline integration guide
 
+[Docs index](README.md) › Methods
+
+This guide shows how to connect a reader and an anonymizer to `run_pipeline()`, what each stage returns, and what the Markdown output looks like.
+
 ## Processing flow
 
 `run_pipeline()` coordinates one file from input to Markdown output:
@@ -86,7 +90,7 @@ print(result.output_path)
 
 The pipeline calls the anonymization module after extraction and normalization. It then saves the returned string without further content processing. An anonymizer is required; the pipeline contains no built-in replacement algorithm.
 
-The repository now provides `redact.PipelineAnonymizer` as a concrete adapter:
+The repository provides `redact.PipelineAnonymizer` as a concrete adapter:
 
 ```python
 from detect import PresidioDetector
@@ -244,3 +248,10 @@ Saving happens only after the anonymizer successfully returns a string. An extra
 Run the regression tests and labelled-corpus evaluation when changing a reader or output handling. The evaluator checks extraction before anonymization, so it can run before an anonymization module is connected. It writes a format table, a location table, and per-label evidence showing what was returned or missed.
 
 See [extraction validation](extraction-validation.md) for the commands, recorded results, matching rules, and GitHub Actions report locations. Reader changes that alter the metadata, notes, or worksheet headings should also update the evaluator's section mapping in `pipeline/validation.py`.
+
+## Related
+
+- [Extraction validation](extraction-validation.md)
+- [Techniques](techniques.md)
+- [Evaluation protocol](evaluation.md)
+- [Redaction README](../redact/README.md)

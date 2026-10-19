@@ -1,14 +1,21 @@
-# OCR comparison for the document pipeline
+# OCR survey
 
-This evaluates issue #31 using the generated PNG corpus from issue #13. The
-comparison reads the same image bytes through each local OCR engine and measures
-the text returned, before detection or redaction. It does not change the default
-pipeline reader.
+[Docs index](README.md) › RQ1
+
+Which OCR engines read English and Finnish text from images accurately enough to feed the anonymizer? Three local engines read the same 20 generated PNG files (issue #31, using the corpus from issue #13) and were scored on the text returned, before detection or redaction. Cloud engines are desk research only. The comparison does not change the default pipeline reader.
+
+## Key result
+
+- Overall identifier recall: Tesseract 229/240 (95.42%), PaddleOCR 228/240 (95.00%), EasyOCR approximation 215/240 (89.58%).
+- PaddleOCR returned 115/120 Finnish labels versus Tesseract's 112/120. Tesseract returned 117/120 English labels versus PaddleOCR's 113/120.
+- Speed: Tesseract took 0.48 to 0.58 s per image, PaddleOCR 4.80 to 6.38 s (observed on one Windows CPU run).
+- Tesseract's 11 misses were six IBANs, two personal identity codes, two emails and one name. One wrong character makes a whole labelled value missing.
+- Cloud engines (Google Cloud Vision, Azure Vision Read, Amazon Textract) were not measured.
 
 ## Finnish support and deployment
 
-The following support information was checked against the providers' own
-documentation on 2026-09-29. Language support does not imply perfect recognition.
+Support was checked against the providers' own documentation on 2026-09-29.
+Language support does not imply perfect recognition.
 
 | Engine | Deployment | Finnish support | Evaluation configuration |
 |---|---|---|---|
@@ -153,7 +160,7 @@ Use the existing `ocr_language="eng+fin"` option when evaluating Tesseract on mi
 English/Finnish inputs. These benchmark results do not change the pipeline's
 default language or select a new OCR engine automatically.
 
-## Reproduce the comparison
+## Reproduce
 
 Generate and verify the corpus using the project requirements, then run the
 benchmark separately for each engine:
@@ -185,3 +192,10 @@ The metric tests run without optional models:
 ```bash
 python -m unittest discover -s tests -p test_ocr_bench.py -v
 ```
+
+## Related
+
+- [extraction-validation.md](extraction-validation.md): how OCR errors reach the extracted text
+- [residual-misses.md](residual-misses.md): the OCR confusions behind the remaining misses
+- [screenshot-redaction.md](screenshot-redaction.md): redacting text in images
+- [pipeline.md](pipeline.md): where OCR sits in the pipeline

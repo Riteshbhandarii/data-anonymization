@@ -1,9 +1,16 @@
-# Options map: documents before public AI
+# Options map
 
-Decision guide for SMEs. Evidence cut: `e148240` and the explicitly dated
-2026-10-19 local reruns linked below. No tool in this map has demonstrated that
-arbitrary SME documents are safe to send to public AI. Choose the smallest
-necessary input, process locally, then review the actual output.
+[Docs index](README.md) › RQ1 · RQ4
+
+Which options exist for anonymizing each document format before it goes to a public AI model, and which fits when? This is the decision guide for small and medium businesses. It draws on the project's measurements at evidence snapshot `e148240` and the dated 2026-10-19 local reruns linked below. No tool here has been shown to make arbitrary documents safe to send. Choose the smallest necessary input, process locally, then review the actual output.
+
+## Key result
+
+- Best local detector: `combined` finds 1,849/1,919 values on 140 synthetic files, 4,269/5,112 on TAB and 80/100 on Turku.
+- A local LLM final pass adds at most one label: Gemma 137/146, Qwen 136/146, against 136/146 for the baseline.
+- Commercial samples are small: Azure 35/48 any-type, Google 55/98, Limina 69/74 on 8 of 10 submitted files.
+- For screenshots, GLiNER hides 422/467 readable values and rules 408/467. Pixelation and blur are not redaction.
+- Email, logs/code, CAD, audio/video and scanned PDFs are NOT TESTED; those rows are desk research.
 
 ## How to read the evidence
 
@@ -204,3 +211,11 @@ Commercial tests use much smaller synthetic samples and distinguish any-type
 coverage from type-aware detection. ARX's tabular risk/utility measures do not
 share a text-span recall denominator. These numbers must not be ranked in one
 accuracy column.
+
+## Related
+
+- [dataset-audit-runs.md](dataset-audit-runs.md): the seven-method detector matrix
+- [local-llm-comparison.md](local-llm-comparison.md): local LLM final passes
+- [ocr-survey.md](ocr-survey.md): OCR engines
+- [screenshot-redaction.md](screenshot-redaction.md): screenshot redaction tools and results
+- [limitations.md](limitations.md): what the evidence does not show

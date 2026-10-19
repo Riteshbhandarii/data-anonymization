@@ -1,12 +1,28 @@
-# Local LLM comparison, 2026-10-19
+# Local LLM comparison
 
-Measured detector source: `e148240`. The fresh combined gate reproduced **136/146 body labels (93.2%)**, with zero failed documents, before any LLM inference. These are current runs. The earlier experiments in [local-model-options.md](archive/local-model-options.md) remain archived pre-audit evidence.
+[Docs index](README.md) › RQ2
 
-All five configurations use the same frozen corpus: seed 42, `--n 1`, Faker 40.39.0, fourteen documents (seven English and seven Finnish), 146 body labels (73 per language). The generator also plants 46 non-body labels, excluded from body recall. Verified corpus SHA-256: `27934f5e7fc88d0748be7b53d2d79ecfd797ad82c94c68d6fa16fd421c2e40ae`. No extraction quality or public-AI re-identification result is claimed.
+Does a local LLM add detection accuracy on top of the `combined` detector, and what does it cost? Five configurations ran on one frozen synthetic corpus of 14 documents (7 English, 7 Finnish) with 146 body labels, on 2026-10-19 at detector source `e148240`. Earlier pre-audit experiments are in [archive/local-model-options.md](archive/local-model-options.md).
 
-Whole-value typed recall requires one correctly typed span to cover every occurrence of each labelled value. Typed overlap precision counts detections touching a label of the same type; it includes any planted value occurring in the scored body text. W = overlaps only another labelled type; U = overlaps no label. Wrong-type overlaps are classification errors, not automatically excessive masking. An unlabelled contextual span is not automatically a false positive. `QUASI_IDENTIFIER` has no labelled privacy target in this corpus.
+## Key result
 
-Each column links its exact aggregate source. R = covered/planted; P = correct/detections; W/U = wrong-type/unlabelled counts. A dash means no denominator, not a successful result.
+- `combined` alone covers 136/146 body labels (2 partial), with 0 failed documents.
+- Qwen as a final pass adds nothing: 136/146 (2 partial), P 197/241.
+- Gemma as a final pass adds one label: 137/146 (1 partial), P 198/239.
+- Standalone local models are weaker: Qwen alone 94/146, Gemma alone 111/146 (1 partial).
+- These counts say nothing about contextual re-identification. Usefulness is in [utility-impact.md](utility-impact.md#2026-10-19-rerun).
+
+## Corpus and metrics
+
+- Corpus: seed 42, `--n 1`, Faker 40.39.0, 73 body labels per language. The generator also plants 46 non-body labels, which are excluded from body recall. Corpus SHA-256: `27934f5e7fc88d0748be7b53d2d79ecfd797ad82c94c68d6fa16fd421c2e40ae`.
+- Whole-value typed recall: one correctly typed span must cover every occurrence of each labelled value.
+- Typed overlap precision: detections touching a label of the same type, including any planted value in the scored body text.
+- W = overlaps only another labelled type. U = overlaps no label. Wrong-type overlaps are classification errors, not automatically excessive masking. An unlabelled contextual span is not automatically a false positive.
+- `QUASI_IDENTIFIER` has no labelled privacy target in this corpus.
+- R = covered/planted. P = correct/detections. A dash means no denominator, not a successful result.
+- Each column header links its aggregate source.
+
+## Results
 
 | Scope | [Combined](../eval/baselines/final-evidence-local-combined.json) | [Qwen](../eval/baselines/final-evidence-local-qwen-alone.json) | [Gemma](../eval/baselines/final-evidence-local-gemma-alone.json) | [Combined + Qwen](../eval/baselines/final-evidence-local-qwen-final.json) | [Combined + Gemma](../eval/baselines/final-evidence-local-gemma-final.json) |
 |---|---|---|---|---|---|
@@ -46,19 +62,20 @@ Each column links its exact aggregate source. R = covered/planted; P = correct/d
 | Staged s including base construction, excluding LLM load | 19.874 | 202.745 | 181.232 | 36.675 | 28.196 |
 | Failed documents | 0 | 0 | 0 | 0 | 0 |
 
-The base cache replay gives the final pass exactly the original base spans and masking. GLiNER ran offline on CPU in a separate process that exited before loading an LLM. Its cache verifies corpus, method and detector-source hashes. The combined baseline/cache ran while pack preparation was active on the same host; its timing is approximate under background load. LLM inference started after pack preparation exited. These timings support practical cost estimates, not a controlled speed ranking.
-
-The reported baseline detector calls include lazy GLiNER loading in the first English document; spaCy/construction took 7.078 s separately. LLM reports exclude model loading. Final-pass detector-call timings include cached-span replay and LLM requests; the staged row adds the original base construction and detector calls. No extraction is timed. Standalone precedes the final pass for each loaded model, so warmup conditions differ.
-
-Both cached models use LM Studio 0.4.18+1 with MLX 4-bit weights on this 16 GiB Apple host: `qwen/qwen3.5-9b` (5,977,257,833 bytes) and `google/gemma-4-e4b` (6,861,915,950 bytes). Each loads at 8192-token context and one parallel prediction. The first Qwen load took 12.542 s; the Gemma load took 13.445 s. These are CLI wall times with cached weights, not cold-download or minimum-RAM measurements. Peak RAM/VRAM was not measured. Exactly one LLM was loaded at a time, without GLiNER.
-
-Temperature is 0; `reasoning_effort=none`, `enable_thinking=false`, JSON-schema entities, maximum 2048 output tokens, 4000-character windows with 400-character overlap. The exact system prompt, schema, user-prompt template, quantization, loaded-state records and load commands are in [configuration](../eval/baselines/final-evidence-local-configuration.json). Final passes replace base spans with equal-length blocks before inference and retain the original spans. Requests go only to `127.0.0.1:1234`; proxies and redirects are disabled.
-
-The first Qwen transport attempt found the HTTP server stopped: fourteen `URLError` rows, **model inference NOT RUN**. This [preserved attempt](../eval/baselines/final-evidence-local-qwen-server-down.json) is excluded from the completed quality table. Starting the loopback server and repeating produced the current Qwen report. Completed-run error classes remain in every report.
-
 ## Final-pass verdict
 
-Qwen's final pass shows no demonstrated recall gain: 136/146 (+0 labels), typed precision 81.7% versus 82.8% for combined, 44 wrong-type overlaps and 0 unlabelled detections, with 0 failed documents. Gemma's final pass helps typed body recall: 137/146 (+1 labels), typed precision 82.8% versus 82.8% for combined, 41 wrong-type overlaps and 0 unlabelled detections, with 0 failed documents. These counts do not establish contextual re-identification protection. Usefulness is evaluated separately in [the utility rerun](utility-impact.md#2026-10-19-rerun).
+Qwen's final pass shows no demonstrated recall gain: 136/146 (+0 labels), typed precision 81.7% versus 82.8% for combined, 44 wrong-type overlaps and 0 unlabelled detections, with 0 failed documents.
+
+Gemma's final pass helps typed body recall: 137/146 (+1 labels), typed precision 82.8% versus 82.8% for combined, 41 wrong-type overlaps and 0 unlabelled detections, with 0 failed documents.
+
+## Timing and setup
+
+- GLiNER ran offline on CPU in a separate process that exited before any LLM loaded. The base cache replay gives the final pass exactly the original base spans and masking. Its cache verifies corpus, method and detector-source hashes.
+- The combined baseline and cache ran while pack preparation was active on the same host, so its timing is approximate. LLM inference started after pack preparation exited. The timings support practical cost estimates, not a controlled speed ranking.
+- Baseline detector calls include lazy GLiNER loading in the first English document. spaCy and construction took 7.078 s separately. LLM reports exclude model loading. Final-pass timings include cached-span replay and LLM requests. The staged row adds the original base construction. No extraction is timed. Standalone runs precede the final pass for each loaded model, so warmup differs.
+- Both models run in LM Studio 0.4.18+1 with MLX 4-bit weights on a 16 GiB Apple host: `qwen/qwen3.5-9b` (5,977,257,833 bytes) and `google/gemma-4-e4b` (6,861,915,950 bytes). Each loads at 8192-token context and one parallel prediction. First Qwen load took 12.542 s, Gemma 13.445 s. These are CLI wall times with cached weights, not cold-download or minimum-RAM measurements. Peak RAM/VRAM was not measured. One LLM was loaded at a time, without GLiNER.
+- Settings: temperature 0, `reasoning_effort=none`, `enable_thinking=false`, JSON-schema entities, maximum 2048 output tokens, 4000-character windows with 400-character overlap. The system prompt, schema, prompt template, quantization and load commands are in [configuration](../eval/baselines/final-evidence-local-configuration.json). Final passes replace base spans with equal-length blocks before inference and keep the original spans. Requests go only to `127.0.0.1:1234`; proxies and redirects are disabled.
+- The first Qwen attempt found the HTTP server stopped: fourteen `URLError` rows, **model inference NOT RUN**. The [preserved attempt](../eval/baselines/final-evidence-local-qwen-server-down.json) is excluded from the table. Restarting the loopback server and repeating produced the Qwen report above. Completed-run error classes remain in every report.
 
 ## Reproduce
 
@@ -85,4 +102,12 @@ HF_HUB_OFFLINE=1 GLINER_DEVICE=cpu python -m eval.local_llm_bench outputs/local-
 lms unload gemma-local
 ```
 
-Use a new cache/output path on a repeat. Reports contain aggregates only. Corpus text, cached offsets and raw local responses remain under ignored `outputs/`. The archived pre-audit and 885-document matrix results are separate evidence, with different metrics and denominators.
+
+Use a new cache and output path on a repeat. Reports contain aggregates only. Corpus text, cached offsets and raw local responses stay under ignored `outputs/`. The archived pre-audit and 885-document results use different metrics and denominators.
+
+## Related
+
+- [dataset-audit-runs.md](dataset-audit-runs.md): the 885-document detector matrix
+- [residual-misses.md](residual-misses.md): why misses remain
+- [utility-impact.md](utility-impact.md): usefulness after redaction
+- [archive/local-model-options.md](archive/local-model-options.md): superseded pre-audit runs

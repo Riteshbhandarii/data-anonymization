@@ -1,6 +1,6 @@
 # Google Cloud Sensitive Data Protection
 
-
+[Docs index](../README.md) › RQ1 · RQ2
 
 ## Overview
 
@@ -284,3 +284,6 @@ However, the default configuration missed several specialized identifiers that a
 
 Based on these tests, Google Cloud is a possible option for sensitive information detection, but additional configuration and redaction testing would be needed before using it as a complete document anonymization solution.
 
+## Related
+
+- [Options map](../options-map.md)
