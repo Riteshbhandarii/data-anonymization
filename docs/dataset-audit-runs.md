@@ -215,6 +215,6 @@ HF_HUB_OFFLINE=1 TOKENIZERS_PARALLELISM=false python -m eval.run_matrix \
 ## Related
 
 - [residual-misses.md](residual-misses.md): why the remaining misses happen
-- [local-llm-comparison.md](local-llm-comparison.md): adding a local LLM final pass
+- [contextual-llm.md](contextual-llm.md): adding a local LLM, merged or as a final pass
 - [extraction-validation.md](extraction-validation.md): what reaches the detector
 - [archive/dataset-runs.md](archive/dataset-runs.md): superseded earlier tables

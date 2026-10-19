@@ -60,7 +60,7 @@ Measured results for each are linked from the [docs index](README.md).
 | Checksum validation | Identifiers with a check character: IBAN, Finnish identity code | Catch a mistyped real value, which a strict checksum rejects | Presidio built-in. Whether to validate is an open question, see [limitations.md](limitations.md) |
 | Statistical NER (spaCy, Stanza) | Names, organisations and places in running text | Values with no sentence around them, such as table cells and signature blocks. Finnish quality is lower than English and depends on model size | spaCy small and large models via Presidio (`basic`, `rules`, `rules-lg`). Stanza not built |
 | Zero-shot NER (GLiNER) | Entity types described in plain words, including domain-specific ones | Run fast | Built (`gliner`, `gliner2`, and inside `combined`); measured on English and Finnish |
-| Local language model as detector | Identifiers that need context, and quasi-identifiers | Run quickly or deterministically; needs a GPU | Built as an optional final pass after `combined` (Qwen, Gemma); measured in [local-llm-comparison.md](local-llm-comparison.md) |
+| Local language model as detector | Identifiers that need context, and quasi-identifiers | Run quickly or deterministically; needs a GPU | Built as an optional detector run alongside `combined` and merged, or as a final pass (Qwen, Gemma); measured in [contextual-llm.md](contextual-llm.md) |
 | Deny lists | A company's own known names: customers, products, projects | Find anything not on the list | Not built |
 
 ### Transforming what was found
