@@ -97,10 +97,10 @@ This workload is not ranked against short-template LLM or earlier OCR timings.
 
 The current nine-question-per-language utility rerun found no added benefit
 from Gemma final pass: the two methods produced identical corresponding prompts
-and answers. Combined raw/redacted/pseudonymized correct counts were EN
-7/9, 5/9, 4/9 and provisional FI 9/9, 1/9, 6/9. Use each language's own paired
-raw-correct denominator (7 EN; 9 FI). Exact-answer scoring can credit guesses
-after numbers are removed. See [utility-impact.md](utility-impact.md#2026-10-19-rerun)
+and answers. Combined raw/redacted/pseudonymized exact-answer counts were EN
+7/9, 5/9, 4/9 and FI 9/9, 1/9, 6/9. Counting only answers the sanitized text
+can support, redaction drops to 0/9 and pseudonyms to 3/9 in both languages:
+masked hours let guesses score. See [utility-impact.md](utility-impact.md#evidence-supported-answers)
 and the [paired comparison](../eval/baselines/final-evidence-utility-comparison.json).
 
 ### OCR options: extraction, not anonymization

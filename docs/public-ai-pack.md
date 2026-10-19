@@ -2,10 +2,8 @@
 
 Complete locally on 2026-10-19. Method: **combined**, GLiNER on Apple MPS.
 The actual study answer key was not read, printed or hashed. No public-model
-request was made. Public-AI re-identification remains **PENDING #44**.
-
-**Update 2026-10-19:** 71 answers collected and scored; see
-[public-ai-results.md](public-ai-results.md).
+request was made at preparation time. Answers were collected and scored later
+on 2026-10-19: [public-ai-results.md](public-ai-results.md).
 
 | Item | Verified at preparation |
 |---|---|

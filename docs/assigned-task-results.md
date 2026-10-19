@@ -87,8 +87,8 @@ measurement.
 
 ## Teams corpus validation
 
-On 2026-09-29, the supplied `General / Datasets / anonymization-corpus` archive
-was downloaded from the project's Teams group and evaluated with extraction
+On 2026-09-29, the team's shared synthetic corpus archive
+was downloaded from the project's shared folder and evaluated with extraction
 code at `58af1ae`. The five document-format folders and their original JSON
 labels were read locally; the external detector datasets were excluded.
 

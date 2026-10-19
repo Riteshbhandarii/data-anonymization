@@ -5,7 +5,7 @@ detection and redaction. It evaluates actual documents from `corpus/generate.py`
 saved generator text and rendering evidence are never substituted for extractor
 output. The current pipeline outputs Markdown.
 
-## Current measured results
+## Measured results, 2026-09-29
 
 The 2026-09-29 run used `--n 5 --seed 42`, Faker 40.39.0, English and Finnish,
 and Tesseract 5.5.0.20241111 with `eng+fin`. The expanded corpus contains 70
@@ -23,7 +23,12 @@ documents and 960 labels. Its label/text fingerprint is
 | **Total** | **70** | **960** | **948** | **12** | **98.75%** |
 
 There were no extraction errors. All 12 missing labels were OCR mismatches:
-one inside a PDF image and 11 in standalone PNG documents. The new locations
+one inside a PDF image and 11 in standalone PNG documents.
+
+A fresh reproduction on 2026-10-19 (macOS host, different corpus fingerprint)
+returned **946/960**, with 14 OCR mismatches and no extraction errors. That is
+the current figure; the two runs differ only in OCR results and are kept
+separate. Diagnosis of the 14 misses: [residual-misses.md](residual-misses.md). The new locations
 requested in issue #33 are measured separately:
 
 | Format | Location | Planted | Returned | Recall |
@@ -106,7 +111,7 @@ a real OCR regression separately check that image content reaches the OCR path.
 
 To require 100% recall for every measured quality and location, omit both
 `--threshold-qualities` and `--threshold-locations`. That stricter command fails
-on the recorded corpus because it exposes the 12 OCR mismatches above. Neither
+on the recorded corpus because it exposes the OCR mismatches above. Neither
 configuration removes difficult fixtures or changes their denominator.
 
 An anonymizer implementation is not needed for extraction validation. Faker is

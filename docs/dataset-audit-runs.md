@@ -7,20 +7,17 @@ split, 18 Turku test documents and 300 ai4privacy rows per English/Finnish
 language. Each method evaluates 11,070 labelled values/mentions. All 28
 method/dataset runs completed; model failures would stop this runner.
 
-The measured source is the isolated combined pending-PR checkout at
-[10d49c1](https://github.com/Riteshbhandarii/data-anonymization/tree/10d49c140ec2cbb605bb6e4274757c43235bd162);
-The source is published on `audit/corrected-matrix-source`. No GitHub PR or
-main branch was merged. This is evidence for the combined proposed code, not an individual
-branch's current checkout. Subsequent detector/report description edits change
-presentation only. Corpus hashes, selections, package versions, grouped results,
+The measured source is commit `10d49c1` (branch `audit/corrected-matrix-source`),
+the corrected code before it was squash-merged. Main differs from it only in
+description text (method notes in `detect/methods.py`, summary wording in
+`eval/run_matrix.py`), which changes presentation, not results. Corpus hashes, selections, package versions, grouped results,
 precision denominators and timings are archived in
 [`eval/baselines/dataset-audit-matrix.json`](../eval/baselines/dataset-audit-matrix.json).
 Raw documents, model inputs, entity values and source identities are absent
 from that archive. Model weights were cached; no remote request or paid API
 was used.
 
-The older [dataset tables](https://github.com/Riteshbhandarii/data-anonymization/blob/037207de3c6122ab4c55da9d367303d29cc3418a/docs/dataset-runs.md)
-remain historical. This rerun supersedes their accuracy comparisons for the
+The older [dataset tables](dataset-runs.md) remain historical. This rerun supersedes their accuracy comparisons for the
 listed labelled selections.
 Unlabelled real-uk timing/detection counts, the earlier Qwen/Gemma trials and
 the public-model privacy experiment are outside this run. Do not relabel
@@ -32,8 +29,9 @@ The runner's `load s` column times warmup; constructor costs may fall outside
 that interval, so it is not a complete cold-start measurement.
 Partial identifiers still leak. Lower-bound precision accepts overlap with
 any annotated type; it is different from the typed precision in the separate
-fourteen-document local smoke. Public-AI answers (#44), real-document hand
-labels (#45) and contextual re-identification remain unfinished.
+fourteen-document local smoke. Public-AI re-identification is reported
+separately in [public-ai-results.md](public-ai-results.md); real-document hand
+labels were not produced.
 
 Combined now covers 122 more TAB mentions than the archived run (4,269 versus
 4,147), and 80/100 Turku mentions versus 76/100. Its lower-bound precision is

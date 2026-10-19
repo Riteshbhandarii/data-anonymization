@@ -1,10 +1,11 @@
 # Utility impact of redaction
 
-Issue #19 asks whether replacing identifiers destroys the task a document was
+This study asks whether replacing identifiers destroys the task a document was
 meant to support. `eval.utility_bench` exports the same question against raw,
 redacted and pseudonymized versions, then scores manually recorded answers.
 It makes no model calls. A free public model can be tested by pasting prompts
-individually; the public-AI experiment in #44 remains separate.
+individually; public-AI re-identification is a separate study
+([public-ai-results.md](public-ai-results.md)).
 
 ## Prepare and score
 
@@ -97,12 +98,12 @@ Pseudonymization alone does not repair these detection mistakes.
 
 This nine-question experiment cannot establish general accuracy. Its purpose
 is to make the cost measurable and expose over-redaction that high recall can
-hide. Repeat the paired study with the other new methods, Finnish questions
-and the public model selected for #44 before claiming deployment utility.
+hide. The 2026-10-19 rerun below repeats the paired study with Finnish
+questions; the public model was not used for utility.
 
 ## 2026-10-19 rerun
 
-Measured detector source: `e148240`. The existing three English memos and nine questions from `eval.create_study` were rerun with `combined`, then with `combined + Gemma` because the [local comparison](local-llm-comparison.md) found a one-label body-recall gain for that final pass. The Finnish counterpart uses three new fictional memos and nine questions. **Finnish wording and accepted answers: NEEDS HUMAN REVIEW.** These current results are separate from the archived pre-audit tables above.
+Measured detector source: `e148240`. The existing three English memos and nine questions from `eval.create_study` were rerun with `combined`, then with `combined + Gemma` because the [local comparison](local-llm-comparison.md) found a one-label body-recall gain for that final pass. The Finnish counterpart uses three new fictional memos and nine questions. Finnish wording and accepted answers were reviewed on 2026-10-19 ([review](../eval/utility_fi/README.md)): fit for reporting this run, not a validated benchmark. These current results are separate from the archived pre-audit tables above.
 
 The answering model for every condition was `qwen/qwen3.5-9b`, LM Studio 0.4.18+1 MLX 4-bit, 8192-token context and one parallel prediction on the 16 GiB host. Each request used temperature 0, `reasoning_effort=none`, `enable_thinking=false`, an answer/refused JSON schema and at most 256 output tokens; no sampling seed was set. Chats were independent, web search was off and aliases were document-scoped. Requests went only to `127.0.0.1:1234`; no paid or hosted API was used. The exact answering prompt and schema are included in every linked report.
 
@@ -131,6 +132,27 @@ Gemma’s final pass changed none of the utility prompts: all 27 corresponding p
 
 Both English and Finnish sanitized total-hours inputs replace the two hour values with `DATE_TIME` tokens. The reports record two date placeholders per memo and absence of the literal hour values in those inputs. A correct larger-project answer can therefore be a guess even when exact-answer scoring credits it. In particular, the Finnish pseudonymized larger-project answers were correct despite missing numeric evidence. These small, fixed templates measure answer matching and contact consistency; they do not prove general task fidelity or evidence-supported reasoning.
 
+### Evidence-supported answers
+
+Exact-answer scoring credits guesses. In every sanitized memo both hour values
+become `DATE_TIME` tokens, and generic redaction turns both contacts into the
+same `[PERSON]` token, while pseudonyms keep them distinct (`[PERSON_1]`,
+`[PERSON_2]`). The memos always list the larger project first. Counting only
+answers the sanitized text can support:
+
+| Language | Raw | Redacted, exact / supported | Pseudonymized, exact / supported |
+|---|---:|---:|---:|
+| English | 7/9 | 5/9 / **0/9** | 4/9 / **3/9** |
+| Finnish | 9/9 | 1/9 / **0/9** | 6/9 / **3/9** |
+
+Redacted answers to total hours were refused, larger-project answers were
+unsupported guesses, and same-contact answers cannot be supported once both
+contacts read `[PERSON]`. The supported pseudonymized answers are the three
+same-contact questions in each language. Identical results apply to
+`combined + Gemma`, whose prompts and answers matched `combined`. On these
+tasks generic redaction left no usable evidence, and pseudonyms preserved only
+who-is-who. A replacement suite should vary allocation, order and totals.
+
 | Pack | Answering seconds / 27 requests | Runtime scope |
 |---|---:|---|
 | [en-combined](../eval/baselines/final-evidence-utility-en-combined.json) | 35.402 | Loopback HTTP answering only |
@@ -140,9 +162,9 @@ Both English and Finnish sanitized total-hours inputs replace the two hour value
 
 Answering times exclude extraction, base detection, final-pass preparation and model loading. The utility Qwen reload took 9.229 s, recorded in [the configuration archive](../eval/baselines/final-evidence-local-configuration.json). No peak-memory measurement was made. All LLMs were unloaded after the last request; the loopback server remains running.
 
-### Finnish human review
+### Finnish suite
 
-**NEEDS HUMAN REVIEW.** Read the [draft questions and accepted answers](../eval/utility_fi/suite.json) and the three memo texts. Verify the Finnish phrasing and exact accepted answer forms before accepting this as a Finnish utility benchmark. All companies and people are fictional.
+Reviewed 2026-10-19: wording and accepted answers are correct; the design lets guesses score ([review](../eval/utility_fi/README.md)). [Questions and accepted answers](../eval/utility_fi/suite.json). All companies and people are fictional.
 
 | Memo | Total hours | Project with more hours | Same contact |
 |---|---:|---|---|
@@ -150,7 +172,7 @@ Answering times exclude extraction, base detection, final-pass preparation and m
 | [a2](../eval/utility_fi/a2.md) | 30 | Kuusi | ei |
 | [b1](../eval/utility_fi/b1.md) | 30 | Kuusi | kyllä |
 
-The exact model answers, including wrong and refused answers, are in the four aggregate/answer reports linked in the results table. The raw prompt/response logs and local scoring plans remain in ignored `outputs/final-evidence-utility/`. No public-AI #44 outcome is inferred from this local study.
+The exact model answers, including wrong and refused answers, are in the four aggregate/answer reports linked in the results table. The raw prompt/response logs and local scoring plans remain in the Git-ignored `outputs/` folder. No public-AI outcome is inferred from this local study.
 
 ### Reproduce the staged rerun
 

@@ -26,6 +26,8 @@ The adversarial test. Feed the sanitized output to a public model and ask it to 
 
 **Give the tester web search.** Real re-identification works by linking to outside data. An offline test passes documents that fail in reality.
 
+> **As executed, 2026-10-19:** the ChatGPT Free study did not explicitly enable web search, and the search-enabled rows were not run. The team judged that company-internal documents are not searchable online. The deviation is reported as a limitation in [public-ai-results.md](public-ai-results.md).
+
 **Test linkage, not only naming.** A model that can tell two documents concern the same entity has leaked, even when it cannot name that entity. Inconsistent or overly consistent pseudonyms leak exactly this way.
 
 **Score across a corpus, not per document.** Record correct, wrong, and refused. Report rates. A model will confidently invent a company name, so a wrong guess is not a failure and one lucky hit is not either.
