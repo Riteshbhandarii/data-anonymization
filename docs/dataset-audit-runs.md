@@ -1,61 +1,40 @@
-# Corrected-code labelled dataset rerun
+# Dataset audit runs
 
-Measured offline on 2026-10-14 after the pre-review extraction, detector-window
-and scoring fixes. All seven registered methods completed the same 885 selected
-documents: 140 synthetic Office/image files, the full 127-document TAB test
-split, 18 Turku test documents and 300 ai4privacy rows per English/Finnish
-language. Each method evaluates 11,070 labelled values/mentions. All 28
-method/dataset runs completed; model failures would stop this runner.
+[Docs index](README.md) › RQ2
 
-The measured source is the isolated combined pending-PR checkout at
-[10d49c1](https://github.com/Riteshbhandarii/data-anonymization/tree/10d49c140ec2cbb605bb6e4274757c43235bd162);
-The source is published on `audit/corrected-matrix-source`. No GitHub PR or
-main branch was merged. This is evidence for the combined proposed code, not an individual
-branch's current checkout. Subsequent detector/report description edits change
-presentation only. Corpus hashes, selections, package versions, grouped results,
-precision denominators and timings are archived in
-[`eval/baselines/dataset-audit-matrix.json`](../eval/baselines/dataset-audit-matrix.json).
-Raw documents, model inputs, entity values and source identities are absent
-from that archive. Model weights were cached; no remote request or paid API
-was used.
+How well do seven detectors find labelled personal data in English and Finnish? All seven ran offline on the same 885 documents on 2026-10-14: 140 synthetic Office and image files, the 127-document TAB test split, 18 Turku test documents, and 300 ai4privacy rows per language. Each method scores 11,070 labelled values or mentions.
 
-The older [dataset tables](https://github.com/Riteshbhandarii/data-anonymization/blob/037207de3c6122ab4c55da9d367303d29cc3418a/docs/dataset-runs.md)
-remain historical. This rerun supersedes their accuracy comparisons for the
-listed labelled selections.
-Unlabelled real-uk timing/detection counts, the earlier Qwen/Gemma trials and
-the public-model privacy experiment are outside this run. Do not relabel
-those older measurements as corrected-code results.
+## Key result
 
-GLiNER and combined use MPS; spaCy, Privacy Filter and GLiNER2 use CPU. Timings
-exclude model loading but remain specific to this host and cached process.
-The runner's `load s` column times warmup; constructor costs may fall outside
-that interval, so it is not a complete cold-start measurement.
-Partial identifiers still leak. Lower-bound precision accepts overlap with
-any annotated type; it is different from the typed precision in the separate
-fourteen-document local smoke. Public-AI answers (#44), real-document hand
-labels (#45) and contextual re-identification remain unfinished.
+Recall of `combined`, which is highest or tied for highest on every dataset:
 
-Combined now covers 122 more TAB mentions than the archived run (4,269 versus
-4,147), and 80/100 Turku mentions versus 76/100. Its lower-bound precision is
-63.7% on TAB and 26.5% on Turku, down from the archived 69.7% and 29.7%.
-More complete detection leaves substantial unlabelled detections to assess;
-annotations are incomplete, so these are not all proven false positives.
-Privacy Filter still covers none of the selected Turku mentions. GLiNER2
-ties combined at 83.8% on ai4privacy Finnish; GLiNER/combined reach 80% on
-Turku versus GLiNER2's 78%. Retain the dataset-specific tradeoffs when choosing
-a method and measuring utility.
+- Synthetic corpus: 1,849/1,919 (96.4%)
+- TAB court cases: 4,269/5,112 (83.5%)
+- Turku Finnish: 80/100
+- ai4privacy: English 1,757/1,986 (88.5%), Finnish 1,636/1,953 (83.8%)
+- Privacy Filter covers none of the selected Turku mentions. GLiNER2 ties `combined` at 83.8% on ai4privacy Finnish.
 
-Reproduce with the archived package versions and cached external datasets:
+Datasets label different things, so these numbers are not comparable across rows. Recall is whole-value: one accepted detection must contain the full value or mention. Partial detections are counted separately and can still leave identifying text visible.
 
-```bash
-HF_HUB_OFFLINE=1 TOKENIZERS_PARALLELISM=false python -m eval.run_matrix \
-  --out outputs/audit-matrix --fake-dir outputs/audit-matrix-corpus \
-  --datasets fake tab turku ai4privacy \
-  --methods basic rules rules-lg gliner combined privacy-filter gliner2 \
-  --tab-docs 0
-```
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="figures/rq2-recall-dark.svg">
+  <img alt="Bar chart: combined finds 96.4% synthetic, 83.5% TAB, 80.0% Turku, 88.5% ai4privacy English, 83.8% ai4privacy Finnish; basic Presidio 61.4%, 65.4%, 51.0%, 54.2%, 38.7%." src="figures/rq2-recall-light.svg" width="720">
+</picture>
 
-Whole-value recall: one accepted detection must contain the full value or mention. Accepted types vary by dataset; some classes accept any type (see caveats). Partial detections are counted separately and can leave identifying text visible.
+## Comparison with the archived run
+
+Compared with the [archived dataset tables](archive/dataset-runs.md), `combined` now covers 122 more TAB mentions (4,269 versus 4,147) and 80/100 Turku mentions versus 76/100. Its lower-bound precision is 63.7% on TAB and 26.5% on Turku, down from the archived 69.7% and 29.7%. More complete detection leaves many unlabelled detections to assess. The annotations are incomplete, so these are not all proven false positives. GLiNER and `combined` reach 80% on Turku versus GLiNER2's 78%. Keep the dataset-specific tradeoffs in view when choosing a method.
+
+This rerun supersedes the archived accuracy comparisons for the listed selections. Unlabelled real-uk timing and detection counts, the earlier Qwen/Gemma trials and the public-model privacy experiment are outside this run.
+
+## Details
+
+- Measured source: commit `10d49c1` (branch `audit/corrected-matrix-source`), the corrected code before it was squash-merged. Main differs only in description text (method notes in `detect/methods.py`, summary wording in `eval/run_matrix.py`), which changes presentation, not results.
+- Corpus hashes, selections, package versions, grouped results, precision denominators and timings are archived in [`eval/baselines/dataset-audit-matrix.json`](../eval/baselines/dataset-audit-matrix.json). Raw documents, model inputs, entity values and source identities are not in that archive.
+- All 28 method/dataset runs completed; model failures would stop this runner. Model weights were cached. No remote request or paid API was used.
+- GLiNER and `combined` use MPS; spaCy, Privacy Filter and GLiNER2 use CPU. Timings exclude model loading and are specific to this host and cached process. The `load s` column times warmup only, so it is not a complete cold-start measurement.
+- Lower-bound precision accepts overlap with any annotated type. It differs from the typed precision in the fourteen-document run in [local-llm-comparison.md](local-llm-comparison.md).
+- Real-document hand labels were not produced. Public-AI re-identification is in [public-ai-results.md](public-ai-results.md).
 
 ## Headline recall
 
@@ -220,3 +199,22 @@ Only the span-labelled datasets. A detection over no annotation of any type coun
 - Subsets: TAB 127 of the 127 test documents (a sample takes every third), Turku test files up to a sentence budget, ai4privacy 300 random rows per language (seed 42).
 - Unlabelled real-uk is excluded from this rerun; no current recall or precision is claimed for it.
 - This rerun includes synthetic Office extraction; it does not establish coverage for unsupported embedded document features.
+
+## Reproduce
+
+Use the archived package versions and cached external datasets:
+
+```bash
+HF_HUB_OFFLINE=1 TOKENIZERS_PARALLELISM=false python -m eval.run_matrix \
+  --out outputs/audit-matrix --fake-dir outputs/audit-matrix-corpus \
+  --datasets fake tab turku ai4privacy \
+  --methods basic rules rules-lg gliner combined privacy-filter gliner2 \
+  --tab-docs 0
+```
+
+## Related
+
+- [residual-misses.md](residual-misses.md): why the remaining misses happen
+- [local-llm-comparison.md](local-llm-comparison.md): adding a local LLM final pass
+- [extraction-validation.md](extraction-validation.md): what reaches the detector
+- [archive/dataset-runs.md](archive/dataset-runs.md): superseded earlier tables

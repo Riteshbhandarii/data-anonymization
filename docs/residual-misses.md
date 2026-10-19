@@ -1,13 +1,20 @@
-# Residual misses on e148240
+# Residual misses
 
-Diagnosis run locally on 2026-10-19. No detector, reader or redactor fix was
-made. The application files under `detect/`, `pipeline/` and `corpus/` still
-match `e148240`. The compact evidence is
-[residual-diagnosis-2026-10-19.json](../eval/baselines/residual-diagnosis-2026-10-19.json).
-It records versions, corpus fingerprints, source-file hashes, OCR differences
-and recognizer decisions. Its values are synthetic corpus labels, not the
-public-AI pack's answer key. This diagnosis never opened a pack's
-`ground_truth.csv`.
+[Docs index](README.md) › RQ2
+
+Why do the remaining misses happen at evidence snapshot `e148240`? This doc diagnoses each one on synthetic corpora and the English utility memos, in English and Finnish. The diagnosis ran locally on 2026-10-19. No detector, reader or redactor fix was made, and the files under `detect/`, `pipeline/` and `corpus/` still match `e148240`.
+
+## Key result
+
+- All 14 acceptance misses (946/960 labels across 70 documents) are extraction failures: the region reaches Tesseract, but the returned string differs from the planted value.
+- Current acceptance totals: PNG 228/240, PDF 149/150, PPTX 149/150, CSV 90/90, DOCX 200/200, XLSX 130/130.
+- The English utility memos lose the allocated-hours fragments because the English NER model labels them `DATE_TIME` (six false-positive spans across three memos).
+- One Finnish company in `fi_docx_00.docx` is a detection miss: Presidio, GLiNER and `combined` each produce zero overlapping spans.
+- No proposed fix was applied or measured.
+
+## Scopes
+
+The compact evidence is [residual-diagnosis-2026-10-19.json](../eval/baselines/residual-diagnosis-2026-10-19.json). It records versions, corpus fingerprints, source-file hashes, OCR differences and recognizer decisions. Its values are synthetic corpus labels.
 
 These are three different scopes. Keep them separate:
 
@@ -15,15 +22,9 @@ These are three different scopes. Keep them separate:
 |---|---|---|
 | English utility memos | Both allocated-hours fragments classified as `DATE_TIME` in each of three memos: six false-positive spans | `hours_wrong_type` in the evidence JSON; source templates in [eval/create_study.py](../eval/create_study.py) |
 | Short synthetic corpus, `--n 1 --seed 42` | Two English PNG IBAN extraction misses on the 14-document, 146-body-label corpus; fingerprint `27934f5e…2e40ae` | `smoke_png_iban` and `smoke_corpus` in the evidence JSON |
-| Extraction acceptance, `--n 5 --seed 42` | 946/960 labels returned across 70 documents; 14 OCR mismatches, zero extraction exceptions; fingerprint `6f47fe80…6ae2e1` | `acceptance` in the evidence JSON; local full report `outputs/residual-diagnosis/acceptance/` |
+| Extraction acceptance, `--n 5 --seed 42` | 946/960 labels returned across 70 documents; 14 OCR mismatches, zero extraction exceptions; fingerprint `6f47fe80…6ae2e1` | `acceptance` in the evidence JSON |
 
-The Finnish company probe used the actual extracted Markdown of
-`docx/fi_docx_00.docx` in the current #44 matrix corpus, before replacement.
-Its source hash and corpus fingerprint are recorded under `finnish_company`.
-The sanitized body retains the company in
-`outputs/2026-10-19-e148240/runs/fake/combined/fi_docx_00_anonymized.md`.
-This single extracted-document example is not the full set of typed company
-misses in the separate native-body LLM smoke benchmark.
+The Finnish company probe used the extracted Markdown of `docx/fi_docx_00.docx` in the current #44 matrix corpus. Its source hash and corpus fingerprint are recorded under `finnish_company` in the evidence JSON. This single document is not the full set of typed company misses in the separate native-body LLM smoke benchmark.
 
 ## Residual-miss table
 
@@ -79,13 +80,13 @@ does not mean all identifiers were extracted. The historical Windows OCR
 study's 948/960 and the current host's 946/960 remain separate runs; see
 [extraction-validation.md](extraction-validation.md),
 [ocr-survey.md](ocr-survey.md) and
-[pre-review-audit.md](pre-review-audit.md). No proposed OCR fix was applied
+[pre-review-audit.md](archive/pre-review-audit.md). No proposed OCR fix was applied
 or measured in this diagnosis.
 
 ## Unsupported-content table
 
 The reader limits below come from
-[pre-review-audit.md](pre-review-audit.md), with the native-format boundary
+[pre-review-audit.md](archive/pre-review-audit.md), with the native-format boundary
 checked in [pipeline/extractors.py](../pipeline/extractors.py). They are
 coverage limits, not new test results. Output is Markdown; it is not a
 sanitized copy of the original Office/PDF file.
@@ -103,7 +104,7 @@ sanitized copy of the original Office/PDF file.
 | CAD | No native CAD reader or geometry anonymization | Metadata/title-block cleanup cannot establish that confidential geometry is safe; NOT TESTED |
 | Audio / video | No native transcription, voice or frame-redaction workflow | Transcript redaction does not remove original voices or identifying video; NOT TESTED |
 
-## Reproduction
+## Reproduce
 
 Run extraction without an LLM or GLiNER loaded:
 
@@ -137,3 +138,11 @@ GLINER_DEVICE=cpu`, extract the current matrix corpus's Finnish DOCX, then
 inspect spans overlapping offsets 333–338 from the combined detector and its
 `presidio` and `model` components. All three lists are empty. Exit that
 process before loading an LLM. The exact input hash is in the evidence JSON.
+
+
+## Related
+
+- [extraction-validation.md](extraction-validation.md): the 946/960 extraction run
+- [ocr-survey.md](ocr-survey.md): OCR engines and their confusions
+- [dataset-audit-runs.md](dataset-audit-runs.md): detector results on labelled datasets
+- [limitations.md](limitations.md): what the evidence does not show

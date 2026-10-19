@@ -24,7 +24,7 @@ python3 eval/bench.py ./bench
 `presidio[-custom]-<sm|lg>.json`, so baselines sit side by side and none
 overwrites another. The custom identity code recognizer matches the shape only
 and does no checksum validation, because the corpus codes are invalid by design
-(see ../docs/open-questions.md).
+(see ../docs/limitations.md).
 
 ### Recorded baselines
 
@@ -69,7 +69,7 @@ planted values, so there is almost no ordinary text for a detector to misfire
 on, and real documents will see more over-redaction. The run matrix measures
 precision on TAB, Turku and ai4privacy with the opposite bias (those datasets
 leave some personal data unannotated, so it is a lower bound); see
-[dataset-runs.md](../docs/dataset-runs.md).
+[dataset-runs.md](../docs/archive/dataset-runs.md).
 
 Measured on seed 42, 25 per format: 350 documents and 3650 body identifiers.
 The generator has grown since the recall table above, so the two tables are

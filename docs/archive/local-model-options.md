@@ -1,11 +1,13 @@
 # Free local model options
 
+> **Archived.** Superseded by [local-llm-comparison.md](../local-llm-comparison.md) for local-LLM results and [dataset-audit-runs.md](../dataset-audit-runs.md) for the matrix. Kept for the model inventory and setup notes.
+
 The overview table and four local-LLM trials below are archived pre-audit
 experiments. Corrected-code evidence is recorded separately in the new labelled
 matrix and CPU smoke sections. Keep their sources, metrics and denominators
 separate.
 
-The current [2026-10-19 five-configuration comparison](local-llm-comparison.md)
+The current [2026-10-19 five-configuration comparison](../local-llm-comparison.md)
 reruns the frozen fourteen-document body corpus, including both final passes.
 Use its staged base-cache commands to keep GLiNER and the LLM out of memory
 at the same time; the archived commands below predate that constraint.
@@ -136,9 +138,9 @@ is a smoke comparison on short templates, not a rerun of the 1,919-label
 extracted-location matrix. All four reports completed with no failed
 documents. Aggregate artifacts are archived at:
 
-- [Qwen standalone](../eval/baselines/local-qwen-smoke.json): 94/146 (64.4%); English 48/73 (65.8%), Finnish 46/73 (63.0%). Typed precision 100/150 (66.7%); 50 wrong-type overlaps, zero unlabelled detections. Detection averages 13.3 s per English document and 11.5 s per Finnish document.
-- [Combined baseline on this exact corpus](../eval/baselines/local-combined-smoke.json): 136/146 (93.2%); English 70/73 (95.9%), Finnish 66/73 (90.4%). Typed precision 227/268 (84.7%). GLiNER ran on CPU.
-- [Combined plus Qwen final pass](../eval/baselines/local-qwen-final-smoke.json): the same 136/146 correctly typed body labels; typed precision 227/271 (83.8%). The final pass added three Finnish `QUASI_IDENTIFIER` detections overlapping labels; these do not establish contextual identification accuracy. Detection including the base averages 2.4 s per English document and 1.1 s per Finnish document. The first English document includes lazy base-model initialization, so these averages are not steady-state benchmarks.
+- [Qwen standalone](../../eval/baselines/local-qwen-smoke.json): 94/146 (64.4%); English 48/73 (65.8%), Finnish 46/73 (63.0%). Typed precision 100/150 (66.7%); 50 wrong-type overlaps, zero unlabelled detections. Detection averages 13.3 s per English document and 11.5 s per Finnish document.
+- [Combined baseline on this exact corpus](../../eval/baselines/local-combined-smoke.json): 136/146 (93.2%); English 70/73 (95.9%), Finnish 66/73 (90.4%). Typed precision 227/268 (84.7%). GLiNER ran on CPU.
+- [Combined plus Qwen final pass](../../eval/baselines/local-qwen-final-smoke.json): the same 136/146 correctly typed body labels; typed precision 227/271 (83.8%). The final pass added three Finnish `QUASI_IDENTIFIER` detections overlapping labels; these do not establish contextual identification accuracy. Detection including the base averages 2.4 s per English document and 1.1 s per Finnish document. The first English document includes lazy base-model initialization, so these averages are not steady-state benchmarks.
 
 Qwen alone is weaker than the existing combination in this trial. Its final
 pass did not recover additional correctly typed body identifiers. A labelled
@@ -148,7 +150,7 @@ linked artifacts. Synthetic typed precision counts overlaps of the same type,
 other-type overlaps, and unlabelled spans separately; it does not establish
 whether an unlabelled quasi-identifier is useful or excessive masking.
 
-[Gemma standalone](../eval/baselines/local-gemma-smoke.json) covered 111/146
+[Gemma standalone](../../eval/baselines/local-gemma-smoke.json) covered 111/146
 (76.0%): English 61/73 (83.6%), Finnish 50/73 (68.5%). Typed precision was
 116/139 (83.5%), with 23 wrong-type overlaps and zero unlabelled detections.
 Detection averaged 12.9 s per English document and 10.8 s per Finnish document.
@@ -163,7 +165,7 @@ corpus and the corrected combined detector. It still covers **136/146 (93.2%)**,
 with zero failed documents. Typed precision is **197/238 (82.8%)**; the corrected
 window/deduplication behavior changes detection counts, so this is kept separate
 from the archived 227/268 result above. The safe aggregate artifact is
-[local-combined-audit-smoke.json](../eval/baselines/local-combined-audit-smoke.json),
+[local-combined-audit-smoke.json](../../eval/baselines/local-combined-audit-smoke.json),
 with its source commit and unchanged corpus digest. This confirms a functioning
 cached-weight path on short templates, not a full public-dataset rerun.
 

@@ -1,166 +1,218 @@
-# data-anonymization
+# Anonymizing documents before they go to public AI
 
-Sanitize data before it is sent to a publicly available AI model, and measure whether the sanitized output can still be traced back to a company or a person.
+A Turku AMK student research project (AI-Powered SME Growth programme, Task 1).
+It builds a local anonymization pipeline and measures whether it is safe and
+practical to use before a company document is pasted into a public AI model
+such as ChatGPT Free.
 
-Scope is not limited to office documents. Any data that a person might paste, upload or pipe into a public model is in scope: documents, spreadsheets, databases, images, audio, video, CAD, logs, code, telemetry, sensor data.
+Research code, not a product. All test data is synthetic or public; no real
+company data is in this repository. Local AI deployment as a topic (Task 2)
+belongs to another group; local LLMs appear here only as optional detectors.
 
-Exploratory R&D. Not an official product.
+## The problem
 
-## Why
+A small company with no agreement with an AI provider has no processor
+contract, no deletion guarantee and no control over training on its input.
+Anonymizing the document first is the main control it has.
 
-An organisation with no licence or agreement with an AI provider has no processor contract, no deletion guarantee, and no control over training on input. Anonymization is therefore the only available control, not one control among several.
+Two problems are easy to confuse:
 
-Two problems are often confused and this toolkit keeps them apart:
+1. **Personal data.** Anonymization can solve this: done properly, the text
+   stops being about a person.
+2. **Confidential business information.** Anonymization does not solve this.
+   A redacted design document is still a design document.
 
-1. **Personal data.** Anonymization solves this. Done properly the data stops being about a person.
-2. **Confidential business information.** Anonymization does not solve this. A redacted design document is still a design document. These need a hard block, not a redaction pipeline.
+**Assignment question:** What safe and practical methods and tools are available
+for anonymizing different document formats before submitting information to
+publicly available AI models?
 
-## Pipeline
+## Research questions
 
+| | Question | Answered in |
+|---|---|---|
+| RQ1 | Which tools exist: free or paid, local or cloud, for which formats? | [options-map](docs/options-map.md) |
+| RQ2 | How accurately do they find identifiers in English and Finnish, across formats? | [dataset-audit-runs](docs/dataset-audit-runs.md), [local-llm-comparison](docs/local-llm-comparison.md) |
+| RQ3 | After anonymization, can a public AI still identify the person or organisation? | [public-ai-results](docs/public-ai-results.md) |
+| RQ4 | Does the text stay useful, and what does it cost in setup and data exposure? | [utility-impact](docs/utility-impact.md) |
+
+## What was built
+
+A local pipeline. It reads a file, turns it into Markdown, finds identifiers,
+replaces them and saves the result. Nothing leaves the machine.
+
+<img alt="Pipeline: company file, extract text, Markdown, find identifiers (optional local LLM pass), replace, review, then public AI. Everything before the public AI stays on the machine." src="docs/figures/pipeline.svg" width="100%">
+
+- **Formats:** TXT/MD, CSV, DOCX, XLSX, PPTX, PDF and images, with OCR for
+  images and scans. Document properties, notes, comments and other hidden
+  content are read too.
+- **Detectors**, all behind one interface: `basic`, `rules` and `rules-lg`
+  (Presidio with small or large spaCy models plus custom patterns), `gliner`
+  and `gliner2` (local NER models), `privacy-filter`, and `combined` (rules plus
+  GLiNER, the main method). An optional local LLM (Qwen or Gemma) can run a
+  final pass.
+- **Replacement:** a type label such as `[PERSON]`, or consistent pseudonyms
+  such as `[PERSON_1]`.
+- **Testbench:** a local Streamlit page to watch extract, detect and clean
+  ([app/](app/README.md)).
+
+Details: [pipeline](docs/pipeline.md) and [techniques](docs/techniques.md).
+
+## How it was evaluated
+
+- **Detection (RQ2):** whole-value recall against labelled data. A value counts
+  only when one detection covers all of it, because a partly masked identifier
+  still leaks. Data: a synthetic English/Finnish corpus with planted values, the
+  Text Anonymization Benchmark (TAB, English court judgments), Turku NER
+  (Finnish) and ai4privacy (English and Finnish).
+- **Re-identification (RQ3):** anonymized text pasted into ChatGPT Free, one
+  fresh chat per prompt. The model was asked to name the organisation or
+  person, guess attributes, and say whether two documents share a source.
+  Controls: raw documents (ceiling) and unrelated documents (guess rate).
+- **Usefulness (RQ4):** the same questions asked on raw, redacted and
+  pseudonymized versions of fictional memos, answered by a local model.
+
+Protocol: [evaluation](docs/evaluation.md).
+
+## Results
+
+### RQ1: options
+
+Nine products surveyed: four free local tools, three metered cloud APIs and
+two proprietary platforms, plus this project's detectors and local LLMs. Cloud
+services receive the document before redaction; only local options keep it on
+the machine. Email, logs and code, CAD and audio/video are desk research only.
+[Options map](docs/options-map.md).
+
+### RQ2: accuracy of `combined`
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/figures/rq2-recall-dark.svg">
+  <img alt="Bar chart: combined finds 96.4% synthetic, 83.5% TAB, 80.0% Turku, 88.5% ai4privacy English, 83.8% ai4privacy Finnish; basic Presidio 61.4%, 65.4%, 51.0%, 54.2%, 38.7%." src="docs/figures/rq2-recall-light.svg" width="720">
+</picture>
+
+| Dataset | Values found / labelled |
+|---|---|
+| Synthetic English + Finnish, all locations | 1,849 / 1,919 (96.4%) |
+| TAB, English court judgments | 4,269 / 5,112 (83.5%) |
+| Turku NER, Finnish | 80 / 100 |
+| ai4privacy English | 1,757 / 1,986 (88.5%) |
+| ai4privacy Finnish | 1,636 / 1,953 (83.8%) |
+
+- On the like-for-like ai4privacy data, Finnish trails English (83.8% vs 88.5%).
+- Higher recall costs precision. Lower-bound precision falls from 81.0%
+  (basic) to 63.7% (combined) on TAB, and from 52.2% to 26.5% on Turku.
+- Extraction: 946 of 960 planted values reach the text; all 14 misses are OCR
+  errors ([residual-misses](docs/residual-misses.md)).
+- A local LLM final pass adds little: `combined` 136/146, with Gemma 137/146,
+  with Qwen 136/146 ([comparison](docs/local-llm-comparison.md)).
+
+Source: [dataset-audit-runs](docs/dataset-audit-runs.md).
+
+### RQ3: can public AI re-identify?
+
+ChatGPT Free (self-reported GPT-6), 71 prompts, one run each
+([results](docs/public-ai-results.md)).
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/figures/rq3-reidentification-dark.svg">
+  <img alt="Bar chart: ChatGPT Free named 1 of 18 from anonymized text, 0 of 4 real organisations, 4 of 4 from raw text, guessed 0 of 6 unrelated inputs, linked 4 of 4 document pairs." src="docs/figures/rq3-reidentification-light.svg" width="720">
+</picture>
+
+| Test | Result |
+|---|---|
+| Naming the person or company from anonymized text | 1 of 18 |
+| Naming the organisation behind real public documents | 0 of 4 |
+| Naming from raw text (ceiling) | 4 of 4 |
+| Guessing on unrelated documents (control) | 0 of 6 |
+| Telling whether two documents share a source | 4 of 4 |
+
+- The one naming hit was a detector miss: a Finnish company name stayed in the
+  text and the model read it back.
+- The real document pair was linked through file metadata that anonymization
+  left untouched.
+- Leftover content still gives away the sector of every real document.
+
+### RQ4: usefulness and cost
+
+Nine questions per language, answered by a local Qwen model
+([utility-impact](docs/utility-impact.md)). Exact-answer scoring credits
+guesses, so the supported count is shown too.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/figures/rq4-usefulness-dark.svg">
+  <img alt="Bar chart: English raw 7, redacted 5 exact and 0 supported, pseudonyms 4 exact and 3 supported; Finnish raw 9, redacted 1 and 0, pseudonyms 6 and 3, out of 9." src="docs/figures/rq4-usefulness-light.svg" width="720">
+</picture>
+
+| Language | Raw | Redacted, exact / supported | Pseudonymized, exact / supported |
+|---|---:|---:|---:|
+| English | 7/9 | 5/9 / 0/9 | 4/9 / 3/9 |
+| Finnish | 9/9 | 1/9 / 0/9 | 6/9 / 3/9 |
+
+- Redaction removed every value the tasks needed: hour figures were masked as
+  dates and all contacts became the same `[PERSON]`.
+- Pseudonyms kept only who-is-who, which answered the same-contact questions.
+- The local pipeline is free to run and keeps data on the machine, but needs
+  Python, model downloads and Tesseract. Cloud tools are metered and receive
+  the document.
+
+## Conclusion
+
+1. Local anonymization with rules plus a NER model removes most identifiers,
+   but not all, and Finnish is harder.
+2. In this test ChatGPT Free named nothing once names were masked. The leaks
+   were detector misses and untouched metadata, not model inference.
+3. Redaction can destroy the task. Pseudonyms keep relationships between
+   people but not masked values.
+4. Anonymization is not enough for confidential business content, and no tool
+   tested shows that arbitrary documents are safe to send. Review the output
+   before pasting.
+
+## Limitations
+
+Small samples, synthetic and public data only, one public model and no web
+search condition. Full list: [limitations](docs/limitations.md).
+
+## Reproduce
+
+Python 3.10+, Tesseract for OCR.
+
+```bash
+python -m pip install -r requirements-evaluation.txt
+python -m spacy download en_core_web_sm
+python -m spacy download fi_core_news_sm
+
+# synthetic corpus with planted identifiers, and its self-check
+python corpus/generate.py --out outputs/corpus --n 5 --seed 42
+python corpus/verify.py outputs/corpus
+
+# extraction recall and a detector baseline on that corpus
+python -m pipeline.validation outputs/corpus --report-dir outputs/validation
+python eval/bench.py outputs/corpus
+
+# tests
+python -m unittest discover -s tests
 ```
-  local source file
-          |
-          v
-  [detect format]
-          |
-          v
-  [extract text or OCR]
-          |
-          v
-  [normalize as Markdown]
-          |
-          v
-  [call the anonymization module]
-          |
-          v
-  [receive the returned Markdown]
-          |
-          v
-  outputs/<filename.ext>_anonymized.md
-```
 
-The pipeline reads an input file, builds Markdown, passes it to the anonymization module, and saves the returned Markdown. See [docs/pipeline.md](docs/pipeline.md) for function arguments, input/output contracts, and extraction/OCR integration instructions.
+The seven-method matrix (`python -m eval.run_matrix`) needs the TAB, Turku and
+ai4privacy datasets cached locally; see [dataset-audit-runs](docs/dataset-audit-runs.md).
+The local-LLM and usefulness runs need LM Studio; commands are in
+[local-llm-comparison](docs/local-llm-comparison.md) and
+[utility-impact](docs/utility-impact.md). The ChatGPT study is manual; its pack
+is described in [public-ai-pack](docs/public-ai-pack.md). Its answer key and
+the real source documents are deliberately not in the repository.
 
-## Pipeline integration
+## Repo map
 
-```python
-from pipeline import run_pipeline
-from detect import PresidioDetector
-from redact import PipelineAnonymizer
+| Path | Contents |
+|---|---|
+| `pipeline/` | Format detection, extraction and OCR, Markdown output |
+| `detect/` | The detector methods and the local-LLM final pass |
+| `redact/` | Span replacement and consistent pseudonyms |
+| `corpus/` | Synthetic corpus generator and verifier |
+| `eval/` | Benchmarks, study helpers, saved results in `eval/baselines/` |
+| `app/` | Local Streamlit testbench |
+| `research/` | Scripts for the commercial-service tests |
+| `tests/` | Regression tests |
+| `docs/` | Methods, results and limitations; start at the [docs index](docs/README.md) |
 
-anonymizer = PipelineAnonymizer(PresidioDetector(), language="en", mode="replace")
-
-result = run_pipeline(
-    "documents/report.docx",
-    anonymizer=anonymizer,
-)
-
-print(result.output_path)
-```
-
-Install the detector models using the commands in [eval/README.md](eval/README.md). The adapter uses the team's Presidio detector and replacement operators. Any other callable accepting Markdown and returning Markdown (`str -> str`) can use the same interface. The pipeline creates the output directory and saves the result as UTF-8 Markdown. See [redact/README.md](redact/README.md) for consistent pseudonyms and explicit document/corpus alias scopes.
-
-Existing readers support TXT, MD, CSV, DOCX, XLSX, PPTX, PDF, and common image formats. The built-in OCR reader uses Tesseract. A custom reader can be supplied through `extractor=` as described in the [integration guide](docs/pipeline.md).
-
-Generated Markdown is saved under `outputs/`, which is ignored by Git. Output names retain the input extension: `report.docx` becomes `report.docx_anonymized.md`. If that name already exists, the pipeline adds `_2`, `_3`, and so on without overwriting previous results.
-
-Extraction is checked against the generator's JSON labels before anonymization. See [the extraction validation report](docs/extraction-validation.md) for results, commands, and CI checks.
-
-## Longer-term format matrix
-
-This table records the wider research scope. The current pipeline outputs Markdown.
-
-| Data type | Content type | Tool / process | Output type | AI re-identification test |
-|---|---|---|---|---|
-| Word `.docx` | Body text, comments, tracked changes, author in docProps | python-docx or Tika extract, NER, surrogate replace, rebuild, strip docProps | `.docx` clean or `.txt` | Who wrote this, which company, which person |
-| Excel `.xlsx` | Tabular personal data, quasi-identifiers, hidden sheets, formulas | openpyxl, classify columns, generalize or suppress, k-anonymity check | `.xlsx` or `.csv` | Guess the organisation from column names, product codes, row patterns |
-| PowerPoint `.pptx` | Slide text, speaker notes, embedded images, logos, template | python-pptx, text and notes and images, NER plus image redaction | `.pptx` or `.pdf` | Name the company from the template and logo alone |
-| PDF, native text | Text layer, metadata, annotations | PyMuPDF, remove text objects, then flatten | Flattened PDF | Copy-paste test first, then the model test |
-| PDF, scanned | Image only, letterheads, signatures, stamps | OCR, detect, burn redaction into the image, re-render | Image-only PDF | Read the letterhead, identify the signature or stamp |
-| Images | Faces, plates, screens, whiteboards, EXIF GPS | exiftool strip, face and plate blur | Stripped JPG or PNG | Identify the location, company or person |
-| CAD and 3D | Geometry, title block, author, file path, BOM | Metadata and title block strip. Geometry cannot be anonymized | STEP or drawing PDF | Identify the manufacturer from part naming and shape |
-| Email `.eml` `.msg` | Headers, signature blocks, thread history, attachments | Header strip, signature detection, recurse into attachments | `.eml` or `.txt` | Signature blocks and domains are the leak |
-| CSV and DB export | Direct identifiers plus quasi-identifiers | Classify columns, pseudonymize keys, generalize, k-anonymity | `.csv` | Linkage against public data, not only the model |
-| Logs and code | IPs, user IDs, hostnames, secrets, customer names in comments | Regex plus a secret scanner | `.txt` | Name the company from internal naming conventions |
-| Audio and video | Spoken names, faces. The voice itself is biometric | Transcribe, redact the transcript, voice conversion or drop the audio | `.txt` transcript | Identify the speaker or organisation from content |
-
-## Evaluation
-
-Two numbers, not one.
-
-**Detection quality.** Precision and recall of the detector against a labelled corpus. Recall matters far more than precision here, since a missed identifier is a leak and a false positive only costs readability.
-
-**Residual re-identification risk.** Feed the sanitized output back to a public model and ask it to identify the company or the person. Protocol and scoring rules in [docs/evaluation.md](docs/evaluation.md). Three points that make this a measurement rather than a vibe check:
-
-- Give the tester web search. Real re-identification works by linking to outside data.
-- Test linkage, not only naming. Two sanitized documents that a model can tell concern the same entity are already a leak, even when it cannot name that entity.
-- Score correct, wrong and refused across many documents and report a rate. A model will confidently invent a company name, and one lucky hit is not a failure.
-
-## Layout
-
-```
-pipeline/   format detection, extraction/OCR, anonymization orchestration, Markdown output
-tests/      extraction recall, extraction gap, and output naming regression tests
-extract/    extraction notes
-detect/     reusable detector adapter and detection notes
-redact/     span replacement, pseudonyms and pipeline adapter
-eval/       detection metrics and the re-identification harness
-corpus/     public and synthetic test data only, never real data
-docs/       pipeline guide, techniques, evaluation protocol, open questions
-outputs/    generated Markdown; ignored by Git
-```
-
-## Test data
-
-Public and synthetic only. Nothing real enters this repository.
-
-- Text Anonymization Benchmark, ECHR rulings with hand-annotated identifiers
-- ai4privacy PII masking datasets
-- Presidio test data and evaluator, for a cheap baseline
-- Enron email corpus, for realistic business mess
-- Government FOI releases, already human-redacted, useful as a human baseline
-- avoindata.fi and Tilastokeskus, for messy real spreadsheets
-- TurkuNLP Finnish NER corpus
-- `corpus/synthetic`, generated documents with injected known identifiers, which give perfect ground truth
-
-## Status
-
-- [ ] Format matrix agreed with the project owner
-- [x] Pipeline reads files, prepares Markdown, and saves the returned result
-- [x] Anonymization module interface (`str -> str`)
-- [x] Extractor replacement interface (`Path -> str`)
-- [x] Connect the Presidio anonymization module
-- [x] Synthetic corpus generator, including image quality variants and review locations
-- [x] Initial `extract` support for DOCX, XLSX, PPTX, PDF, CSV, text, and images
-- [x] Baseline detector and detector/full-pipeline comparison tools
-- [x] Re-identification harness with raw/unrelated controls and linkage
-- [x] Quality-impact benchmark tools, raw against redacted against pseudonymized
-- [ ] Run external-model re-identification and quality-impact experiments
-
-## Docs
-
-- [docs/final-evidence-run.md](docs/final-evidence-run.md), execution record, pending human work and exact changed-file manifest
-- [docs/options-map.md](docs/options-map.md), format-by-format decision guide, option tradeoffs and review flow
-- [docs/public-ai-pack.md](docs/public-ai-pack.md), blind manual-study pack and Finnish document IDs
-- [docs/public-ai-results.md](docs/public-ai-results.md), scored ChatGPT Free re-identification results (#44)
-- [docs/local-llm-comparison.md](docs/local-llm-comparison.md), current five-configuration local comparison
-- [docs/residual-misses.md](docs/residual-misses.md), reproduced failures and unsupported content; diagnosis only
-- [docs/pipeline.md](docs/pipeline.md), pipeline interfaces and module integration
-- [docs/extraction-validation.md](docs/extraction-validation.md), extraction recall results and validation commands
-- [docs/techniques.md](docs/techniques.md), anonymization techniques and where each one breaks
-- [docs/product-options.md](docs/product-options.md), free/paid, local/cloud product inventory
-- [docs/work-plan.md](docs/work-plan.md), pathway ownership, review order and remaining evidence
-- [docs/evaluation.md](docs/evaluation.md), the re-identification test protocol
-- [docs/model-evaluation.md](docs/model-evaluation.md), preparing and running controlled model experiments
-- [docs/pre-review-audit.md](docs/pre-review-audit.md), repaired defects, integration record and remaining reader limits
-- [docs/dataset-audit-runs.md](docs/dataset-audit-runs.md), corrected-code labelled results, exact counts and precision tradeoffs
-- [docs/local-model-options.md](docs/local-model-options.md), measured free local detectors and LM Studio final-pass trials
-- [docs/utility-impact.md](docs/utility-impact.md), manual paired utility scoring and the first local-model measurement
-- [docs/assigned-task-results.md](docs/assigned-task-results.md), task status and reproducible local results
-- [docs/ocr-survey.md](docs/ocr-survey.md), OCR options and measurements
-- [docs/screenshot-redaction.md](docs/screenshot-redaction.md), cleaning screenshots before they are pasted: tools and measured image recall
-- [docs/open-questions.md](docs/open-questions.md), decisions not yet made
-
-## Licence
-
-MIT. See [LICENSE](LICENSE).
+Licence: MIT, see [LICENSE](LICENSE).

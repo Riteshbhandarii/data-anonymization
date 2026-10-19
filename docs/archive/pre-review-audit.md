@@ -1,5 +1,7 @@
 # Pre-review audit
 
+> **Archived.** Record of the 2026-10-13 software audit and its fixes, all merged. Its reader-coverage limits are summarised in [limitations.md](../limitations.md).
+
 Integration status, 2026-10-14: the owner authorized merging and cleanup.
 All ten intended PRs are merged into `main`; superseded #49 is closed.
 The audit findings and measurements below retain their original scope.
@@ -40,7 +42,7 @@ full Ruff and unchanged extraction acceptance on the 70-document corpus:
 946/960 values returned, with all 14 misses in OCR groups outside the 100%
 standard non-OCR gate.
 
-The [corrected-code labelled matrix](dataset-audit-runs.md) was rerun offline
+The [corrected-code labelled matrix](../dataset-audit-runs.md) was rerun offline
 on 2026-10-14: all seven methods over 885 documents, including all 127 TAB test
 documents, complete all 28 method/dataset runs. Combined recall is 96.4% on
 fake, 83.5% on TAB, 80.0% on Turku and 88.5%/83.8% on ai4privacy English/Finnish.

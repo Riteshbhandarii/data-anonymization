@@ -1,5 +1,7 @@
 # Limina – File Anonymization Research
 
+[Docs index](../README.md) › RQ1 · RQ2
+
 ## Overview
 
 Limina provides an API for detecting and anonymizing sensitive information in text and document files.
@@ -419,3 +421,7 @@ The processed PDF, XLSX, PPTX, and CSV files remained structurally readable afte
 The main concern is DOCX reliability. During this test session, both project DOCX files and a minimal synthetic DOCX returned HTTP 500, even though other requests using the same API key and endpoint succeeded.
 
 For this project, Limina appears promising as a commercial anonymization component, especially for structured Office documents and files containing hidden content, but the DOCX processing issue would need to be resolved or investigated before considering it a complete solution.
+
+## Related
+
+- [Options map](../options-map.md)

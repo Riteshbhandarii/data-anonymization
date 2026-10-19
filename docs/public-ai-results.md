@@ -1,7 +1,21 @@
-# Public-AI re-identification results (#44)
+# Public AI results
 
-Collected and scored 2026-10-19 on the [prepared pack](public-ai-pack.md).
-Every answer, score and reason: [aggregate JSON](../eval/baselines/public-ai-results-2026-10-19.json).
+[Docs index](README.md) › RQ3
+
+Can a free public chat model re-identify people or organisations from text that the `combined` detector has anonymized? This page reports ChatGPT Free answers to the [prepared pack](public-ai-pack.md), collected and scored on 2026-10-19. Every answer, score and reason is in the [aggregate JSON](../eval/baselines/public-ai-results-2026-10-19.json).
+
+## Key result
+
+- Naming from anonymized text: 1 of 18 prompts, with no wrong names. The one hit is a name the detector missed.
+- Real public documents: 0 of 4 organisations named; all four refused.
+- Raw ceiling: 4 of 4 named. Unrelated controls: 0 of 6.
+- Linkage: 4 of 4 pairs correct. The one true pair was linked through untouched metadata.
+- Sector of every real document was inferred from subject matter, which anonymization does not touch.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="figures/rq3-reidentification-dark.svg">
+  <img alt="Bar chart: ChatGPT Free named 1 of 18 from anonymized text, 0 of 4 real organisations, 4 of 4 from raw text, guessed 0 of 6 unrelated inputs, linked 4 of 4 document pairs." src="figures/rq3-reidentification-light.svg" width="720">
+</picture>
 
 ## Setup
 
@@ -59,8 +73,7 @@ all four refused.
 Three of the four truths are "different", which matches the cautious default.
 The one true pair was linked through metadata that anonymization left intact:
 both exports carry the same document-template title and internal keyword code
-in their properties. Identical residual metadata is
-enough to connect two documents from one source.
+in their properties. Identical residual metadata is enough to connect two documents from one source.
 
 ### Attributes
 
@@ -85,8 +98,8 @@ treated as a recording error.
 
 - Masking names held on this pack. Without a surviving name, ChatGPT named
   nothing and guessed nothing.
-- What failed was the detector, not the masking. The one name ChatGPT returned was
-  never masked.
+- What failed was the detector, not the masking. The one name ChatGPT returned
+  was never masked.
 - Residual content still discloses context: the sector of every real document
   and, through untouched metadata, which documents belong together.
 
@@ -104,3 +117,10 @@ treated as a recording error.
   aggregate.
 - Fictional naming tests leakage only; attribute ground truth exists for
   real-document industry alone.
+
+## Related
+
+- [Public AI test pack](public-ai-pack.md)
+- [Evaluation protocol](evaluation.md)
+- [Residual misses](residual-misses.md)
+- [Limitations](limitations.md)

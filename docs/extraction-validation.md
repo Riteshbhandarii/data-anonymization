@@ -1,16 +1,22 @@
 # Extraction validation
 
-This check measures which labelled identifiers reach extracted Markdown before
-detection and redaction. It evaluates actual documents from `corpus/generate.py`;
-saved generator text and rendering evidence are never substituted for extractor
-output. The current pipeline outputs Markdown.
+[Docs index](README.md) › RQ2
 
-## Current measured results
+Which labelled identifiers reach the extracted Markdown before detection and redaction? The check runs the real extractors on documents from `corpus/generate.py` in six formats, in English and Finnish. Saved generator text and rendering evidence are never substituted for extractor output.
 
-The 2026-09-29 run used `--n 5 --seed 42`, Faker 40.39.0, English and Finnish,
-and Tesseract 5.5.0.20241111 with `eng+fin`. The expanded corpus contains 70
-documents and 960 labels. Its label/text fingerprint is
-`b74cc7d0b428bbb0b1021d1f404d0c89ea8c983e4e604221e26958d0c0e85727`.
+## Key result
+
+- 2026-10-19 reproduction: **946/960** planted values reach the text, with 14 OCR mismatches and no extraction errors. This is the current figure.
+- 2026-09-29 run: 948/960 (98.75%); all 12 misses were OCR mismatches, 1 inside a PDF image and 11 in standalone PNG documents.
+- CSV, DOCX, PPTX and XLSX returned every planted value (100.00%).
+- PDF 99.33% and PNG 95.42% (2026-09-29); OCR is the only loss.
+- Diagnosis of the 14 misses is in [residual-misses.md](residual-misses.md).
+
+## Measured results
+
+### By format, 2026-09-29
+
+The run used `--n 5 --seed 42`, Faker 40.39.0, English and Finnish, and Tesseract 5.5.0.20241111 with `eng+fin`. The corpus has 70 documents and 960 labels. Its label/text fingerprint is `b74cc7d0b428bbb0b1021d1f404d0c89ea8c983e4e604221e26958d0c0e85727`.
 
 | Format | Documents | Planted | Returned | Missing | Recall |
 |---|---:|---:|---:|---:|---:|
@@ -22,9 +28,15 @@ documents and 960 labels. Its label/text fingerprint is
 | XLSX | 10 | 130 | 130 | 0 | 100.00% |
 | **Total** | **70** | **960** | **948** | **12** | **98.75%** |
 
-There were no extraction errors. All 12 missing labels were OCR mismatches:
-one inside a PDF image and 11 in standalone PNG documents. The new locations
-requested in issue #33 are measured separately:
+There were no extraction errors.
+
+### 2026-10-19 reproduction
+
+A fresh run on a macOS host with a different corpus fingerprint returned 946/960, with 14 OCR mismatches and no extraction errors. The two runs differ only in OCR results and are kept separate.
+
+### By location, 2026-09-29
+
+Location results from the same 2026-09-29 run:
 
 | Format | Location | Planted | Returned | Recall |
 |---|---|---:|---:|---:|
@@ -37,14 +49,9 @@ requested in issue #33 are measured separately:
 | PNG | Body, clean | 120 | 113 | 94.17% |
 | PNG | Body, low resolution | 120 | 116 | 96.67% |
 
-The earlier 50-document result of 650/650 covered a smaller corpus without the
-new review locations or image fixtures. It remains a historical result for that
-corpus; it is not evidence of complete extraction on the expanded dataset. The
-two totals should not be treated as a before/after comparison on identical data.
+### Earlier result
 
-See [assigned-task-results.md](assigned-task-results.md) for the complete task
-status, detector/full-pipeline comparison, environment, and remaining checks.
-See [ocr-survey.md](ocr-survey.md) for the separate local OCR comparison.
+The earlier 50-document result of 650/650 covered a smaller corpus without the review locations or image fixtures. It is not evidence of complete extraction on the expanded dataset, and the two totals are not a before/after comparison. The complete task status is in [archive/assigned-task-results.md](archive/assigned-task-results.md).
 
 ## What is counted
 
@@ -106,12 +113,13 @@ a real OCR regression separately check that image content reaches the OCR path.
 
 To require 100% recall for every measured quality and location, omit both
 `--threshold-qualities` and `--threshold-locations`. That stricter command fails
-on the recorded corpus because it exposes the 12 OCR mismatches above. Neither
+on the recorded corpus because it exposes the OCR mismatches above. Neither
 configuration removes difficult fixtures or changes their denominator.
 
 An anonymizer implementation is not needed for extraction validation. Faker is
 pinned; keep the generator revision, seed, versions and corpus fingerprint with
 any reported comparison.
+
 
 ## Report files and CI
 
@@ -150,3 +158,10 @@ The reader does not calculate formulas; missing or erroneous caches produce an
 explicit error with recalculation instructions. The real 8.9 MB PDF mentioned in
 issue #15 was not available for this run, so the synthetic mixed-page checks do
 not stand in for a result on that file.
+
+## Related
+
+- [residual-misses.md](residual-misses.md): why the 14 OCR misses happen
+- [ocr-survey.md](ocr-survey.md): local OCR engines compared
+- [dataset-audit-runs.md](dataset-audit-runs.md): detection accuracy after extraction
+- [pipeline.md](pipeline.md): extraction stages and the Markdown contract

@@ -1,0 +1,95 @@
+<svg viewBox="0 0 1064 332" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="pipeline-title pipeline-desc">
+  <title id="pipeline-title">Anonymization pipeline, file to public AI</title>
+  <desc id="pipeline-desc">A company file is read, turned into Markdown, scanned for identifiers and rewritten on the local machine, then reviewed before anything is pasted into a public AI model; each step is marked with the research question that measures it.</desc>
+  <style>
+    text{font-family:'Geist',system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif}
+    .mono{font-family:'Geist Mono',ui-monospace,'SFMono-Regular',Menlo,Consolas,monospace}
+    .connector{fill:none;stroke:#4f5d75;stroke-width:1.4}
+    .connector.optional{stroke-dasharray:6,4}
+    .node-mask{fill:#f5f5f5}
+    .node{fill:#ffffff;stroke:rgba(45,49,66,.55)}
+    .node.focal{fill:#f8ebe6;stroke:#bf4520;stroke-width:1.6}
+    .node.input{fill:#e9ebef;stroke:#5a6580}
+    .node.optional{fill:#f4f4f4;stroke:rgba(45,49,66,.40);stroke-dasharray:5,3}
+    .node.external{fill:#eeeeee;stroke:rgba(45,49,66,.35)}
+    .role{fill:rgba(45,49,66,.10)}
+    .role.focal{fill:rgba(191,69,32,.22)}
+    .role-text{fill:#2d3142;font-size:8px;font-weight:600}
+    .role-text.focal{fill:#bf4520}
+    .node-title{fill:#2d3142;font-size:14px;font-weight:600}
+    .node-sub{fill:#4f5d75;font-size:10.5px}
+    .boundary{fill:none;stroke:rgba(45,49,66,.35);stroke-dasharray:5,4}
+    .tag{fill:#4f5d75;font-size:10px;font-weight:500;letter-spacing:.08em}
+    .legend-text{fill:#4f5d75;font-size:11px}
+  </style>
+  <defs><marker id="pipeline-arrow" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto"><polygon points="0 0,9 3.5,0 7" fill="#4f5d75"/></marker></defs>
+  <rect width="1064" height="332" fill="#f5f5f5"/>
+  <rect class="boundary" x="12" y="12" width="890" height="236" rx="8"/>
+  <text class="tag mono" x="28" y="34">ON THE MACHINE · NOTHING IS SENT</text>
+  <line class="connector" x1="148" y1="188" x2="174" y2="188" marker-end="url(#pipeline-arrow)"/>
+  <line class="connector" x1="296" y1="188" x2="322" y2="188" marker-end="url(#pipeline-arrow)"/>
+  <line class="connector" x1="444" y1="188" x2="470" y2="188" marker-end="url(#pipeline-arrow)"/>
+  <line class="connector" x1="592" y1="188" x2="618" y2="188" marker-end="url(#pipeline-arrow)"/>
+  <line class="connector" x1="740" y1="188" x2="766" y2="188" marker-end="url(#pipeline-arrow)"/>
+  <line class="connector" x1="888" y1="188" x2="914" y2="188" marker-end="url(#pipeline-arrow)"/>
+  <path class="connector optional" d="M512 150 V77 Q512 69 520 69 H546" marker-end="url(#pipeline-arrow)"/>
+  <path class="connector optional" d="M676 69 H692 Q700 69 700 77 V148" marker-end="url(#pipeline-arrow)"/>
+  <g text-anchor="middle">
+    <rect class="node-mask" x="28" y="150" width="120" height="76" rx="6"/>
+    <rect class="node input" x="28" y="150" width="120" height="76" rx="6"/>
+    <rect class="role" x="33" y="155" width="22" height="13" rx="2"/><text class="role-text mono" x="44" y="164.5">IN</text>
+    <text class="node-title" x="88" y="188">Company file</text>
+    <text class="node-sub" x="88" y="205">DOCX, XLSX, PPTX,</text>
+    <text class="node-sub" x="88" y="218">PDF, CSV, images</text>
+    <text class="tag mono" x="88" y="272">RQ1 FORMATS</text>
+    <rect class="node-mask" x="176" y="150" width="120" height="76" rx="6"/>
+    <rect class="node" x="176" y="150" width="120" height="76" rx="6"/>
+    <rect class="role" x="181" y="155" width="34" height="13" rx="2"/><text class="role-text mono" x="198" y="164.5">READ</text>
+    <text class="node-title" x="236" y="188">Extract text</text>
+    <text class="node-sub" x="236" y="205">body, hidden parts,</text>
+    <text class="node-sub" x="236" y="218">OCR for images</text>
+    <text class="tag mono" x="236" y="272">RQ2 EXTRACTION</text>
+    <rect class="node-mask" x="324" y="150" width="120" height="76" rx="6"/>
+    <rect class="node" x="324" y="150" width="120" height="76" rx="6"/>
+    <rect class="role" x="329" y="155" width="22" height="13" rx="2"/><text class="role-text mono" x="340" y="164.5">MD</text>
+    <text class="node-title" x="384" y="188">Markdown</text>
+    <text class="node-sub" x="384" y="205">one text per file</text>
+    <text class="node-sub" x="384" y="218">for every format</text>
+    <rect class="node-mask" x="472" y="150" width="120" height="76" rx="6"/>
+    <rect class="node focal" x="472" y="150" width="120" height="76" rx="6"/>
+    <rect class="role focal" x="477" y="155" width="34" height="13" rx="2"/><text class="role-text focal mono" x="494" y="164.5">FIND</text>
+    <text class="node-title" x="532" y="188">Find identifiers</text>
+    <text class="node-sub" x="532" y="205">combined: rules</text>
+    <text class="node-sub" x="532" y="218">plus GLiNER NER</text>
+    <text class="tag mono" x="532" y="272">RQ2 DETECTION</text>
+    <rect class="node-mask" x="620" y="150" width="120" height="76" rx="6"/>
+    <rect class="node" x="620" y="150" width="120" height="76" rx="6"/>
+    <rect class="role" x="625" y="155" width="34" height="13" rx="2"/><text class="role-text mono" x="642" y="164.5">SWAP</text>
+    <text class="node-title" x="680" y="188">Replace</text>
+    <text class="node-sub" x="680" y="205">[PERSON] label or</text>
+    <text class="node-sub" x="680" y="218">[PERSON_1] alias</text>
+    <text class="tag mono" x="680" y="272">RQ4 USEFULNESS</text>
+    <rect class="node-mask" x="768" y="150" width="120" height="76" rx="6"/>
+    <rect class="node" x="768" y="150" width="120" height="76" rx="6"/>
+    <rect class="role" x="773" y="155" width="28" height="13" rx="2"/><text class="role-text mono" x="787" y="164.5">YOU</text>
+    <text class="node-title" x="828" y="188">Review output</text>
+    <text class="node-sub" x="828" y="205">misses, metadata,</text>
+    <text class="node-sub" x="828" y="218">business secrets</text>
+    <rect class="node-mask" x="916" y="150" width="120" height="76" rx="6"/>
+    <rect class="node external" x="916" y="150" width="120" height="76" rx="6"/>
+    <rect class="role" x="921" y="155" width="28" height="13" rx="2"/><text class="role-text mono" x="935" y="164.5">OUT</text>
+    <text class="node-title" x="976" y="188">Public AI</text>
+    <text class="node-sub" x="976" y="205">e.g. ChatGPT Free</text>
+    <text class="node-sub" x="976" y="218">data leaves here</text>
+    <text class="tag mono" x="976" y="272">RQ3 RE-IDENTIFICATION</text>
+    <rect class="node-mask" x="548" y="40" width="128" height="58" rx="6"/>
+    <rect class="node optional" x="548" y="40" width="128" height="58" rx="6"/>
+    <text class="node-title" x="612" y="65">Local LLM pass</text>
+    <text class="node-sub" x="612" y="82">optional: Qwen, Gemma</text>
+  </g>
+  <line x1="28" y1="292" x2="1036" y2="292" stroke="rgba(45,49,66,.12)"/>
+  <rect x="28" y="306" width="20" height="13" rx="2" fill="#f8ebe6" stroke="#bf4520"/><text class="legend-text" x="56" y="317">Main detector</text>
+  <rect x="164" y="306" width="20" height="13" rx="2" fill="#f4f4f4" stroke="rgba(45,49,66,.40)" stroke-dasharray="5,3"/><text class="legend-text" x="192" y="317">Optional step</text>
+  <rect x="300" y="306" width="20" height="13" rx="2" fill="none" stroke="rgba(45,49,66,.35)" stroke-dasharray="5,4"/><text class="legend-text" x="328" y="317">Stays on the machine</text>
+  <text class="legend-text" x="480" y="317">RQ tags: which research question measures that step</text>
+</svg>

@@ -1,19 +1,20 @@
 # Screenshot redaction
 
-Issue #30. Staff take a screenshot or snip of part of a document and paste the
-image into a public chat model. The image has no file metadata to clean, but
-every visible name, number and address is still there as pixels, together with
-logos, letterheads, signatures and stamps. The job is to clean the image before
-it is pasted.
+[Docs index](README.md) › RQ1
 
-This page covers the available tools, a measurement of automatic redaction on
-the synthetic PNGs, and what no text-based tool can catch.
+Which tools clean a screenshot before it goes into a public chat model, and how well does automatic redaction work? A pasted snip has no file metadata to clean, but every visible name, number and address is still there as pixels, with logos, letterheads, signatures and stamps (issue #30). This doc lists the tools and measures six automatic methods on 40 synthetic PNGs in English and Finnish.
+
+## Key result
+
+- Best image recall is `gliner` at 90.4% (hidden / readable before). `rules` reaches 87.4% and `basic` 76.4%.
+- `gliner` also blacks out the fewest non-label words (1.5%), but 33 IBANs leak whole.
+- Presidio-based methods leave most addresses partly visible (38 partial).
+- Once OCR has read a value, detection is the limit, not the image step. OCR misreads cost about two points.
+- Logos, signatures, stamps, handwriting, faces and QR codes are not covered by any text-based tool.
 
 ## Tools
 
-Checked against each tool's own page on 2026-10-13 unless a cell says
-otherwise. "Unverified" means no primary source was found or the page could not
-be opened.
+Checked against each tool's own page on 2026-10-13 unless a cell says otherwise. "Unverified" means no primary source was found or the page could not be opened.
 
 | Tool | Cost and licence | Runs | Finnish | Finds identifiers | Hides with |
 |---|---|---|---|---|---|
@@ -31,10 +32,9 @@ be opened.
 | Amazon Comprehend PII with Textract | Paid API | Cloud | No: Comprehend PII is [English and Spanish only](https://docs.aws.amazon.com/comprehend/latest/dg/how-pii.html), and Textract does not list Finnish ([OCR survey](ocr-survey.md)) | Automatic on text | Returns spans or masked text |
 | [Private AI](https://private-ai.com/) | Commercial | Container in the customer's environment | Unverified for images; the text product claims 52 languages | Automatic, text and faces, according to the vendor | Blur, according to the vendor page (unverified) |
 
-Cloud services are listed for completeness only. Sending an image to one is
-the same disclosure this work is meant to prevent, and none was run.
+Cloud services are listed for completeness only. Sending an image to one is the same disclosure this work is meant to prevent, and none was run.
 
-Two things matter more than the choice of tool:
+Two things matter more than the choice of tool.
 
 - **Pixelation and blur are not redaction.** [Depix](https://github.com/spipm/Depix),
   a proof of concept, recovers text from pixelated screenshots. Only a solid
@@ -76,7 +76,7 @@ counts the values Tesseract could not read before redaction: a person or a
 vision model may still read them, so it is the safer number. **Text recall**
 runs the same detector on the generator's text for the same image, out of all
 planted values, so it compares with hidden / planted. It is not comparable to
-the [dataset runs](dataset-runs.md), which also require the correct entity
+the [dataset runs](archive/dataset-runs.md), which also require the correct entity
 type; for an image, any box hides the value.
 
 **Words blacked** is the share of all OCR words filled. The synthetic snips
@@ -158,12 +158,13 @@ What this shows:
   leave most addresses partly visible; GLiNER hides addresses but leaves IBANs
   whole. Neither reaches the full set, so combining them is the next step for
   images too.
-- **Presidio Image Redactor matches our module on recall but blacks out more.**
+- **Presidio Image Redactor matches `redact/image.py` on recall but blacks out more.**
   With the same analyzer, recall is 87.2% against 87.4%, but 9.3% of
   non-identifier words are blacked out against 6.4%. It joins every OCR word
   with one space, so the title runs into the first line: the word "Internal"
-  after the English title is blacked out in all 20 English images. Its default settings are English OCR and English
-  detection; the run above passes `eng+fin` and the document language.
+  after the English title is blacked out in all 20 English images. Its
+  default settings are English OCR and English detection; the run above passes
+  `eng+fin` and the document language.
 - **The 13 values OCR misread** are 5 emails, 4 IBANs, 2 identity codes, an
   address and a company. An OCR-based redactor can only cover them by chance,
   when the detector still recognises the misread text.
@@ -220,3 +221,10 @@ with Image.open("snip.png") as image:
     redacted, boxes = redact_image(image, get_detector("rules"), language="fi")
 redacted.save("snip_redacted.png")
 ```
+
+## Related
+
+- [ocr-survey.md](ocr-survey.md): OCR engines that feed image redaction
+- [options-map.md](options-map.md): where screenshots sit among the other formats
+- [dataset-audit-runs.md](dataset-audit-runs.md): text detection accuracy on labelled datasets
+- [residual-misses.md](residual-misses.md): OCR misreads that defeat detection

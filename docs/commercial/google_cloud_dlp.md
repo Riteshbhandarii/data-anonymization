@@ -1,8 +1,8 @@
-\# Google Cloud Sensitive Data Protection
+# Google Cloud Sensitive Data Protection
 
+[Docs index](../README.md) › RQ1 · RQ2
 
-
-\## Overview
+## Overview
 
 
 
@@ -14,7 +14,7 @@ For this research, I tested its ability to detect sensitive information in diffe
 
 
 
-\## Testing setup
+## Testing setup
 
 
 
@@ -30,15 +30,15 @@ I tested 10 synthetic documents:
 
 
 
-\- 2 DOCX files
+- 2 DOCX files
 
-\- 2 PDF files
+- 2 PDF files
 
-\- 2 XLSX files
+- 2 XLSX files
 
-\- 2 PPTX files
+- 2 PPTX files
 
-\- 2 CSV files
+- 2 CSV files
 
 
 
@@ -58,7 +58,7 @@ The tests used the content inspection API. I did not test automatic document red
 
 
 
-\## File format support
+## File format support
 
 
 
@@ -82,7 +82,7 @@ All 10 files were processed successfully without API errors.
 
 
 
-\## Detection results
+## Detection results
 
 
 
@@ -120,7 +120,7 @@ Type-aware detection also requires the detected information type to match the gr
 
 
 
-\## Results by information type
+## Results by information type
 
 
 
@@ -166,7 +166,7 @@ These results do not prove that Google cannot detect these categories. Additiona
 
 
 
-\## English and Finnish
+## English and Finnish
 
 
 
@@ -182,7 +182,7 @@ The English documents performed better in this small test set.
 
 
 
-\## Comparison with other tools
+## Comparison with other tools
 
 
 
@@ -210,39 +210,39 @@ The results are based on a small synthetic dataset. The tools also use different
 
 
 
-\## Strengths
+## Strengths
 
 
 
-\- Successfully inspected all five tested file formats.
+- Successfully inspected all five tested file formats.
 
-\- Worked with both English and Finnish documents.
+- Worked with both English and Finnish documents.
 
-\- Detected common personal information well.
+- Detected common personal information well.
 
-\- Provides an API that can be integrated into a Python workflow.
+- Provides an API that can be integrated into a Python workflow.
 
-\- Supports configurable sensitive information detection.
-
-
-
-\## Limitations
+- Supports configurable sensitive information detection.
 
 
 
-\- Some sensitive information types were missed using the tested configuration.
-
-\- Company names and addresses were not always detected completely.
-
-\- Detection results sometimes contained duplicate or overlapping findings.
-
-\- The test did not evaluate anonymized output files or whether document formatting was preserved.
-
-\- No detailed cost benchmark was performed.
+## Limitations
 
 
 
-\## Evaluation method
+- Some sensitive information types were missed using the tested configuration.
+
+- Company names and addresses were not always detected completely.
+
+- Detection results sometimes contained duplicate or overlapping findings.
+
+- The test did not evaluate anonymized output files or whether document formatting was preserved.
+
+- No detailed cost benchmark was performed.
+
+
+
+## Evaluation method
 
 
 
@@ -266,7 +266,7 @@ The evaluation used normalized substring matching rather than exact text offsets
 
 
 
-\## Conclusion
+## Conclusion
 
 
 
@@ -284,3 +284,6 @@ However, the default configuration missed several specialized identifiers that a
 
 Based on these tests, Google Cloud is a possible option for sensitive information detection, but additional configuration and redaction testing would be needed before using it as a complete document anonymization solution.
 
+## Related
+
+- [Options map](../options-map.md)

@@ -30,7 +30,7 @@ INVOICE_PATTERN = Pattern(
 # reject them. Presidio does not load its own FI_PERSONAL_IDENTITY_CODE
 # recognizer by default in any case.
 # This pattern is a benchmark choice, not a statement about what a real
-# deployment should do; see docs/open-questions.md.
+# deployment should do; see docs/limitations.md.
 # Example: 140106-800L
 PERSONAL_ID_NO_CHECKSUM_PATTERN = Pattern(
     name="finnish_personal_id_shape_no_checksum",

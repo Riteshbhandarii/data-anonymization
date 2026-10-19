@@ -1,5 +1,7 @@
 # Assigned tasks: implementation and measured results
 
+> **Archived.** Record of the 2026-09-29 assigned tasks. Detector numbers are superseded by [dataset-audit-runs.md](../dataset-audit-runs.md); extraction by [extraction-validation.md](../extraction-validation.md).
+
 This records the work for issues #12, #13, #15, #16, #17, #18, #19, #31 and
 #33, using the expanded synthetic corpus on 2026-09-29. Implementations and
 measurements are separate below so an available test harness is not mistaken
@@ -20,13 +22,13 @@ referenced in issue #15 remains unavailable and is not covered by either run.
 | [#17: Redaction stage](https://github.com/Riteshbhandarii/data-anonymization/issues/17) | Validated character spans feed Presidio replacements or consistent pseudonyms. A caller can explicitly share an alias map across documents. The pipeline saves the returned Markdown. | Ready for integration review; detector quality is measured independently from replacement behavior. |
 | [#18: Re-identification harness](https://github.com/Riteshbhandarii/data-anonymization/issues/18) | Offline-tested harness includes raw/unrelated controls, naming, attributes, linkage, web-search recording and correct/wrong/refused/error outcomes. An actual local preparation created 84 requests. | External-model execution and its results are pending; no model API requests were made. |
 | [#19: Utility comparison](https://github.com/Riteshbhandarii/data-anonymization/issues/19) | The same reviewed questions are prepared for raw, redacted and pseudonymized variants, including relationship questions. | Harness and prepared inputs are available; no measured external-model utility score is claimed. |
-| [#31: OCR comparison](https://github.com/Riteshbhandarii/data-anonymization/issues/31) | Local OCR benchmark and option survey cover Tesseract, EasyOCR, PaddleOCR and cloud language/deployment support. Local measurements use identical generated images. | See [OCR results](ocr-survey.md) for completed measurements and engine errors. Cloud accuracy was not measured because no billable API calls were made. |
+| [#31: OCR comparison](https://github.com/Riteshbhandarii/data-anonymization/issues/31) | Local OCR benchmark and option survey cover Tesseract, EasyOCR, PaddleOCR and cloud language/deployment support. Local measurements use identical generated images. | See [OCR results](../ocr-survey.md) for completed measurements and engine errors. Cloud accuracy was not measured because no billable API calls were made. |
 | [#33: Corpus locations](https://github.com/Riteshbhandarii/data-anonymization/issues/33) | Generator, verifier, extractor and reports now cover header, footer, comment, tracked change and embedded image, with distinct location-only identifiers. | Expanded corpus measured below; one PDF image identifier and 11 standalone image identifiers remain OCR misses. |
 
-The primary integration description is [pipeline.md](pipeline.md). The detector
+The primary integration description is [pipeline.md](../pipeline.md). The detector
 receives exactly the normalized Markdown on which its Python character offsets
 are defined. The redactor edits those spans without changing the text first;
-the pipeline saves the returned Markdown. See [redact/README.md](../redact/README.md)
+the pipeline saves the returned Markdown. See [redact/README.md](../../redact/README.md)
 for replacement modes, overlap handling and alias-map lifetime.
 
 ## Corpus and environment
@@ -81,14 +83,14 @@ relationship between image degradation and OCR quality.
 
 The previous 650/650 result used an older 50-document corpus without these
 locations and images. It is not a perfect-score baseline for the expanded
-corpus. [Extraction validation](extraction-validation.md) describes location-aware
+corpus. [Extraction validation](../extraction-validation.md) describes location-aware
 matching, individual report files, and the difference between verification and
 measurement.
 
 ## Teams corpus validation
 
-On 2026-09-29, the supplied `General / Datasets / anonymization-corpus` archive
-was downloaded from the project's Teams group and evaluated with extraction
+On 2026-09-29, the team's shared synthetic corpus archive
+was downloaded from the project's shared folder and evaluated with extraction
 code at `58af1ae`. The five document-format folders and their original JSON
 labels were read locally; the external detector datasets were excluded.
 
@@ -190,7 +192,7 @@ success rate or as evidence that remaining text cannot identify someone.
 ## Reproduce the local measurements
 
 Install `requirements-evaluation.txt`, the two spaCy models, and Tesseract with
-English/Finnish language data as described in [eval/README.md](../eval/README.md).
+English/Finnish language data as described in [eval/README.md](../../eval/README.md).
 Then run from the repository root:
 
 ```bash
@@ -227,5 +229,5 @@ request limits, and the distinction between attempted and completed web search.
 They establish that the harness handles those cases; they do not measure an
 external model's re-identification ability or utility. Actual experiment
 execution and scores for #18/#19 remain pending. See
-[model-evaluation.md](model-evaluation.md) for the experiment schema and execution
-workflow, and [ocr-survey.md](ocr-survey.md) for the separate OCR comparison.
+[model-evaluation.md](../model-evaluation.md) for the experiment schema and execution
+workflow, and [ocr-survey.md](../ocr-survey.md) for the separate OCR comparison.
