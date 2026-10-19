@@ -222,6 +222,24 @@ synthetic denominator; they are not added together. [Full report](dataset-audit-
 
 #### Local LLM comparison
 
+Current frozen-corpus results: 14 documents, 146 body labels, 73 per language.
+All five completed configurations have zero failed documents. These typed
+metrics are separate from the all-location matrix above.
+
+| Configuration | Typed whole-value recall | EN | FI | Typed-overlap precision | Source |
+|---|---|---|---|---|---|
+| combined | 136/146 (93.2%) | 70/73 | 66/73 | 197/238 (82.8%) | [Aggregate](../eval/baselines/final-evidence-local-combined.json) |
+| Qwen alone | 94/146 (64.4%) | 48/73 | 46/73 | 100/150 (66.7%) | [Aggregate](../eval/baselines/final-evidence-local-qwen-alone.json) |
+| Gemma alone | 111/146 (76.0%) | 61/73 | 50/73 | 116/139 (83.5%) | [Aggregate](../eval/baselines/final-evidence-local-gemma-alone.json) |
+| combined + Qwen | 136/146 (93.2%) | 70/73 | 66/73 | 197/241 (81.7%) | [Aggregate](../eval/baselines/final-evidence-local-qwen-final.json) |
+| combined + Gemma | 137/146 (93.8%) | 70/73 | 67/73 | 198/239 (82.8%) | [Aggregate](../eval/baselines/final-evidence-local-gemma-final.json) |
+
+Qwen final pass shows no demonstrated typed-coverage gain and adds three
+wrong-type-overlapping detections. Gemma final pass recovers one Finnish
+company label, raising FI company coverage from 2/7 to 3/7; this is a small
+corpus-specific gain, not evidence of resistance to public-AI re-identification.
+It is the final-pass candidate carried into the utility comparison.
+
 The complete current five-configuration table, per-language/per-type counts,
 precision and model loading/runtime scope are in
 [local-llm-comparison.md](local-llm-comparison.md). Earlier Qwen/Gemma results in
@@ -281,6 +299,32 @@ recorded in [the run report](final-evidence-run.md), separate from the blind stu
 ### RQ4: practicality
 
 #### Usefulness retained
+
+Current local answering uses Qwen 3.5 9B, MLX 4-bit, 8192 context and
+independent chats. All 108 requests completed with zero invalid responses and
+zero provider errors: 27 requests per language/method, nine questions per
+variant. Finnish is **NEEDS HUMAN REVIEW**. Counts below are exact-answer
+accuracy, not proof that the retained text contains sufficient evidence.
+
+| Language / sanitization | Raw correct | Redacted correct | Pseudonymized correct | Redacted retained / raw-correct | Pseudonymized retained / raw-correct | Source |
+|---|---|---|---|---|---|---|
+| EN / combined | 7/9 | 5/9 | 4/9 | 5/7 | 4/7 | [Aggregate](../eval/baselines/final-evidence-utility-en-combined.json) |
+| EN / combined + Gemma | 7/9 | 5/9 | 4/9 | 5/7 | 4/7 | [Aggregate](../eval/baselines/final-evidence-utility-en-gemma-final.json) |
+| FI / combined | 9/9 | 1/9 | 6/9 | 1/9 | 6/9 | [Aggregate](../eval/baselines/final-evidence-utility-fi-combined.json) |
+| FI / combined + Gemma | 9/9 | 1/9 | 6/9 | 1/9 | 6/9 | [Aggregate](../eval/baselines/final-evidence-utility-fi-gemma-final.json) |
+
+English raw controls include two unexplained refusals, so the paired
+denominator is seven rather than the archived nine. All corresponding
+prompts and answer payloads were identical between the two sanitization
+methods in both languages; Gemma showed no utility gain on these six memos.
+The [comparison record](../eval/baselines/final-evidence-utility-comparison.json)
+checks corresponding requests without pooling language denominators.
+
+Sanitization removes the hour values as dates in both languages. Some
+larger-project answers nevertheless match the expected answer; scoring can
+credit a guess after the supporting numbers are gone. Future task design
+must vary allocation/order and check evidential support. Current scores are
+preserved; no responses were rerun to improve them.
 
 The 2026-10-19 paired local rerun and human-review status are reported in
 [utility-impact.md](utility-impact.md). It compares raw, generic redaction and
@@ -368,6 +412,8 @@ require separate review even where OCR text is perfectly recognized.
   anonymization benchmark. Desk research is not measured support.
 - Small commercial samples, service errors, configuration differences and
   unavailable raw aggregate provenance limit procurement conclusions.
+- Exact-answer utility scoring can credit unsupported guesses after key facts
+  disappear; current allocation tasks do not establish faithful reasoning.
 - Public-AI re-identification, web-search ablation and logo/letterhead exposure
   remain PENDING #44. No detector score is a compliance or disclosure guarantee.
 - Personal-data cleaning does not remove confidential geometry, source code,
