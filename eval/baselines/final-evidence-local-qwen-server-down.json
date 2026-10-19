@@ -1,0 +1,190 @@
+{
+  "schema_version": 1,
+  "corpus": {
+    "seed": 42,
+    "n": 1,
+    "documents": 14,
+    "identifiers": 192,
+    "faker": "40.39.0",
+    "corpus_sha256": "27934f5e7fc88d0748be7b53d2d79ecfd797ad82c94c68d6fa16fd421c2e40ae"
+  },
+  "scope": "Body labels only; no extraction measurement. All occurrences must be covered. QUASI_IDENTIFIER has no synthetic ground truth; its effectiveness is unmeasured.",
+  "documents": 14,
+  "failed_documents": 14,
+  "error_types": {
+    "URLError": 14
+  },
+  "recall": [
+    {
+      "language": "en",
+      "entity_type": "ADDRESS",
+      "planted": 6,
+      "covered": 0,
+      "partial": 0
+    },
+    {
+      "language": "en",
+      "entity_type": "COMPANY",
+      "planted": 7,
+      "covered": 0,
+      "partial": 0
+    },
+    {
+      "language": "en",
+      "entity_type": "DATE",
+      "planted": 11,
+      "covered": 0,
+      "partial": 0
+    },
+    {
+      "language": "en",
+      "entity_type": "EMAIL",
+      "planted": 7,
+      "covered": 0,
+      "partial": 0
+    },
+    {
+      "language": "en",
+      "entity_type": "IBAN",
+      "planted": 7,
+      "covered": 0,
+      "partial": 0
+    },
+    {
+      "language": "en",
+      "entity_type": "INVOICE",
+      "planted": 5,
+      "covered": 0,
+      "partial": 0
+    },
+    {
+      "language": "en",
+      "entity_type": "PERSON",
+      "planted": 13,
+      "covered": 0,
+      "partial": 0
+    },
+    {
+      "language": "en",
+      "entity_type": "PERSONAL_ID",
+      "planted": 5,
+      "covered": 0,
+      "partial": 0
+    },
+    {
+      "language": "en",
+      "entity_type": "PHONE",
+      "planted": 7,
+      "covered": 0,
+      "partial": 0
+    },
+    {
+      "language": "en",
+      "entity_type": "PLATE",
+      "planted": 5,
+      "covered": 0,
+      "partial": 0
+    },
+    {
+      "language": "fi",
+      "entity_type": "ADDRESS",
+      "planted": 6,
+      "covered": 0,
+      "partial": 0
+    },
+    {
+      "language": "fi",
+      "entity_type": "COMPANY",
+      "planted": 7,
+      "covered": 0,
+      "partial": 0
+    },
+    {
+      "language": "fi",
+      "entity_type": "DATE",
+      "planted": 11,
+      "covered": 0,
+      "partial": 0
+    },
+    {
+      "language": "fi",
+      "entity_type": "EMAIL",
+      "planted": 7,
+      "covered": 0,
+      "partial": 0
+    },
+    {
+      "language": "fi",
+      "entity_type": "IBAN",
+      "planted": 7,
+      "covered": 0,
+      "partial": 0
+    },
+    {
+      "language": "fi",
+      "entity_type": "INVOICE",
+      "planted": 5,
+      "covered": 0,
+      "partial": 0
+    },
+    {
+      "language": "fi",
+      "entity_type": "PERSON",
+      "planted": 13,
+      "covered": 0,
+      "partial": 0
+    },
+    {
+      "language": "fi",
+      "entity_type": "PERSONAL_ID",
+      "planted": 5,
+      "covered": 0,
+      "partial": 0
+    },
+    {
+      "language": "fi",
+      "entity_type": "PHONE",
+      "planted": 7,
+      "covered": 0,
+      "partial": 0
+    },
+    {
+      "language": "fi",
+      "entity_type": "PLATE",
+      "planted": 5,
+      "covered": 0,
+      "partial": 0
+    }
+  ],
+  "precision": [],
+  "runtime": [
+    {
+      "language": "en",
+      "documents": 7,
+      "seconds": 0.004248041994287632,
+      "seconds_per_document": 0.0006068631420410904
+    },
+    {
+      "language": "fi",
+      "documents": 7,
+      "seconds": 0.0007482910150429234,
+      "seconds_per_document": 0.00010689871643470334
+    }
+  ],
+  "model": "qwen-local",
+  "base_method": null,
+  "temperature": 0,
+  "reasoning_effort": "none",
+  "host": {
+    "platform": "macOS-27.2-arm64-arm-64bit",
+    "machine": "arm64"
+  },
+  "window_characters": 4000,
+  "overlap_characters": 400,
+  "score": "1.0 flag; uncalibrated",
+  "measured_date": "2026-10-19",
+  "detector_source_commit": "e148240",
+  "model_inference_status": "NOT RUN",
+  "attempt_scope": "14 failed loopback transport requests; server stopped, no model inference. Separate retry is current quality evidence.",
+  "excluded_from_completed_quality_comparison": true
+}
