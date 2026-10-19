@@ -28,6 +28,11 @@ Checked against the memos and the recorded
   replaced by `DATE_TIME`, pseudonymized `larger_project` was still correct
   3/3 and redacted answered Mänty 3/3. Pseudonymized 6/9 is therefore 3/9
   evidence-supported (`same_contact`) plus 3/9 guesses.
+- Redacted `same_contact` answered `ei` for all three memos although both
+  contacts become the same `[PERSON]` token, where refusal is the supported
+  response. Its single correct answer (a2) is a guess, so redacted 1/9 is 0/9
+  evidence-supported. The English suite shares this design and likely needs
+  the same split.
 - **Name collision.** `Kuusi` also means "six" and overlaps a participating
   company's name. It did not affect these runs, but a replacement suite
   should use project names without those readings.
