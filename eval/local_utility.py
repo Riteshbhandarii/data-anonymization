@@ -117,6 +117,10 @@ def main():
     report = {
         "schema_version": 1, "model": args.model, "endpoint": endpoint,
         "plan_sha256": hashlib.sha256(plan_bytes).hexdigest(),
+        "suite_sha256": plan.get("suite_sha256"),
+        "document_sha256": plan.get("document_sha256"),
+        "detector": plan.get("detector"),
+        "detector_configuration": plan.get("detector_configuration"),
         "synthetic": plan.get("synthetic", False), "temperature": 0, "max_tokens": 256,
         "reasoning_effort": "none", "enable_thinking": False, "system_prompt": SYSTEM,
         "response_schema": SCHEMA, "web_search": False, "independent_chats": True,
