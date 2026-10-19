@@ -158,5 +158,65 @@ class LocalBenchmarkTests(unittest.TestCase):
                 benchmark(root, BrokenDetector())
 
 
+class ContextualPromptTests(unittest.TestCase):
+    def test_default_payload_keeps_the_identifier_prompt(self):
+        from detect.local_llm import ENTITY_TYPES, SYSTEM
+        with server(json.dumps({"entities": []})) as (url, requests):
+            LocalLLMDetector("local", base_url=url).detect("text")
+        self.assertEqual(SYSTEM, requests[0]["messages"][0]["content"])
+        enum = requests[0]["response_format"]["json_schema"]["schema"]["properties"]["entities"]["items"]
+        self.assertEqual(ENTITY_TYPES, enum["properties"]["entity_type"]["enum"])
+
+    def test_contextual_prompt_and_types(self):
+        from detect.local_llm import CONTEXT_TYPES, SYSTEM_CONTEXTUAL
+        content = json.dumps({"entities": [{"text": "LU-77/2021", "entity_type": "IDENTIFIER_CODE"}]})
+        with server(content) as (url, requests):
+            spans = LocalLLMDetector("local", base_url=url, prompt="contextual").detect("Permit LU-77/2021.")
+        self.assertEqual(SYSTEM_CONTEXTUAL, requests[0]["messages"][0]["content"])
+        enum = requests[0]["response_format"]["json_schema"]["schema"]["properties"]["entities"]["items"]
+        self.assertEqual(CONTEXT_TYPES, enum["properties"]["entity_type"]["enum"])
+        self.assertEqual([(7, 17, "IDENTIFIER_CODE")], [(s.start, s.end, s.entity_type) for s in spans])
+
+    def test_identifier_types_are_rejected_in_contextual_mode(self):
+        content = json.dumps({"entities": [{"text": "x", "entity_type": "IBAN_CODE"}]})
+        with server(content) as (url, _), self.assertRaises(ValueError):
+            LocalLLMDetector("local", base_url=url, prompt="contextual").detect("x")
+
+    def test_non_strict_drops_and_counts_absent_text(self):
+        content = json.dumps({"entities": [{"text": "not here", "entity_type": "PERSON"},
+                                           {"text": "Kestrel", "entity_type": "PROJECT_OR_PRODUCT"}]})
+        with server(content) as (url, _):
+            detector = LocalLLMDetector("local", base_url=url, prompt="contextual", strict=False)
+            spans = detector.detect("Project Kestrel")
+        self.assertEqual([(8, 15)], [(s.start, s.end) for s in spans])
+        self.assertEqual(1, detector.dropped)
+        with server(content) as (url, _), self.assertRaises(ValueError):
+            LocalLLMDetector("local", base_url=url, prompt="contextual").detect("Project Kestrel")
+
+    def test_unknown_prompt_is_rejected(self):
+        with self.assertRaises(ValueError):
+            LocalLLMDetector("local", prompt="other")
+
+
+class UnionDetectorTests(unittest.TestCase):
+    def test_model_sees_the_original_text_and_spans_are_kept(self):
+        from detect.local_llm import UnionDetector
+        seen = []
+
+        class Fixed:
+            def __init__(self, spans):
+                self.spans = spans
+
+            def detect(self, text, language="en"):
+                seen.append(text)
+                return self.spans
+
+        base = Fixed([SimpleNamespace(start=0, end=4, entity_type="PERSON", score=1.0)])
+        model = Fixed([SimpleNamespace(start=11, end=16, entity_type="ORGANIZATION", score=1.0)])
+        spans = UnionDetector(base, model).detect("Aino works Lehto", "fi")
+        self.assertEqual(["Aino works Lehto", "Aino works Lehto"], seen)
+        self.assertEqual([(0, 4), (11, 16)], [(s.start, s.end) for s in spans])
+
+
 if __name__ == "__main__":
     unittest.main()

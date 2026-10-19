@@ -1,0 +1,343 @@
+{
+  "schema_version": 1,
+  "measured_date": "2026-10-20",
+  "corpus": "outputs/local-corpus (seed 42, n 1, 14 documents, 146 body labels); same corpus as final-evidence-local",
+  "models": {
+    "qwen": "qwen/qwen3.5-9b MLX 4-bit",
+    "gemma": "google/gemma-4-e4b MLX 4-bit"
+  },
+  "settings": "LM Studio loopback, temperature 0, reasoning off, 8192 context, identifier prompt (default)",
+  "source": "final passes and combined replay run from commit 80b6263 so the frozen combined cache's detector hash check passes; alone runs from research/contextual-llm with the default prompt unchanged",
+  "metric_note": "typed = right label required (the original metric); any_type = hidden by any span, which is what matters for privacy; outside_share = masked characters outside every body label",
+  "configurations": [
+    {
+      "configuration": "combined",
+      "how": "replayed frozen spans",
+      "typed": {
+        "covered": 136,
+        "partial": 2,
+        "planted": 146
+      },
+      "any_type": {
+        "all": {
+          "covered": 139,
+          "partial": 4,
+          "planted": 146
+        },
+        "en": {
+          "covered": 71,
+          "partial": 2,
+          "planted": 73
+        },
+        "fi": {
+          "covered": 68,
+          "partial": 2,
+          "planted": 73
+        }
+      },
+      "over_masking": {
+        "all": {
+          "characters_outside_body_labels": 3,
+          "total_characters": 4033,
+          "share": 0.0007438631291842301,
+          "spans_touching_no_label": 0
+        },
+        "en": {
+          "characters_outside_body_labels": 1,
+          "total_characters": 2103,
+          "share": 0.00047551117451260106,
+          "spans_touching_no_label": 0
+        },
+        "fi": {
+          "characters_outside_body_labels": 2,
+          "total_characters": 1930,
+          "share": 0.0010362694300518134,
+          "spans_touching_no_label": 0
+        }
+      },
+      "failed_documents": 0
+    },
+    {
+      "configuration": "qwen-alone",
+      "how": "rerun",
+      "typed": {
+        "covered": 94,
+        "partial": 0,
+        "planted": 146
+      },
+      "any_type": {
+        "all": {
+          "covered": 144,
+          "partial": 0,
+          "planted": 146
+        },
+        "en": {
+          "covered": 72,
+          "partial": 0,
+          "planted": 73
+        },
+        "fi": {
+          "covered": 72,
+          "partial": 0,
+          "planted": 73
+        }
+      },
+      "over_masking": {
+        "all": {
+          "characters_outside_body_labels": 2,
+          "total_characters": 4033,
+          "share": 0.0004959087527894868,
+          "spans_touching_no_label": 0
+        },
+        "en": {
+          "characters_outside_body_labels": 0,
+          "total_characters": 2103,
+          "share": 0.0,
+          "spans_touching_no_label": 0
+        },
+        "fi": {
+          "characters_outside_body_labels": 2,
+          "total_characters": 1930,
+          "share": 0.0010362694300518134,
+          "spans_touching_no_label": 0
+        }
+      },
+      "failed_documents": 0
+    },
+    {
+      "configuration": "gemma-alone",
+      "how": "rerun",
+      "typed": {
+        "covered": 111,
+        "partial": 1,
+        "planted": 146
+      },
+      "any_type": {
+        "all": {
+          "covered": 133,
+          "partial": 1,
+          "planted": 146
+        },
+        "en": {
+          "covered": 72,
+          "partial": 1,
+          "planted": 73
+        },
+        "fi": {
+          "covered": 61,
+          "partial": 0,
+          "planted": 73
+        }
+      },
+      "over_masking": {
+        "all": {
+          "characters_outside_body_labels": 0,
+          "total_characters": 4033,
+          "share": 0.0,
+          "spans_touching_no_label": 0
+        },
+        "en": {
+          "characters_outside_body_labels": 0,
+          "total_characters": 2103,
+          "share": 0.0,
+          "spans_touching_no_label": 0
+        },
+        "fi": {
+          "characters_outside_body_labels": 0,
+          "total_characters": 1930,
+          "share": 0.0,
+          "spans_touching_no_label": 0
+        }
+      },
+      "failed_documents": 0
+    },
+    {
+      "configuration": "combined + qwen final pass",
+      "how": "rerun on masked text",
+      "typed": {
+        "covered": 136,
+        "partial": 2,
+        "planted": 146
+      },
+      "any_type": {
+        "all": {
+          "covered": 140,
+          "partial": 4,
+          "planted": 146
+        },
+        "en": {
+          "covered": 71,
+          "partial": 2,
+          "planted": 73
+        },
+        "fi": {
+          "covered": 69,
+          "partial": 2,
+          "planted": 73
+        }
+      },
+      "over_masking": {
+        "all": {
+          "characters_outside_body_labels": 3,
+          "total_characters": 4033,
+          "share": 0.0007438631291842301,
+          "spans_touching_no_label": 0
+        },
+        "en": {
+          "characters_outside_body_labels": 1,
+          "total_characters": 2103,
+          "share": 0.00047551117451260106,
+          "spans_touching_no_label": 0
+        },
+        "fi": {
+          "characters_outside_body_labels": 2,
+          "total_characters": 1930,
+          "share": 0.0010362694300518134,
+          "spans_touching_no_label": 0
+        }
+      },
+      "failed_documents": 0
+    },
+    {
+      "configuration": "combined + gemma final pass",
+      "how": "rerun on masked text",
+      "typed": {
+        "covered": 137,
+        "partial": 1,
+        "planted": 146
+      },
+      "any_type": {
+        "all": {
+          "covered": 140,
+          "partial": 3,
+          "planted": 146
+        },
+        "en": {
+          "covered": 71,
+          "partial": 2,
+          "planted": 73
+        },
+        "fi": {
+          "covered": 69,
+          "partial": 1,
+          "planted": 73
+        }
+      },
+      "over_masking": {
+        "all": {
+          "characters_outside_body_labels": 3,
+          "total_characters": 4033,
+          "share": 0.0007438631291842301,
+          "spans_touching_no_label": 0
+        },
+        "en": {
+          "characters_outside_body_labels": 1,
+          "total_characters": 2103,
+          "share": 0.00047551117451260106,
+          "spans_touching_no_label": 0
+        },
+        "fi": {
+          "characters_outside_body_labels": 2,
+          "total_characters": 1930,
+          "share": 0.0010362694300518134,
+          "spans_touching_no_label": 0
+        }
+      },
+      "failed_documents": 0
+    },
+    {
+      "configuration": "combined ∪ qwen-alone",
+      "how": "union of saved spans",
+      "typed": {
+        "covered": 144,
+        "partial": 1,
+        "planted": 146
+      },
+      "any_type": {
+        "all": {
+          "covered": 146,
+          "partial": 0,
+          "planted": 146
+        },
+        "en": {
+          "covered": 73,
+          "partial": 0,
+          "planted": 73
+        },
+        "fi": {
+          "covered": 73,
+          "partial": 0,
+          "planted": 73
+        }
+      },
+      "over_masking": {
+        "all": {
+          "characters_outside_body_labels": 5,
+          "total_characters": 4033,
+          "share": 0.001239771881973717,
+          "spans_touching_no_label": 0
+        },
+        "en": {
+          "characters_outside_body_labels": 1,
+          "total_characters": 2103,
+          "share": 0.00047551117451260106,
+          "spans_touching_no_label": 0
+        },
+        "fi": {
+          "characters_outside_body_labels": 4,
+          "total_characters": 1930,
+          "share": 0.002072538860103627,
+          "spans_touching_no_label": 0
+        }
+      },
+      "failed_documents": 0
+    },
+    {
+      "configuration": "combined ∪ gemma-alone",
+      "how": "union of saved spans",
+      "typed": {
+        "covered": 139,
+        "partial": 2,
+        "planted": 146
+      },
+      "any_type": {
+        "all": {
+          "covered": 143,
+          "partial": 0,
+          "planted": 146
+        },
+        "en": {
+          "covered": 73,
+          "partial": 0,
+          "planted": 73
+        },
+        "fi": {
+          "covered": 70,
+          "partial": 0,
+          "planted": 73
+        }
+      },
+      "over_masking": {
+        "all": {
+          "characters_outside_body_labels": 3,
+          "total_characters": 4033,
+          "share": 0.0007438631291842301,
+          "spans_touching_no_label": 0
+        },
+        "en": {
+          "characters_outside_body_labels": 1,
+          "total_characters": 2103,
+          "share": 0.00047551117451260106,
+          "spans_touching_no_label": 0
+        },
+        "fi": {
+          "characters_outside_body_labels": 2,
+          "total_characters": 1930,
+          "share": 0.0010362694300518134,
+          "spans_touching_no_label": 0
+        }
+      },
+      "failed_documents": 0
+    }
+  ]
+}

@@ -23,6 +23,8 @@ This page lists what the evidence in this repository does not show, and the deci
 
 ### Detection (RQ2)
 
+- The contextual-identifier test uses 24 synthetic documents written by the same team that wrote the
+  contextual prompt, one run per configuration ([contextual-llm.md](contextual-llm.md)).
 - The local-LLM comparison covers 14 documents and 146 body labels, with no
   ground truth for contextual quasi-identifiers. Added detections are not
   evidence of reduced re-identification ([local-llm-comparison.md](local-llm-comparison.md)).

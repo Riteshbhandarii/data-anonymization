@@ -40,7 +40,7 @@ publicly available AI models?
 A local pipeline. It reads a file, turns it into Markdown, finds identifiers,
 replaces them and saves the result. Nothing leaves the machine.
 
-<img alt="Pipeline: company file, extract text, Markdown, find identifiers (optional local LLM pass), replace, review, then public AI. Everything before the public AI stays on the machine." src="docs/figures/pipeline.svg" width="100%">
+<img alt="Pipeline: company file, extract text, Markdown, then find identifiers with rules plus NER and optionally a local LLM on the same text, merged, replace, review, then public AI. Everything before the public AI stays on the machine." src="docs/figures/pipeline.svg" width="100%">
 
 - **Formats:** TXT/MD, CSV, DOCX, XLSX, PPTX, PDF and images, with OCR for
   images and scans. Document properties, notes, comments and other hidden
@@ -48,8 +48,9 @@ replaces them and saves the result. Nothing leaves the machine.
 - **Detectors**, all behind one interface: `basic`, `rules` and `rules-lg`
   (Presidio with small or large spaCy models plus custom patterns), `gliner`
   and `gliner2` (local NER models), `privacy-filter`, and `combined` (rules plus
-  GLiNER, the main method). An optional local LLM (Qwen or Gemma) can run a
-  final pass.
+  GLiNER, the main method). An optional local LLM (Qwen or Gemma) can read the
+  same text alongside them; its detections are merged with theirs. It catches
+  what has no fixed format, such as licence numbers and project code names.
 - **Replacement:** a type label such as `[PERSON]`, or consistent pseudonyms
   such as `[PERSON_1]`.
 - **Testbench:** a local Streamlit page to watch extract, detect and clean
@@ -103,10 +104,27 @@ the machine. Email, logs and code, CAD and audio/video are desk research only.
   (basic) to 63.7% (combined) on TAB, and from 52.2% to 26.5% on Turku.
 - Extraction: 946 of 960 planted values reach the text; all 14 misses are OCR
   errors ([residual-misses](docs/residual-misses.md)).
-- A local LLM final pass adds little: `combined` 136/146, with Gemma 137/146,
-  with Qwen 136/146 ([comparison](docs/local-llm-comparison.md)).
+- A local LLM helps when it reads the original text. Counting any detection
+  that hides a value, Qwen alone hides 144/146, `combined` 139/146, and the two
+  merged 146/146. Run on text `combined` has already masked, the LLM loses
+  context and adds one value ([contextual-llm](docs/contextual-llm.md)).
 
-Source: [dataset-audit-runs](docs/dataset-audit-runs.md).
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/figures/rq2-local-llm-dark.svg">
+  <img alt="Bar chart of identifiers hidden by any detection, out of 73 per language. combined 71 EN, 68 FI. Qwen alone 72, 72. Gemma alone 72, 61. combined then Qwen 71, 69. combined then Gemma 71, 69. combined plus Qwen merged 73, 73. combined plus Gemma merged 73, 70." src="docs/figures/rq2-local-llm-light.svg" width="720">
+</picture>
+
+- Rules miss what has no fixed shape. On 18 fictional documents `combined`
+  hides 26 of 71 contextual items (licence, contract and business-ID numbers,
+  project and system names, identifying clues). Merged with Qwen and a
+  contextual prompt it hides 58 of 71.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/figures/rq2-contextual-llm-dark.svg">
+  <img alt="Bar chart of contextual items fully hidden on 18 test documents. Licence numbers: combined 1/8, Qwen 8/8, merged 8/8. Contract numbers 3/12, 12/12, 12/12. Business ID 5/9, 9/9, 9/9. Project code name 8/11, 8/11, 9/11. System name 3/13, 11/13, 11/13. Job and place clue 0/12, 3/12, 3/12. Detail in notes 6/6 each. Names, emails, phones 44/44, 25/44, 44/44." src="docs/figures/rq2-contextual-llm-light.svg" width="720">
+</picture>
+
+Source: [dataset-audit-runs](docs/dataset-audit-runs.md), [contextual-llm](docs/contextual-llm.md).
 
 ### RQ3: can public AI re-identify?
 
@@ -158,7 +176,10 @@ guesses, so the supported count is shown too.
 ## Conclusion
 
 1. Local anonymization with rules plus a NER model removes most identifiers,
-   but not all, and Finnish is harder.
+   but not all, and Finnish is harder. It misses what has no fixed format:
+   licence and contract numbers, internal code names, identifying clues. A
+   local LLM run on the same text and merged closes most of that gap
+   (26 → 58 of 71 contextual items), at a runtime cost.
 2. In this test ChatGPT Free named nothing once names were masked. The leaks
    were detector misses and untouched metadata, not model inference.
 3. Redaction can destroy the task. Pseudonyms keep relationships between
@@ -206,7 +227,7 @@ the real source documents are deliberately not in the repository.
 | Path | Contents |
 |---|---|
 | `pipeline/` | Format detection, extraction and OCR, Markdown output |
-| `detect/` | The detector methods and the local-LLM final pass |
+| `detect/` | The detector methods and the local-LLM detector (merged or final pass) |
 | `redact/` | Span replacement and consistent pseudonyms |
 | `corpus/` | Synthetic corpus generator and verifier |
 | `eval/` | Benchmarks, study helpers, saved results in `eval/baselines/` |

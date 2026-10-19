@@ -7,7 +7,7 @@ Which options exist for anonymizing each document format before it goes to a pub
 ## Key result
 
 - Best local detector: `combined` finds 1,849/1,919 values on 140 synthetic files, 4,269/5,112 on TAB and 80/100 on Turku.
-- A local LLM final pass adds at most one label: Gemma 137/146, Qwen 136/146, against 136/146 for the baseline.
+- A local LLM run on the original text and merged with `combined` hides 146/146 values, against 139/146 for `combined` alone, and 58 vs 26 of 71 contextual items such as licence numbers and code names ([contextual-llm](contextual-llm.md)). Run on already masked text it adds about one.
 - Commercial samples are small: Azure 35/48 any-type, Google 55/98, Limina 69/74 on 8 of 10 submitted files.
 - For screenshots, GLiNER hides 422/467 readable values and rules 408/467. Pixelation and blur are not redaction.
 - Email, logs/code, CAD, audio/video and scanned PDFs are NOT TESTED; those rows are desk research.
@@ -91,10 +91,10 @@ This does not rank commercial/free-tool studies against that corpus.
 | combined | Free | Local | Extracted text; image module can use it | FI measured | 1,849/1,919, 140 files; separate TAB 4,269/5,112, Turku 80/100; [matrix](dataset-audit-runs.md) | Complementary detections; current local starting point | Still misses company names and OCR errors; over-redacts; no privacy proof | Reviewed local text preparation | Automatic approval to disclose a whole document |
 | privacy-filter + patterns | Free open weights | Local | Extracted text | FI ai4privacy measured; Turku mismatch | 1,582/1,919, 140 files; separate Turku 0/100 in 18 texts; [matrix](dataset-audit-runs.md) | Personal-data taxonomy; high lower-bound precision on selected text | No organization category; taxonomy/domain mismatch | Evaluate personal PII under an explicit label policy | Company confidentiality or assuming benchmark marketing transfers to FI NER |
 | GLiNER2 + patterns | Free cached weights | Local | Extracted text | FI absent from listed training languages; measured here | 1,809/1,919, 140 files; ai4privacy FI 1,636/1,953 in 300 rows; [matrix](dataset-audit-runs.md) | Alternative multilingual PII detector | Boundary/honorific mismatch; not uniformly strongest | Domain-specific comparison against combined | Swapping in without per-type checks |
-| Qwen 3.5 9B alone | Free cached local weights | Local LM Studio loopback | Text windows | FI short-template trial | Current 14 documents: 94/146 body labels, typed precision 100/150. [Comparison](local-llm-comparison.md); no full matrix | Contextual candidate spans | Generative output/type errors; slower; memory | Controlled local experiments | Replacing combined without evidence |
-| Gemma 4 E4B alone | Free cached local weights | Local LM Studio loopback | Text windows | FI short-template trial | Current 14 documents: 111/146 body labels, typed precision 116/139. [Comparison](local-llm-comparison.md); no full matrix | Contextual candidate spans | Generative output/type errors; memory | Controlled comparison on reviewed domain text | Treating model size or fluency as privacy evidence |
-| combined + Qwen final pass | Free cached weights | Local; base process exits before LLM load | Text; base spans masked before final inference | Current FI trial | Current 14 documents: 136/146 body labels, precision 197/241, versus baseline 136/146 and 197/238; no demonstrated gain. [Comparison](local-llm-comparison.md) | Retains base spans; may add contextual candidates | Added masks can damage utility; no measured contextual privacy guarantee | Only if measured benefit justifies added review/runtime | Assuming added detections equal reduced re-identification |
-| combined + Gemma final pass | Free cached weights | Local; base process exits before LLM load | Same final-pass interface | Current FI trial | Current 14 documents: 137/146 body labels, precision 198/239; one additional FI company label over baseline. [Comparison](local-llm-comparison.md) | Retains base detections; small measured typed-coverage gain | Added masks/type errors may yield no useful gain | Domain validation where the small gain survives utility/review checks | Treating one recovered label as a general safety improvement |
+| Qwen 3.5 9B alone | Free cached local weights | Local LM Studio loopback | Text windows | FI measured on short synthetic text | 14 documents: 144/146 hidden by any detection (typed 94/146); contextual prompt 57/71 contextual items, 2/46 decoys. [Contextual test](contextual-llm.md) | Finds companies and context-dependent values rules miss | Mislabels types; skips names when told they are masked; about 5.6 s per short document | Alongside `combined`, merged | Replacing `combined`: misses some names and emails alone |
+| Gemma 4 E4B alone | Free cached local weights | Local LM Studio loopback | Text windows | FI weaker than EN here | 14 documents: 133/146 by any detection (typed 111/146); 12 Finnish names and companies missed. [Contextual test](contextual-llm.md) | Smaller and faster than Qwen | Weak on Finnish names | Comparison only | Finnish documents without review |
+| combined → Qwen (LLM on masked text) | Free cached weights | Local; base process exits before LLM load | Base spans masked before inference | FI measured | 14 documents: 140/146 by any detection; contextual 47/71 with 22/46 decoys. [Contextual test](contextual-llm.md) | Keeps base spans | Masking removes the context the LLM needs; Qwen sometimes loops to its token limit | Not recommended; use merged | — |
+| **combined + Qwen, merged** | Free cached weights | Local; run one after the other, union of spans | Same original text for both | FI measured | 14 documents: **146/146**; contextual corpus **58/71** contextual items and 44/44 standard identifiers. [Contextual test](contextual-llm.md) | Covers what each misses: formats from rules, context from the LLM | Inherits `combined`'s over-masking (22/46 decoys); slower on long documents | Documents with reference numbers, code names or company context | Fast bulk processing of long exports on a laptop |
 
 Local processing still has a runtime cost. The current combined/MPS pack
 preparation needed 1,178.2 detection seconds for 17 long real-public exports
@@ -161,7 +161,8 @@ option was called during this 2026-10-19 work.
 4. **Choose a local method.** For supported prose start with extraction plus
    combined; for structured quasi-identifiers consider ARX and field reduction.
    For scans use local OCR; for screenshots use solid pixel removal and manual
-   boxes. An LLM final pass needs demonstrated benefit on the relevant task.
+   boxes. For documents with reference numbers, code names or company context,
+   also run a local LLM on the same text and merge its detections.
 5. **Inspect the saved output against the source.** Check whole names,
    addresses, account digits, logos, signatures, faces, QR codes and indirect
    clues. Verify PDF copy/paste and fresh flattened image pixels. Blur and
@@ -215,7 +216,7 @@ accuracy column.
 ## Related
 
 - [dataset-audit-runs.md](dataset-audit-runs.md): the seven-method detector matrix
-- [local-llm-comparison.md](local-llm-comparison.md): local LLM final passes
+- [contextual-llm.md](contextual-llm.md): local LLMs merged with `combined`, and contextual identifiers
 - [ocr-survey.md](ocr-survey.md): OCR engines
 - [screenshot-redaction.md](screenshot-redaction.md): screenshot redaction tools and results
 - [limitations.md](limitations.md): what the evidence does not show

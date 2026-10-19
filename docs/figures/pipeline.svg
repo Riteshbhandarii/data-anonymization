@@ -1,6 +1,6 @@
 <svg viewBox="0 0 1064 332" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="pipeline-title pipeline-desc">
   <title id="pipeline-title">Anonymization pipeline, file to public AI</title>
-  <desc id="pipeline-desc">A company file is read, turned into Markdown, scanned for identifiers and rewritten on the local machine, then reviewed before anything is pasted into a public AI model; each step is marked with the research question that measures it.</desc>
+  <desc id="pipeline-desc">A company file is read, turned into Markdown, scanned for identifiers by rules plus NER and optionally a local LLM on the same text, merged, and rewritten on the local machine, then reviewed before anything is pasted into a public AI model; each step is marked with the research question that measures it.</desc>
   <style>
     text{font-family:'Geist',system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif}
     .mono{font-family:'Geist Mono',ui-monospace,'SFMono-Regular',Menlo,Consolas,monospace}
@@ -32,7 +32,7 @@
   <line class="connector" x1="592" y1="188" x2="618" y2="188" marker-end="url(#pipeline-arrow)"/>
   <line class="connector" x1="740" y1="188" x2="766" y2="188" marker-end="url(#pipeline-arrow)"/>
   <line class="connector" x1="888" y1="188" x2="914" y2="188" marker-end="url(#pipeline-arrow)"/>
-  <path class="connector optional" d="M512 150 V77 Q512 69 520 69 H546" marker-end="url(#pipeline-arrow)"/>
+  <path class="connector optional" d="M384 150 V77 Q384 69 392 69 H546" marker-end="url(#pipeline-arrow)"/>
   <path class="connector optional" d="M676 69 H692 Q700 69 700 77 V148" marker-end="url(#pipeline-arrow)"/>
   <g text-anchor="middle">
     <rect class="node-mask" x="28" y="150" width="120" height="76" rx="6"/>
@@ -84,8 +84,8 @@
     <text class="tag mono" x="976" y="272">RQ3 RE-IDENTIFICATION</text>
     <rect class="node-mask" x="548" y="40" width="128" height="58" rx="6"/>
     <rect class="node optional" x="548" y="40" width="128" height="58" rx="6"/>
-    <text class="node-title" x="612" y="65">Local LLM pass</text>
-    <text class="node-sub" x="612" y="82">optional: Qwen, Gemma</text>
+    <text class="node-title" x="612" y="65">Local LLM</text>
+    <text class="node-sub" x="612" y="82">same text, merged</text>
   </g>
   <line x1="28" y1="292" x2="1036" y2="292" stroke="rgba(45,49,66,.12)"/>
   <rect x="28" y="306" width="20" height="13" rx="2" fill="#f8ebe6" stroke="#bf4520"/><text class="legend-text" x="56" y="317">Main detector</text>

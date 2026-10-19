@@ -1,0 +1,1095 @@
+{
+  "schema_version": 1,
+  "measured_date": "2026-10-20",
+  "corpus": "eval.contextual_corpus seed 42: 24 fictional documents (12 EN, 12 FI); 6 dev, 18 test",
+  "model": "qwen/qwen3.5-9b MLX 4-bit, LM Studio loopback, temperature 0, reasoning off, 8192 context",
+  "base": "combined (rules + GLiNER, CPU), run in its own process before any LLM",
+  "prompt_sha256": {
+    "identifiers": "33143f8e2114a384644641a015869788419f44939b8f42eef7d81d6fa35e9652",
+    "contextual": "c79231576e4995b9354a41fc2c7e99bfd6d1e96fd7c9e9a7849a3e7548ca406e"
+  },
+  "metric_note": "covered = whole value hidden by any span; partial = some of it hidden; decoys = values that must stay visible; outside_share = masked characters outside every label. The prompt was fixed before any run and nothing was tuned on the dev split; all 24 documents ran together and dev and test are reported separately.",
+  "caveat": "The same team wrote the corpus and the prompt. Prompt examples were written without the corpus values. Gemma runs and the identifier-prompt final pass were stopped to limit load and are not reported. The contextual prompt says names and emails are already masked; in the merged design it runs on original text.",
+  "configurations": [
+    {
+      "configuration": "combined",
+      "corpus_sha256": "59196e9978155e2f12609cf668022b3e23d0f9f42a008c6f2d236a56cd5149ee",
+      "detect_seconds": 12.525,
+      "score": {
+        "dev": {
+          "categories": {
+            "BUSINESS_ID": {
+              "planted": 3,
+              "covered": 2,
+              "partial": 0
+            },
+            "CONTRACT": {
+              "planted": 4,
+              "covered": 2,
+              "partial": 0
+            },
+            "HIDDEN": {
+              "planted": 2,
+              "covered": 2,
+              "partial": 0
+            },
+            "LICENCE": {
+              "planted": 4,
+              "covered": 0,
+              "partial": 1
+            },
+            "PROJECT": {
+              "planted": 3,
+              "covered": 2,
+              "partial": 0
+            },
+            "QUASI": {
+              "planted": 4,
+              "covered": 0,
+              "partial": 4
+            },
+            "STANDARD": {
+              "planted": 16,
+              "covered": 16,
+              "partial": 0
+            },
+            "SYSTEM": {
+              "planted": 3,
+              "covered": 0,
+              "partial": 0
+            }
+          },
+          "contextual": {
+            "planted": 23,
+            "covered": 8,
+            "partial": 5
+          },
+          "decoys": {
+            "total": 14,
+            "masked": 4
+          },
+          "masked_outside_labels": {
+            "characters": 634,
+            "share": 0.0979
+          }
+        },
+        "test": {
+          "categories": {
+            "BUSINESS_ID": {
+              "planted": 9,
+              "covered": 5,
+              "partial": 2
+            },
+            "CONTRACT": {
+              "planted": 12,
+              "covered": 3,
+              "partial": 2
+            },
+            "HIDDEN": {
+              "planted": 6,
+              "covered": 6,
+              "partial": 0
+            },
+            "LICENCE": {
+              "planted": 8,
+              "covered": 1,
+              "partial": 2
+            },
+            "PROJECT": {
+              "planted": 11,
+              "covered": 8,
+              "partial": 0
+            },
+            "QUASI": {
+              "planted": 12,
+              "covered": 0,
+              "partial": 12
+            },
+            "STANDARD": {
+              "planted": 44,
+              "covered": 44,
+              "partial": 0
+            },
+            "SYSTEM": {
+              "planted": 13,
+              "covered": 3,
+              "partial": 0
+            }
+          },
+          "contextual": {
+            "planted": 71,
+            "covered": 26,
+            "partial": 18
+          },
+          "decoys": {
+            "total": 46,
+            "masked": 21
+          },
+          "masked_outside_labels": {
+            "characters": 1724,
+            "share": 0.0895
+          }
+        },
+        "all": {
+          "categories": {
+            "BUSINESS_ID": {
+              "planted": 12,
+              "covered": 7,
+              "partial": 2
+            },
+            "CONTRACT": {
+              "planted": 16,
+              "covered": 5,
+              "partial": 2
+            },
+            "HIDDEN": {
+              "planted": 8,
+              "covered": 8,
+              "partial": 0
+            },
+            "LICENCE": {
+              "planted": 12,
+              "covered": 1,
+              "partial": 3
+            },
+            "PROJECT": {
+              "planted": 14,
+              "covered": 10,
+              "partial": 0
+            },
+            "QUASI": {
+              "planted": 16,
+              "covered": 0,
+              "partial": 16
+            },
+            "STANDARD": {
+              "planted": 60,
+              "covered": 60,
+              "partial": 0
+            },
+            "SYSTEM": {
+              "planted": 16,
+              "covered": 3,
+              "partial": 0
+            }
+          },
+          "contextual": {
+            "planted": 94,
+            "covered": 34,
+            "partial": 23
+          },
+          "decoys": {
+            "total": 60,
+            "masked": 25
+          },
+          "masked_outside_labels": {
+            "characters": 2358,
+            "share": 0.0916
+          }
+        }
+      }
+    },
+    {
+      "configuration": "qwen alone, identifier prompt",
+      "corpus_sha256": "59196e9978155e2f12609cf668022b3e23d0f9f42a008c6f2d236a56cd5149ee",
+      "failed_documents": 0,
+      "dropped_entities": 1,
+      "llm_seconds": 163.267,
+      "score": {
+        "dev": {
+          "categories": {
+            "BUSINESS_ID": {
+              "planted": 3,
+              "covered": 3,
+              "partial": 0
+            },
+            "CONTRACT": {
+              "planted": 4,
+              "covered": 4,
+              "partial": 0
+            },
+            "HIDDEN": {
+              "planted": 2,
+              "covered": 2,
+              "partial": 0
+            },
+            "LICENCE": {
+              "planted": 4,
+              "covered": 4,
+              "partial": 0
+            },
+            "PROJECT": {
+              "planted": 3,
+              "covered": 3,
+              "partial": 0
+            },
+            "QUASI": {
+              "planted": 4,
+              "covered": 0,
+              "partial": 4
+            },
+            "STANDARD": {
+              "planted": 16,
+              "covered": 16,
+              "partial": 0
+            },
+            "SYSTEM": {
+              "planted": 3,
+              "covered": 1,
+              "partial": 2
+            }
+          },
+          "contextual": {
+            "planted": 23,
+            "covered": 17,
+            "partial": 6
+          },
+          "decoys": {
+            "total": 14,
+            "masked": 4
+          },
+          "masked_outside_labels": {
+            "characters": 168,
+            "share": 0.0259
+          }
+        },
+        "test": {
+          "categories": {
+            "BUSINESS_ID": {
+              "planted": 9,
+              "covered": 9,
+              "partial": 0
+            },
+            "CONTRACT": {
+              "planted": 12,
+              "covered": 12,
+              "partial": 0
+            },
+            "HIDDEN": {
+              "planted": 6,
+              "covered": 6,
+              "partial": 0
+            },
+            "LICENCE": {
+              "planted": 8,
+              "covered": 7,
+              "partial": 0
+            },
+            "PROJECT": {
+              "planted": 11,
+              "covered": 5,
+              "partial": 1
+            },
+            "QUASI": {
+              "planted": 12,
+              "covered": 0,
+              "partial": 12
+            },
+            "STANDARD": {
+              "planted": 44,
+              "covered": 44,
+              "partial": 0
+            },
+            "SYSTEM": {
+              "planted": 13,
+              "covered": 9,
+              "partial": 3
+            }
+          },
+          "contextual": {
+            "planted": 71,
+            "covered": 48,
+            "partial": 16
+          },
+          "decoys": {
+            "total": 46,
+            "masked": 10
+          },
+          "masked_outside_labels": {
+            "characters": 208,
+            "share": 0.0108
+          }
+        },
+        "all": {
+          "categories": {
+            "BUSINESS_ID": {
+              "planted": 12,
+              "covered": 12,
+              "partial": 0
+            },
+            "CONTRACT": {
+              "planted": 16,
+              "covered": 16,
+              "partial": 0
+            },
+            "HIDDEN": {
+              "planted": 8,
+              "covered": 8,
+              "partial": 0
+            },
+            "LICENCE": {
+              "planted": 12,
+              "covered": 11,
+              "partial": 0
+            },
+            "PROJECT": {
+              "planted": 14,
+              "covered": 8,
+              "partial": 1
+            },
+            "QUASI": {
+              "planted": 16,
+              "covered": 0,
+              "partial": 16
+            },
+            "STANDARD": {
+              "planted": 60,
+              "covered": 60,
+              "partial": 0
+            },
+            "SYSTEM": {
+              "planted": 16,
+              "covered": 10,
+              "partial": 5
+            }
+          },
+          "contextual": {
+            "planted": 94,
+            "covered": 65,
+            "partial": 22
+          },
+          "decoys": {
+            "total": 60,
+            "masked": 14
+          },
+          "masked_outside_labels": {
+            "characters": 376,
+            "share": 0.0146
+          }
+        }
+      }
+    },
+    {
+      "configuration": "qwen alone, contextual prompt",
+      "corpus_sha256": "59196e9978155e2f12609cf668022b3e23d0f9f42a008c6f2d236a56cd5149ee",
+      "failed_documents": 0,
+      "dropped_entities": 5,
+      "llm_seconds": 134.081,
+      "score": {
+        "dev": {
+          "categories": {
+            "BUSINESS_ID": {
+              "planted": 3,
+              "covered": 3,
+              "partial": 0
+            },
+            "CONTRACT": {
+              "planted": 4,
+              "covered": 4,
+              "partial": 0
+            },
+            "HIDDEN": {
+              "planted": 2,
+              "covered": 2,
+              "partial": 0
+            },
+            "LICENCE": {
+              "planted": 4,
+              "covered": 4,
+              "partial": 0
+            },
+            "PROJECT": {
+              "planted": 3,
+              "covered": 2,
+              "partial": 1
+            },
+            "QUASI": {
+              "planted": 4,
+              "covered": 1,
+              "partial": 1
+            },
+            "STANDARD": {
+              "planted": 16,
+              "covered": 7,
+              "partial": 1
+            },
+            "SYSTEM": {
+              "planted": 3,
+              "covered": 2,
+              "partial": 1
+            }
+          },
+          "contextual": {
+            "planted": 23,
+            "covered": 18,
+            "partial": 3
+          },
+          "decoys": {
+            "total": 14,
+            "masked": 1
+          },
+          "masked_outside_labels": {
+            "characters": 25,
+            "share": 0.0039
+          }
+        },
+        "test": {
+          "categories": {
+            "BUSINESS_ID": {
+              "planted": 9,
+              "covered": 9,
+              "partial": 0
+            },
+            "CONTRACT": {
+              "planted": 12,
+              "covered": 12,
+              "partial": 0
+            },
+            "HIDDEN": {
+              "planted": 6,
+              "covered": 6,
+              "partial": 0
+            },
+            "LICENCE": {
+              "planted": 8,
+              "covered": 8,
+              "partial": 0
+            },
+            "PROJECT": {
+              "planted": 11,
+              "covered": 8,
+              "partial": 2
+            },
+            "QUASI": {
+              "planted": 12,
+              "covered": 3,
+              "partial": 5
+            },
+            "STANDARD": {
+              "planted": 44,
+              "covered": 25,
+              "partial": 1
+            },
+            "SYSTEM": {
+              "planted": 13,
+              "covered": 11,
+              "partial": 2
+            }
+          },
+          "contextual": {
+            "planted": 71,
+            "covered": 57,
+            "partial": 9
+          },
+          "decoys": {
+            "total": 46,
+            "masked": 2
+          },
+          "masked_outside_labels": {
+            "characters": 163,
+            "share": 0.0085
+          }
+        },
+        "all": {
+          "categories": {
+            "BUSINESS_ID": {
+              "planted": 12,
+              "covered": 12,
+              "partial": 0
+            },
+            "CONTRACT": {
+              "planted": 16,
+              "covered": 16,
+              "partial": 0
+            },
+            "HIDDEN": {
+              "planted": 8,
+              "covered": 8,
+              "partial": 0
+            },
+            "LICENCE": {
+              "planted": 12,
+              "covered": 12,
+              "partial": 0
+            },
+            "PROJECT": {
+              "planted": 14,
+              "covered": 10,
+              "partial": 3
+            },
+            "QUASI": {
+              "planted": 16,
+              "covered": 4,
+              "partial": 6
+            },
+            "STANDARD": {
+              "planted": 60,
+              "covered": 32,
+              "partial": 2
+            },
+            "SYSTEM": {
+              "planted": 16,
+              "covered": 13,
+              "partial": 3
+            }
+          },
+          "contextual": {
+            "planted": 94,
+            "covered": 75,
+            "partial": 12
+          },
+          "decoys": {
+            "total": 60,
+            "masked": 3
+          },
+          "masked_outside_labels": {
+            "characters": 188,
+            "share": 0.0073
+          }
+        }
+      }
+    },
+    {
+      "configuration": "combined, then qwen final pass, contextual prompt",
+      "corpus_sha256": "59196e9978155e2f12609cf668022b3e23d0f9f42a008c6f2d236a56cd5149ee",
+      "failed_documents": 0,
+      "dropped_entities": 2,
+      "llm_seconds": 64.794,
+      "score": {
+        "dev": {
+          "categories": {
+            "BUSINESS_ID": {
+              "planted": 3,
+              "covered": 2,
+              "partial": 0
+            },
+            "CONTRACT": {
+              "planted": 4,
+              "covered": 4,
+              "partial": 0
+            },
+            "HIDDEN": {
+              "planted": 2,
+              "covered": 2,
+              "partial": 0
+            },
+            "LICENCE": {
+              "planted": 4,
+              "covered": 3,
+              "partial": 1
+            },
+            "PROJECT": {
+              "planted": 3,
+              "covered": 3,
+              "partial": 0
+            },
+            "QUASI": {
+              "planted": 4,
+              "covered": 0,
+              "partial": 4
+            },
+            "STANDARD": {
+              "planted": 16,
+              "covered": 16,
+              "partial": 0
+            },
+            "SYSTEM": {
+              "planted": 3,
+              "covered": 2,
+              "partial": 1
+            }
+          },
+          "contextual": {
+            "planted": 23,
+            "covered": 16,
+            "partial": 6
+          },
+          "decoys": {
+            "total": 14,
+            "masked": 4
+          },
+          "masked_outside_labels": {
+            "characters": 651,
+            "share": 0.1005
+          }
+        },
+        "test": {
+          "categories": {
+            "BUSINESS_ID": {
+              "planted": 9,
+              "covered": 7,
+              "partial": 2
+            },
+            "CONTRACT": {
+              "planted": 12,
+              "covered": 10,
+              "partial": 0
+            },
+            "HIDDEN": {
+              "planted": 6,
+              "covered": 6,
+              "partial": 0
+            },
+            "LICENCE": {
+              "planted": 8,
+              "covered": 5,
+              "partial": 2
+            },
+            "PROJECT": {
+              "planted": 11,
+              "covered": 9,
+              "partial": 1
+            },
+            "QUASI": {
+              "planted": 12,
+              "covered": 1,
+              "partial": 11
+            },
+            "STANDARD": {
+              "planted": 44,
+              "covered": 44,
+              "partial": 0
+            },
+            "SYSTEM": {
+              "planted": 13,
+              "covered": 9,
+              "partial": 3
+            }
+          },
+          "contextual": {
+            "planted": 71,
+            "covered": 47,
+            "partial": 19
+          },
+          "decoys": {
+            "total": 46,
+            "masked": 22
+          },
+          "masked_outside_labels": {
+            "characters": 1747,
+            "share": 0.0907
+          }
+        },
+        "all": {
+          "categories": {
+            "BUSINESS_ID": {
+              "planted": 12,
+              "covered": 9,
+              "partial": 2
+            },
+            "CONTRACT": {
+              "planted": 16,
+              "covered": 14,
+              "partial": 0
+            },
+            "HIDDEN": {
+              "planted": 8,
+              "covered": 8,
+              "partial": 0
+            },
+            "LICENCE": {
+              "planted": 12,
+              "covered": 8,
+              "partial": 3
+            },
+            "PROJECT": {
+              "planted": 14,
+              "covered": 12,
+              "partial": 1
+            },
+            "QUASI": {
+              "planted": 16,
+              "covered": 1,
+              "partial": 15
+            },
+            "STANDARD": {
+              "planted": 60,
+              "covered": 60,
+              "partial": 0
+            },
+            "SYSTEM": {
+              "planted": 16,
+              "covered": 11,
+              "partial": 4
+            }
+          },
+          "contextual": {
+            "planted": 94,
+            "covered": 63,
+            "partial": 25
+          },
+          "decoys": {
+            "total": 60,
+            "masked": 26
+          },
+          "masked_outside_labels": {
+            "characters": 2398,
+            "share": 0.0932
+          }
+        }
+      }
+    },
+    {
+      "configuration": "combined ∪ qwen alone, identifier prompt",
+      "corpus_sha256": "59196e9978155e2f12609cf668022b3e23d0f9f42a008c6f2d236a56cd5149ee",
+      "failed_documents": 0,
+      "dropped_entities": 1,
+      "llm_seconds": 163.267,
+      "base_detect_seconds": 12.525,
+      "score": {
+        "dev": {
+          "categories": {
+            "BUSINESS_ID": {
+              "planted": 3,
+              "covered": 3,
+              "partial": 0
+            },
+            "CONTRACT": {
+              "planted": 4,
+              "covered": 4,
+              "partial": 0
+            },
+            "HIDDEN": {
+              "planted": 2,
+              "covered": 2,
+              "partial": 0
+            },
+            "LICENCE": {
+              "planted": 4,
+              "covered": 4,
+              "partial": 0
+            },
+            "PROJECT": {
+              "planted": 3,
+              "covered": 3,
+              "partial": 0
+            },
+            "QUASI": {
+              "planted": 4,
+              "covered": 0,
+              "partial": 4
+            },
+            "STANDARD": {
+              "planted": 16,
+              "covered": 16,
+              "partial": 0
+            },
+            "SYSTEM": {
+              "planted": 3,
+              "covered": 1,
+              "partial": 2
+            }
+          },
+          "contextual": {
+            "planted": 23,
+            "covered": 17,
+            "partial": 6
+          },
+          "decoys": {
+            "total": 14,
+            "masked": 8
+          },
+          "masked_outside_labels": {
+            "characters": 703,
+            "share": 0.1085
+          }
+        },
+        "test": {
+          "categories": {
+            "BUSINESS_ID": {
+              "planted": 9,
+              "covered": 9,
+              "partial": 0
+            },
+            "CONTRACT": {
+              "planted": 12,
+              "covered": 12,
+              "partial": 0
+            },
+            "HIDDEN": {
+              "planted": 6,
+              "covered": 6,
+              "partial": 0
+            },
+            "LICENCE": {
+              "planted": 8,
+              "covered": 7,
+              "partial": 0
+            },
+            "PROJECT": {
+              "planted": 11,
+              "covered": 9,
+              "partial": 1
+            },
+            "QUASI": {
+              "planted": 12,
+              "covered": 0,
+              "partial": 12
+            },
+            "STANDARD": {
+              "planted": 44,
+              "covered": 44,
+              "partial": 0
+            },
+            "SYSTEM": {
+              "planted": 13,
+              "covered": 9,
+              "partial": 3
+            }
+          },
+          "contextual": {
+            "planted": 71,
+            "covered": 52,
+            "partial": 16
+          },
+          "decoys": {
+            "total": 46,
+            "masked": 27
+          },
+          "masked_outside_labels": {
+            "characters": 1842,
+            "share": 0.0957
+          }
+        },
+        "all": {
+          "categories": {
+            "BUSINESS_ID": {
+              "planted": 12,
+              "covered": 12,
+              "partial": 0
+            },
+            "CONTRACT": {
+              "planted": 16,
+              "covered": 16,
+              "partial": 0
+            },
+            "HIDDEN": {
+              "planted": 8,
+              "covered": 8,
+              "partial": 0
+            },
+            "LICENCE": {
+              "planted": 12,
+              "covered": 11,
+              "partial": 0
+            },
+            "PROJECT": {
+              "planted": 14,
+              "covered": 12,
+              "partial": 1
+            },
+            "QUASI": {
+              "planted": 16,
+              "covered": 0,
+              "partial": 16
+            },
+            "STANDARD": {
+              "planted": 60,
+              "covered": 60,
+              "partial": 0
+            },
+            "SYSTEM": {
+              "planted": 16,
+              "covered": 10,
+              "partial": 5
+            }
+          },
+          "contextual": {
+            "planted": 94,
+            "covered": 69,
+            "partial": 22
+          },
+          "decoys": {
+            "total": 60,
+            "masked": 35
+          },
+          "masked_outside_labels": {
+            "characters": 2545,
+            "share": 0.0989
+          }
+        }
+      }
+    },
+    {
+      "configuration": "combined ∪ qwen alone, contextual prompt",
+      "corpus_sha256": "59196e9978155e2f12609cf668022b3e23d0f9f42a008c6f2d236a56cd5149ee",
+      "failed_documents": 0,
+      "dropped_entities": 5,
+      "llm_seconds": 134.081,
+      "base_detect_seconds": 12.525,
+      "score": {
+        "dev": {
+          "categories": {
+            "BUSINESS_ID": {
+              "planted": 3,
+              "covered": 3,
+              "partial": 0
+            },
+            "CONTRACT": {
+              "planted": 4,
+              "covered": 4,
+              "partial": 0
+            },
+            "HIDDEN": {
+              "planted": 2,
+              "covered": 2,
+              "partial": 0
+            },
+            "LICENCE": {
+              "planted": 4,
+              "covered": 4,
+              "partial": 0
+            },
+            "PROJECT": {
+              "planted": 3,
+              "covered": 3,
+              "partial": 0
+            },
+            "QUASI": {
+              "planted": 4,
+              "covered": 1,
+              "partial": 3
+            },
+            "STANDARD": {
+              "planted": 16,
+              "covered": 16,
+              "partial": 0
+            },
+            "SYSTEM": {
+              "planted": 3,
+              "covered": 2,
+              "partial": 1
+            }
+          },
+          "contextual": {
+            "planted": 23,
+            "covered": 19,
+            "partial": 4
+          },
+          "decoys": {
+            "total": 14,
+            "masked": 5
+          },
+          "masked_outside_labels": {
+            "characters": 659,
+            "share": 0.1017
+          }
+        },
+        "test": {
+          "categories": {
+            "BUSINESS_ID": {
+              "planted": 9,
+              "covered": 9,
+              "partial": 0
+            },
+            "CONTRACT": {
+              "planted": 12,
+              "covered": 12,
+              "partial": 0
+            },
+            "HIDDEN": {
+              "planted": 6,
+              "covered": 6,
+              "partial": 0
+            },
+            "LICENCE": {
+              "planted": 8,
+              "covered": 8,
+              "partial": 0
+            },
+            "PROJECT": {
+              "planted": 11,
+              "covered": 9,
+              "partial": 1
+            },
+            "QUASI": {
+              "planted": 12,
+              "covered": 3,
+              "partial": 9
+            },
+            "STANDARD": {
+              "planted": 44,
+              "covered": 44,
+              "partial": 0
+            },
+            "SYSTEM": {
+              "planted": 13,
+              "covered": 11,
+              "partial": 2
+            }
+          },
+          "contextual": {
+            "planted": 71,
+            "covered": 58,
+            "partial": 12
+          },
+          "decoys": {
+            "total": 46,
+            "masked": 22
+          },
+          "masked_outside_labels": {
+            "characters": 1855,
+            "share": 0.0963
+          }
+        },
+        "all": {
+          "categories": {
+            "BUSINESS_ID": {
+              "planted": 12,
+              "covered": 12,
+              "partial": 0
+            },
+            "CONTRACT": {
+              "planted": 16,
+              "covered": 16,
+              "partial": 0
+            },
+            "HIDDEN": {
+              "planted": 8,
+              "covered": 8,
+              "partial": 0
+            },
+            "LICENCE": {
+              "planted": 12,
+              "covered": 12,
+              "partial": 0
+            },
+            "PROJECT": {
+              "planted": 14,
+              "covered": 12,
+              "partial": 1
+            },
+            "QUASI": {
+              "planted": 16,
+              "covered": 4,
+              "partial": 12
+            },
+            "STANDARD": {
+              "planted": 60,
+              "covered": 60,
+              "partial": 0
+            },
+            "SYSTEM": {
+              "planted": 16,
+              "covered": 13,
+              "partial": 3
+            }
+          },
+          "contextual": {
+            "planted": 94,
+            "covered": 77,
+            "partial": 16
+          },
+          "decoys": {
+            "total": 60,
+            "masked": 27
+          },
+          "masked_outside_labels": {
+            "characters": 2514,
+            "share": 0.0977
+          }
+        }
+      }
+    }
+  ]
+}

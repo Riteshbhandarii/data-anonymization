@@ -19,7 +19,8 @@ Start with the [project README](../README.md) for the overview.
 |---|---|---|---|
 | RQ2 extraction | 946/960 planted values reach the text; all 14 misses are OCR errors | 2026-10-19 | [extraction-validation](extraction-validation.md) |
 | RQ2 detection, `combined` | Synthetic 1,849/1,919 · TAB 4,269/5,112 · Turku 80/100 · ai4privacy EN 1,757/1,986 · FI 1,636/1,953 | 2026-10-14 | [dataset-audit-runs](dataset-audit-runs.md) |
-| RQ2 local LLM final pass | `combined` 136/146 · + Gemma 137/146 · + Qwen 136/146 | 2026-10-19 | [local-llm-comparison](local-llm-comparison.md) |
+| RQ2 local LLMs, any detection | `combined` 139/146 · Qwen alone 144/146 · merged 146/146 | 2026-10-20 | [contextual-llm](contextual-llm.md) |
+| RQ2 contextual items | `combined` 26/71 · `combined` + Qwen merged 58/71 | 2026-10-20 | [contextual-llm](contextual-llm.md) |
 | RQ3 naming from anonymized text | 1/18 (a detector miss); real documents 0/4; raw ceiling 4/4; controls 0/6 | 2026-10-19 | [public-ai-results](public-ai-results.md) |
 | RQ3 linkage | 4/4; the true pair was linked through untouched metadata | 2026-10-19 | [public-ai-results](public-ai-results.md) |
 | RQ4 usefulness, evidence-supported | Redacted 0/9 · pseudonymized 3/9, in English and Finnish | 2026-10-19 | [utility-impact](utility-impact.md#evidence-supported-answers) |
@@ -48,7 +49,8 @@ Start with the [project README](../README.md) for the overview.
 |---|---|
 | [extraction-validation.md](extraction-validation.md) | Which planted values reach the extracted text, per format and location |
 | [dataset-audit-runs.md](dataset-audit-runs.md) | Seven detectors on 885 labelled documents in English and Finnish |
-| [local-llm-comparison.md](local-llm-comparison.md) | Five local configurations, with and without an LLM final pass |
+| [local-llm-comparison.md](local-llm-comparison.md) | Five local configurations, typed scoring (see correction) |
+| [contextual-llm.md](contextual-llm.md) | Any-type rescoring, and licence numbers, code names and clues that rules miss |
 | [residual-misses.md](residual-misses.md) | Why the remaining misses happen |
 
 ## RQ3: can public AI re-identify

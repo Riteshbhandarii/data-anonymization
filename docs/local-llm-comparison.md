@@ -4,13 +4,20 @@
 
 Does a local LLM add detection accuracy on top of the `combined` detector, and what does it cost? Five configurations ran on one frozen synthetic corpus of 14 documents (7 English, 7 Finnish) with 146 body labels, on 2026-10-19 at detector source `e148240`. Earlier pre-audit experiments are in [archive/local-model-options.md](archive/local-model-options.md).
 
+> **Correction, 2026-10-20.** This page scores typed recall: a value counts only with the right label. That undercounts the LLMs, which often find the text but pick another label. Counting any detection, Qwen alone hides 144/146, not 94/146, and running `combined` and Qwen on the original text and merging hides 146/146. See [contextual-llm.md](contextual-llm.md). The tables below are kept as measured.
+
 ## Key result
 
 - `combined` alone covers 136/146 body labels (2 partial), with 0 failed documents.
 - Qwen as a final pass adds nothing: 136/146 (2 partial), P 197/241.
 - Gemma as a final pass adds one label: 137/146 (1 partial), P 198/239.
-- Standalone local models are weaker: Qwen alone 94/146, Gemma alone 111/146 (1 partial).
+- Standalone local models score lower on this typed metric: Qwen alone 94/146, Gemma alone 111/146 (1 partial). Any-type: 144 and 133 ([correction](contextual-llm.md)).
 - These counts say nothing about contextual re-identification. Usefulness is in [utility-impact.md](utility-impact.md#2026-10-19-rerun).
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="figures/rq2-local-llm-dark.svg">
+  <img alt="Bar chart of identifiers hidden by any detection, out of 73 per language. combined 71 EN, 68 FI. Qwen alone 72, 72. Gemma alone 72, 61. combined then Qwen 71, 69. combined then Gemma 71, 69. combined plus Qwen merged 73, 73. combined plus Gemma merged 73, 70." src="figures/rq2-local-llm-light.svg" width="720">
+</picture>
 
 ## Corpus and metrics
 
@@ -109,5 +116,6 @@ Use a new cache and output path on a repeat. Reports contain aggregates only. Co
 
 - [dataset-audit-runs.md](dataset-audit-runs.md): the 885-document detector matrix
 - [residual-misses.md](residual-misses.md): why misses remain
+- [contextual-llm.md](contextual-llm.md): any-type rescoring and the contextual test
 - [utility-impact.md](utility-impact.md): usefulness after redaction
 - [archive/local-model-options.md](archive/local-model-options.md): superseded pre-audit runs
