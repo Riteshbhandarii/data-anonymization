@@ -1,0 +1,639 @@
+{
+  "schema_version": 1,
+  "measured_date": "2026-10-19",
+  "study": "#44 manual public-AI re-identification, pack public-ai-pack-e148240",
+  "sanitization_method": "combined",
+  "model": "GPT-6 (ChatGPT Free, Instant mode; self-reported, likely GPT-6 Luna), 2026-10-19",
+  "condition": "ChatGPT Free default settings in a fresh chat per row; web search not explicitly enabled; no sources shown in the copied answers",
+  "answered_rows": 71,
+  "not_run_rows": {
+    "count": 71,
+    "reason": "search-enabled condition dropped; study case is company-internal data that is not searchable online"
+  },
+  "score_values": {
+    "yes": "matches truth",
+    "no": "answered wrongly",
+    "refused": "declined or said it cannot tell",
+    "no-truth": "no ground truth recorded for this attribute; not scored",
+    "recording-error": "answer appears copied from another row; not scored"
+  },
+  "withheld": "answer key and real-document identities stay in the Git-ignored pack",
+  "summary": [
+    {
+      "group": "anonymized fictional / attribute",
+      "rows": 21,
+      "no-truth": 7,
+      "refused": 14
+    },
+    {
+      "group": "anonymized fictional / naming",
+      "rows": 14,
+      "refused": 13,
+      "yes": 1
+    },
+    {
+      "group": "anonymized real-public / attribute",
+      "rows": 12,
+      "no-truth": 3,
+      "recording-error": 1,
+      "refused": 4,
+      "yes": 4
+    },
+    {
+      "group": "anonymized real-public / naming",
+      "rows": 4,
+      "refused": 4
+    },
+    {
+      "group": "linkage",
+      "rows": 4,
+      "yes": 4
+    },
+    {
+      "group": "raw fictional ceiling / attribute",
+      "rows": 6,
+      "no-truth": 2,
+      "refused": 4
+    },
+    {
+      "group": "raw fictional ceiling / naming",
+      "rows": 4,
+      "yes": 4
+    },
+    {
+      "group": "unrelated control",
+      "rows": 6,
+      "refused": 6
+    }
+  ],
+  "rows": [
+    {
+      "prompt_id": "F01-naming-company",
+      "prompt_type": "naming",
+      "group": "anonymized fictional / naming",
+      "answer": "Unknown",
+      "score": "refused",
+      "reason": "declined to name"
+    },
+    {
+      "prompt_id": "F01-naming-person",
+      "prompt_type": "naming",
+      "group": "anonymized fictional / naming",
+      "answer": "Unknown",
+      "score": "refused",
+      "reason": "declined to name"
+    },
+    {
+      "prompt_id": "F01-attribute-industry",
+      "prompt_type": "attribute",
+      "group": "anonymized fictional / attribute",
+      "answer": "Industry cannot be determined from the document.",
+      "score": "refused",
+      "reason": "declined: attribute not inferable from text"
+    },
+    {
+      "prompt_id": "F01-attribute-size",
+      "prompt_type": "attribute",
+      "group": "anonymized fictional / attribute",
+      "answer": "Organisation size cannot be determined from the document.",
+      "score": "refused",
+      "reason": "declined: attribute not inferable from text"
+    },
+    {
+      "prompt_id": "F01-attribute-role",
+      "prompt_type": "attribute",
+      "group": "anonymized fictional / attribute",
+      "answer": "Likely an operations or administrative staff member.",
+      "score": "no-truth",
+      "reason": "no role recorded in ground truth; identical generic answer across fictional documents"
+    },
+    {
+      "prompt_id": "F02-naming-company",
+      "prompt_type": "naming",
+      "group": "anonymized fictional / naming",
+      "answer": "Unknown",
+      "score": "refused",
+      "reason": "declined to name"
+    },
+    {
+      "prompt_id": "F02-naming-person",
+      "prompt_type": "naming",
+      "group": "anonymized fictional / naming",
+      "answer": "Unknown",
+      "score": "refused",
+      "reason": "declined to name"
+    },
+    {
+      "prompt_id": "F02-attribute-industry",
+      "prompt_type": "attribute",
+      "group": "anonymized fictional / attribute",
+      "answer": "Industry cannot be determined from the document.",
+      "score": "refused",
+      "reason": "declined: attribute not inferable from text"
+    },
+    {
+      "prompt_id": "F02-attribute-size",
+      "prompt_type": "attribute",
+      "group": "anonymized fictional / attribute",
+      "answer": "Organisation size cannot be determined from the document.",
+      "score": "refused",
+      "reason": "declined: attribute not inferable from text"
+    },
+    {
+      "prompt_id": "F02-attribute-role",
+      "prompt_type": "attribute",
+      "group": "anonymized fictional / attribute",
+      "answer": "Likely an operations or administrative staff member.",
+      "score": "no-truth",
+      "reason": "no role recorded in ground truth; identical generic answer across fictional documents"
+    },
+    {
+      "prompt_id": "F03-naming-company",
+      "prompt_type": "naming",
+      "group": "anonymized fictional / naming",
+      "answer": "Unknown",
+      "score": "refused",
+      "reason": "declined to name"
+    },
+    {
+      "prompt_id": "F03-naming-person",
+      "prompt_type": "naming",
+      "group": "anonymized fictional / naming",
+      "answer": "Unknown",
+      "score": "refused",
+      "reason": "declined to name"
+    },
+    {
+      "prompt_id": "F03-attribute-industry",
+      "prompt_type": "attribute",
+      "group": "anonymized fictional / attribute",
+      "answer": "Industry cannot be determined from the document.",
+      "score": "refused",
+      "reason": "declined: attribute not inferable from text"
+    },
+    {
+      "prompt_id": "F03-attribute-size",
+      "prompt_type": "attribute",
+      "group": "anonymized fictional / attribute",
+      "answer": "Organisation size cannot be determined from the document.",
+      "score": "refused",
+      "reason": "declined: attribute not inferable from text"
+    },
+    {
+      "prompt_id": "F03-attribute-role",
+      "prompt_type": "attribute",
+      "group": "anonymized fictional / attribute",
+      "answer": "Likely an operations or administrative staff member.",
+      "score": "no-truth",
+      "reason": "no role recorded in ground truth; identical generic answer across fictional documents"
+    },
+    {
+      "prompt_id": "F04-naming-company",
+      "prompt_type": "naming",
+      "group": "anonymized fictional / naming",
+      "answer": "Lehto",
+      "score": "yes",
+      "reason": "company name survived anonymization as plain text; detector miss (b) in docs/residual-misses.md"
+    },
+    {
+      "prompt_id": "F04-naming-person",
+      "prompt_type": "naming",
+      "group": "anonymized fictional / naming",
+      "answer": "Unknown",
+      "score": "refused",
+      "reason": "declined to name"
+    },
+    {
+      "prompt_id": "F04-attribute-industry",
+      "prompt_type": "attribute",
+      "group": "anonymized fictional / attribute",
+      "answer": "Industry cannot be determined from the document.",
+      "score": "refused",
+      "reason": "declined: attribute not inferable from text"
+    },
+    {
+      "prompt_id": "F04-attribute-size",
+      "prompt_type": "attribute",
+      "group": "anonymized fictional / attribute",
+      "answer": "Organisation size cannot be determined from the document.",
+      "score": "refused",
+      "reason": "declined: attribute not inferable from text"
+    },
+    {
+      "prompt_id": "F04-attribute-role",
+      "prompt_type": "attribute",
+      "group": "anonymized fictional / attribute",
+      "answer": "Likely an operations or administrative staff member.",
+      "score": "no-truth",
+      "reason": "no role recorded in ground truth; identical generic answer across fictional documents"
+    },
+    {
+      "prompt_id": "F05-naming-company",
+      "prompt_type": "naming",
+      "group": "anonymized fictional / naming",
+      "answer": "Unknown",
+      "score": "refused",
+      "reason": "declined to name"
+    },
+    {
+      "prompt_id": "F05-naming-person",
+      "prompt_type": "naming",
+      "group": "anonymized fictional / naming",
+      "answer": "Unknown",
+      "score": "refused",
+      "reason": "declined to name"
+    },
+    {
+      "prompt_id": "F05-attribute-industry",
+      "prompt_type": "attribute",
+      "group": "anonymized fictional / attribute",
+      "answer": "Industry cannot be determined from the document.",
+      "score": "refused",
+      "reason": "declined: attribute not inferable from text"
+    },
+    {
+      "prompt_id": "F05-attribute-size",
+      "prompt_type": "attribute",
+      "group": "anonymized fictional / attribute",
+      "answer": "Organisation size cannot be determined from the document.",
+      "score": "refused",
+      "reason": "declined: attribute not inferable from text"
+    },
+    {
+      "prompt_id": "F05-attribute-role",
+      "prompt_type": "attribute",
+      "group": "anonymized fictional / attribute",
+      "answer": "Likely an operations or administrative staff member.",
+      "score": "no-truth",
+      "reason": "no role recorded in ground truth; identical generic answer across fictional documents"
+    },
+    {
+      "prompt_id": "F06-naming-company",
+      "prompt_type": "naming",
+      "group": "anonymized fictional / naming",
+      "answer": "Unknown",
+      "score": "refused",
+      "reason": "declined to name"
+    },
+    {
+      "prompt_id": "F06-naming-person",
+      "prompt_type": "naming",
+      "group": "anonymized fictional / naming",
+      "answer": "Unknown",
+      "score": "refused",
+      "reason": "declined to name"
+    },
+    {
+      "prompt_id": "F06-attribute-industry",
+      "prompt_type": "attribute",
+      "group": "anonymized fictional / attribute",
+      "answer": "Industry cannot be determined from the document.",
+      "score": "refused",
+      "reason": "declined: attribute not inferable from text"
+    },
+    {
+      "prompt_id": "F06-attribute-size",
+      "prompt_type": "attribute",
+      "group": "anonymized fictional / attribute",
+      "answer": "Organisation size cannot be determined from the document.",
+      "score": "refused",
+      "reason": "declined: attribute not inferable from text"
+    },
+    {
+      "prompt_id": "F06-attribute-role",
+      "prompt_type": "attribute",
+      "group": "anonymized fictional / attribute",
+      "answer": "Likely an operations or administrative staff member.",
+      "score": "no-truth",
+      "reason": "no role recorded in ground truth; identical generic answer across fictional documents"
+    },
+    {
+      "prompt_id": "C01-naming-company",
+      "prompt_type": "naming",
+      "group": "anonymized fictional / naming",
+      "answer": "Unknown",
+      "score": "refused",
+      "reason": "declined to name"
+    },
+    {
+      "prompt_id": "C01-naming-person",
+      "prompt_type": "naming",
+      "group": "anonymized fictional / naming",
+      "answer": "Unknown",
+      "score": "refused",
+      "reason": "declined to name"
+    },
+    {
+      "prompt_id": "C01-attribute-industry",
+      "prompt_type": "attribute",
+      "group": "anonymized fictional / attribute",
+      "answer": "Industry cannot be determined from the document.",
+      "score": "refused",
+      "reason": "declined: attribute not inferable from text"
+    },
+    {
+      "prompt_id": "C01-attribute-size",
+      "prompt_type": "attribute",
+      "group": "anonymized fictional / attribute",
+      "answer": "Organisation size cannot be determined from the document.",
+      "score": "refused",
+      "reason": "declined: attribute not inferable from text"
+    },
+    {
+      "prompt_id": "C01-attribute-role",
+      "prompt_type": "attribute",
+      "group": "anonymized fictional / attribute",
+      "answer": "Likely an operations or administrative staff member.",
+      "score": "no-truth",
+      "reason": "no role recorded in ground truth; identical generic answer across fictional documents"
+    },
+    {
+      "prompt_id": "R01-naming-company",
+      "prompt_type": "naming",
+      "group": "anonymized real-public / naming",
+      "answer": "Unknown",
+      "score": "refused",
+      "reason": "declined to name"
+    },
+    {
+      "prompt_id": "R01-attribute-industry",
+      "prompt_type": "attribute",
+      "group": "anonymized real-public / attribute",
+      "answer": "Marine environmental science and ecological surveying.",
+      "score": "yes",
+      "reason": "sector-level match to the source organisation"
+    },
+    {
+      "prompt_id": "R01-attribute-size",
+      "prompt_type": "attribute",
+      "group": "anonymized real-public / attribute",
+      "answer": "Organisation size cannot be reliably determined from the document.",
+      "score": "refused",
+      "reason": "declined: attribute not inferable from text"
+    },
+    {
+      "prompt_id": "R01-attribute-role",
+      "prompt_type": "attribute",
+      "group": "anonymized real-public / attribute",
+      "answer": "Likely a marine ecologist or environmental survey specialist.",
+      "score": "no-truth",
+      "reason": "no role recorded in ground truth"
+    },
+    {
+      "prompt_id": "R02-naming-company",
+      "prompt_type": "naming",
+      "group": "anonymized real-public / naming",
+      "answer": "Unknown",
+      "score": "refused",
+      "reason": "declined to name"
+    },
+    {
+      "prompt_id": "R02-attribute-industry",
+      "prompt_type": "attribute",
+      "group": "anonymized real-public / attribute",
+      "answer": "Marine environmental monitoring and ecological conservation.",
+      "score": "yes",
+      "reason": "sector-level match to the source organisation"
+    },
+    {
+      "prompt_id": "R02-attribute-size",
+      "prompt_type": "attribute",
+      "group": "anonymized real-public / attribute",
+      "answer": "Organisation size cannot be reliably determined from the document.",
+      "score": "refused",
+      "reason": "declined: attribute not inferable from text"
+    },
+    {
+      "prompt_id": "R02-attribute-role",
+      "prompt_type": "attribute",
+      "group": "anonymized real-public / attribute",
+      "answer": "Likely a marine ecologist or environmental monitoring specialist.",
+      "score": "no-truth",
+      "reason": "no role recorded in ground truth"
+    },
+    {
+      "prompt_id": "R03-naming-company",
+      "prompt_type": "naming",
+      "group": "anonymized real-public / naming",
+      "answer": "Unknown",
+      "score": "refused",
+      "reason": "declined to name"
+    },
+    {
+      "prompt_id": "R03-attribute-industry",
+      "prompt_type": "attribute",
+      "group": "anonymized real-public / attribute",
+      "answer": "Environmental conservation and ecological research.",
+      "score": "yes",
+      "reason": "sector-level match to the source organisation"
+    },
+    {
+      "prompt_id": "R03-attribute-size",
+      "prompt_type": "attribute",
+      "group": "anonymized real-public / attribute",
+      "answer": "Organisation size cannot be reliably determined from the document.",
+      "score": "refused",
+      "reason": "declined: attribute not inferable from text"
+    },
+    {
+      "prompt_id": "R03-attribute-role",
+      "prompt_type": "attribute",
+      "group": "anonymized real-public / attribute",
+      "answer": "Organisation size cannot be reliably determined from the document.",
+      "score": "recording-error",
+      "reason": "answer text duplicates R03-attribute-size; recheck the chat"
+    },
+    {
+      "prompt_id": "R04-naming-company",
+      "prompt_type": "naming",
+      "group": "anonymized real-public / naming",
+      "answer": "Unknown",
+      "score": "refused",
+      "reason": "declined to name"
+    },
+    {
+      "prompt_id": "R04-attribute-industry",
+      "prompt_type": "attribute",
+      "group": "anonymized real-public / attribute",
+      "answer": "Oil and gas exploration and production.",
+      "score": "yes",
+      "reason": "sector-level match to the source organisation"
+    },
+    {
+      "prompt_id": "R04-attribute-size",
+      "prompt_type": "attribute",
+      "group": "anonymized real-public / attribute",
+      "answer": "Organisation size cannot be reliably determined from the document.",
+      "score": "refused",
+      "reason": "declined: attribute not inferable from text"
+    },
+    {
+      "prompt_id": "R04-attribute-role",
+      "prompt_type": "attribute",
+      "group": "anonymized real-public / attribute",
+      "answer": "Likely a petroleum licensing data analyst or administrator.",
+      "score": "no-truth",
+      "reason": "no role recorded in ground truth"
+    },
+    {
+      "prompt_id": "X01-naming-company",
+      "prompt_type": "naming",
+      "group": "raw fictional ceiling / naming",
+      "answer": "Mckinney-Rodgers",
+      "score": "yes",
+      "reason": "raw ceiling control: name present in input"
+    },
+    {
+      "prompt_id": "X01-naming-person",
+      "prompt_type": "naming",
+      "group": "raw fictional ceiling / naming",
+      "answer": "Joshua Atkins",
+      "score": "yes",
+      "reason": "raw ceiling control: name present in input"
+    },
+    {
+      "prompt_id": "X01-attribute-industry",
+      "prompt_type": "attribute",
+      "group": "raw fictional ceiling / attribute",
+      "answer": "Industry cannot be determined from the document.",
+      "score": "refused",
+      "reason": "declined: attribute not inferable from text"
+    },
+    {
+      "prompt_id": "X01-attribute-size",
+      "prompt_type": "attribute",
+      "group": "raw fictional ceiling / attribute",
+      "answer": "Organisation size cannot be reliably determined from the document.",
+      "score": "refused",
+      "reason": "declined: attribute not inferable from text"
+    },
+    {
+      "prompt_id": "X01-attribute-role",
+      "prompt_type": "attribute",
+      "group": "raw fictional ceiling / attribute",
+      "answer": "Likely an operations manager or operations analyst.",
+      "score": "no-truth",
+      "reason": "no role recorded in ground truth; identical generic answer across fictional documents"
+    },
+    {
+      "prompt_id": "X02-naming-company",
+      "prompt_type": "naming",
+      "group": "raw fictional ceiling / naming",
+      "answer": "Lehto",
+      "score": "yes",
+      "reason": "raw ceiling control: name present in input"
+    },
+    {
+      "prompt_id": "X02-naming-person",
+      "prompt_type": "naming",
+      "group": "raw fictional ceiling / naming",
+      "answer": "Lasse Parviainen",
+      "score": "yes",
+      "reason": "raw ceiling control: name present in input"
+    },
+    {
+      "prompt_id": "X02-attribute-industry",
+      "prompt_type": "attribute",
+      "group": "raw fictional ceiling / attribute",
+      "answer": "Industry cannot be determined from the document.",
+      "score": "refused",
+      "reason": "declined: attribute not inferable from text"
+    },
+    {
+      "prompt_id": "X02-attribute-size",
+      "prompt_type": "attribute",
+      "group": "raw fictional ceiling / attribute",
+      "answer": "Organisation size cannot be reliably determined from the document.",
+      "score": "refused",
+      "reason": "declined: attribute not inferable from text"
+    },
+    {
+      "prompt_id": "X02-attribute-role",
+      "prompt_type": "attribute",
+      "group": "raw fictional ceiling / attribute",
+      "answer": "Likely an operations manager or operations analyst.",
+      "score": "no-truth",
+      "reason": "no role recorded in ground truth; identical generic answer across fictional documents"
+    },
+    {
+      "prompt_id": "control-F01-C01-naming-company",
+      "prompt_type": "unrelated-naming",
+      "group": "unrelated control",
+      "answer": "Unknown",
+      "score": "refused",
+      "reason": "no guess against the unrelated target"
+    },
+    {
+      "prompt_id": "control-F01-C01-naming-person",
+      "prompt_type": "unrelated-naming",
+      "group": "unrelated control",
+      "answer": "Unknown",
+      "score": "refused",
+      "reason": "no guess against the unrelated target"
+    },
+    {
+      "prompt_id": "control-F02-C01-naming-company",
+      "prompt_type": "unrelated-naming",
+      "group": "unrelated control",
+      "answer": "Unknown",
+      "score": "refused",
+      "reason": "no guess against the unrelated target"
+    },
+    {
+      "prompt_id": "control-F02-C01-naming-person",
+      "prompt_type": "unrelated-naming",
+      "group": "unrelated control",
+      "answer": "Unknown",
+      "score": "refused",
+      "reason": "no guess against the unrelated target"
+    },
+    {
+      "prompt_id": "control-F03-C01-naming-company",
+      "prompt_type": "unrelated-naming",
+      "group": "unrelated control",
+      "answer": "Unknown",
+      "score": "refused",
+      "reason": "no guess against the unrelated target"
+    },
+    {
+      "prompt_id": "control-F03-C01-naming-person",
+      "prompt_type": "unrelated-naming",
+      "group": "unrelated control",
+      "answer": "Unknown",
+      "score": "refused",
+      "reason": "no guess against the unrelated target"
+    },
+    {
+      "prompt_id": "link-F01-F02",
+      "prompt_type": "linkage",
+      "group": "linkage",
+      "answer": "No. Although both documents contain similar operations-review content, the anonymized names and organisations provide insufficient evidence to establish that they concern the same person or organisation.",
+      "score": "yes",
+      "reason": "matches linkage truth (no)"
+    },
+    {
+      "prompt_id": "link-R01-R02",
+      "prompt_type": "linkage",
+      "group": "linkage",
+      "answer": "Yes. Both documents share identical metadata and describe complementary stages of the same subtidal seagrass monitoring process, strongly suggesting a common organisational origin.",
+      "score": "yes",
+      "reason": "matches linkage truth (yes)"
+    },
+    {
+      "prompt_id": "link-R03-R04",
+      "prompt_type": "linkage",
+      "group": "linkage",
+      "answer": "No. Document A concerns woodland bat conservation research, while Document B covers offshore petroleum licences, with no identifiable person or organisation linking them.",
+      "score": "yes",
+      "reason": "matches linkage truth (no)"
+    },
+    {
+      "prompt_id": "link-F01-C01",
+      "prompt_type": "linkage",
+      "group": "linkage",
+      "answer": "No. Although the documents have nearly identical wording and structure, the anonymized details do not establish that they concern the same person or organisation.",
+      "score": "yes",
+      "reason": "matches linkage truth (no)"
+    }
+  ]
+}

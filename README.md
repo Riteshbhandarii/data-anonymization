@@ -142,6 +142,7 @@ Public and synthetic only. Nothing real enters this repository.
 - [docs/final-evidence-run.md](docs/final-evidence-run.md), execution record, pending human work and exact changed-file manifest
 - [docs/options-map.md](docs/options-map.md), format-by-format decision guide, option tradeoffs and review flow
 - [docs/public-ai-pack.md](docs/public-ai-pack.md), blind manual-study pack and Finnish document IDs
+- [docs/public-ai-results.md](docs/public-ai-results.md), scored ChatGPT Free re-identification results (#44)
 - [docs/local-llm-comparison.md](docs/local-llm-comparison.md), current five-configuration local comparison
 - [docs/residual-misses.md](docs/residual-misses.md), reproduced failures and unsupported content; diagnosis only
 - [docs/pipeline.md](docs/pipeline.md), pipeline interfaces and module integration
