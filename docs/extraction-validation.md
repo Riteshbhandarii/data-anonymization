@@ -34,9 +34,9 @@ There were no extraction errors.
 
 A fresh run on a macOS host with a different corpus fingerprint returned 946/960, with 14 OCR mismatches and no extraction errors. The two runs differ only in OCR results and are kept separate.
 
-### By location
+### By location, 2026-09-29
 
-These locations (issue #33) are measured separately:
+Location results from the same 2026-09-29 run:
 
 | Format | Location | Planted | Returned | Recall |
 |---|---|---:|---:|---:|

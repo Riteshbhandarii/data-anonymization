@@ -99,8 +99,8 @@ the machine. Email, logs and code, CAD and audio/video are desk research only.
 | ai4privacy Finnish | 1,636 / 1,953 (83.8%) |
 
 - On the like-for-like ai4privacy data, Finnish trails English (83.8% vs 88.5%).
-- Higher recall costs precision: lower-bound precision is 63.7% on TAB and
-  26.5% on Turku.
+- Higher recall costs precision. Lower-bound precision falls from 81.0%
+  (basic) to 63.7% (combined) on TAB, and from 52.2% to 26.5% on Turku.
 - Extraction: 946 of 960 planted values reach the text; all 14 misses are OCR
   errors ([residual-misses](docs/residual-misses.md)).
 - A local LLM final pass adds little: `combined` 136/146, with Gemma 137/146,

@@ -30,6 +30,7 @@ THEMES = {
 
 plt.rcParams.update({
     "svg.fonttype": "none",
+    "svg.hashsalt": "data-anonymization",
     "font.family": "sans-serif",
     "font.sans-serif": ["Helvetica Neue", "Helvetica", "Arial", "DejaVu Sans"],
     "font.size": 10,
