@@ -144,7 +144,9 @@ quasi-identifiers. Failed documents remain in recall denominators. OCR uses
 exact-value return rate and character error rate; image redaction scores
 hidden/readable separately from hidden/planted. Utility keeps correct, wrong,
 refused, invalid and error outcomes and reports raw-correct paired retention.
-These metrics are not interchangeable.
+A typed miss can still be physically masked under a different type; typed
+miss counts are not counts of readable leaks. These metrics are not
+interchangeable.
 
 ## Results
 
@@ -198,6 +200,25 @@ Source: [current matrix precision/type tables](dataset-audit-runs.md). These
 are detection-level overlap counts, not mention-level recall denominators.
 They show substantial review burden, particularly on Turku, without proving
 that every unlabelled detection is wrong.
+
+#### Combined accuracy by office/image format and language
+
+Current all-location synthetic results, from the same matrix; these are
+generated files, not hand-labelled real-office evidence. PNG includes paired
+resolution variants. Source: [matrix aggregate JSON](../eval/baselines/dataset-audit-matrix.json).
+
+| Format | English whole-value recall | Finnish whole-value recall |
+|---|---|---|
+| CSV | 81/90 (90.0%) | 90/90 (100.0%) |
+| DOCX | 189/200 (94.5%) | 191/200 (95.5%) |
+| PDF | 147/149 (98.7%) | 148/150 (98.7%) |
+| PNG | 233/240 (97.1%) | 226/240 (94.2%) |
+| PPTX | 144/150 (96.0%) | 148/150 (98.7%) |
+| XLSX | 125/130 (96.2%) | 127/130 (97.7%) |
+
+Across formats, combined covers 919/959 English and 930/960 Finnish synthetic
+labels. The by-format table and those language totals share the 1,919-label
+synthetic denominator; they are not added together. [Full report](dataset-audit-runs.md).
 
 #### Local LLM comparison
 
@@ -282,6 +303,15 @@ constraints. The 16 GiB local comparison uses one LLM at a time and serializes
 the GLiNER base stage. Runtime and loading scope are reported separately in
 [the comparison](local-llm-comparison.md). No cash-cost, energy or staff-time
 benchmark was run, so no total-cost saving is quantified.
+
+The completed combined/MPS pack-preparation run took 1,178.2 seconds of
+detection for 17 unlabelled real-public exports totalling 2,040,231 characters,
+plus 32.4 seconds extraction. Its separate synthetic stage processed 140 files
+and 76,592 characters in 29.0 detection seconds. Warmup/loading is recorded
+separately and is not a full cold-start measurement. These are different
+workloads, not competing methods; the long-export cost matters for practical
+use. Source: [pack preparation](public-ai-pack.md) and
+[safe runtime archive](../eval/baselines/public-ai-pack-e148240.json).
 
 ARX adds column classification and privacy-model/hierarchy setup. Presidio and
 other detectors need language/type configuration. A screenshot editor needs
