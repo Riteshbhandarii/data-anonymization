@@ -10,6 +10,7 @@ Only aggregate results are written; no document text or returned strings.
 
 import argparse
 import collections
+import hashlib
 import json
 import platform
 import time
@@ -86,16 +87,31 @@ def main(argv=None):
     parser.add_argument("--base-url", default="http://127.0.0.1:1234/v1")
     parser.add_argument("--base-method", choices=["rules", "combined", "gliner2"],
                         help="Mask this detector's spans before the final LLM pass")
+    parser.add_argument("--base-cache", type=Path,
+                        help="Replay frozen base spans without loading GLiNER beside the LLM")
     parser.add_argument("--out", type=Path, required=True)
     args = parser.parse_args(argv)
+    if args.base_cache and not args.base_method:
+        parser.error("--base-cache requires --base-method")
     detector = LocalLLMDetector(args.model, base_url=args.base_url)
     if args.base_method:
-        from detect.methods import get_detector
-        detector = FinalPassDetector(get_detector(args.base_method), detector)
+        if args.base_cache:
+            from eval.local_base_cache import CachedDetector
+            base = CachedDetector(args.base_cache, args.corpus, args.base_method)
+        else:
+            from detect.methods import get_detector
+            base = get_detector(args.base_method)
+        detector = FinalPassDetector(base, detector)
     report = benchmark(args.corpus, detector)
     report.update(model=args.model, base_method=args.base_method, temperature=0, reasoning_effort="none",
                   host={"platform": platform.platform(), "machine": platform.machine()},
                   window_characters=4000, overlap_characters=400, score="1.0 flag; uncalibrated")
+    if args.base_cache:
+        report.update(base_cache_sha256=hashlib.sha256(args.base_cache.read_bytes()).hexdigest(),
+                      base_runtime=base.cache["baseline"]["runtime"],
+                      base_construction_seconds=base.cache["construction_seconds"],
+                      runtime_scope="LLM final pass and cached-span replay; base detection and "
+                                    "construction recorded separately. LLM loading excluded.")
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     planted = sum(row["planted"] for row in report["recall"])
