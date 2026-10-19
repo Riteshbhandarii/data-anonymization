@@ -103,8 +103,14 @@ the machine. Email, logs and code, CAD and audio/video are desk research only.
   (basic) to 63.7% (combined) on TAB, and from 52.2% to 26.5% on Turku.
 - Extraction: 946 of 960 planted values reach the text; all 14 misses are OCR
   errors ([residual-misses](docs/residual-misses.md)).
-- A local LLM final pass adds little: `combined` 136/146, with Gemma 137/146,
-  with Qwen 136/146 ([comparison](docs/local-llm-comparison.md)).
+- Local LLMs were tested two ways: alone, and as an extra pass after
+  `combined`. Alone they find fewer identifiers; as an extra pass they add at
+  most one ([comparison](docs/local-llm-comparison.md)).
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/figures/rq2-local-llm-dark.svg">
+  <img alt="Bar chart, labels found out of 73 per language: combined 70 EN / 66 FI; combined + Gemma 70 / 67; combined + Qwen 70 / 66; Gemma alone 61 / 50; Qwen alone 48 / 46." src="docs/figures/rq2-local-llm-light.svg" width="720">
+</picture>
 
 Source: [dataset-audit-runs](docs/dataset-audit-runs.md).
 

@@ -99,6 +99,55 @@ def chart_recall(theme):
     save(fig, "rq2-recall", theme)
 
 
+LLM_CONFIGS = [  # (aggregate file stem, label)
+    ("combined", "combined (no LLM)"),
+    ("gemma-final", "combined + Gemma pass"),
+    ("qwen-final", "combined + Qwen pass"),
+    ("gemma-alone", "Gemma 4 E4B alone"),
+    ("qwen-alone", "Qwen 3.5 9B alone"),
+]
+
+
+def llm_rows():
+    """Typed whole-value recall per language for the five local configurations."""
+    out = []
+    for stem, label in LLM_CONFIGS:
+        rows = load(f"final-evidence-local-{stem}.json")["recall"]
+        per = {}
+        for lang in ("en", "fi"):
+            sel = [r for r in rows if r["language"] == lang]
+            per[lang] = (sum(r["covered"] for r in sel), sum(r["planted"] for r in sel))
+        out.append((label, per))
+    return out
+
+
+def chart_llm(theme):
+    t = THEMES[theme]
+    rows = llm_rows()[::-1]
+    fig, ax = plt.subplots(figsize=(7.2, 3.6), facecolor=t["surface"])
+    style(ax, t)
+    h = 0.36
+    for i, (label, per) in enumerate(rows):
+        for lang, off, color, ink in (("en", h / 2 + 0.02, t["s1"], t["text"]),
+                                      ("fi", -h / 2 - 0.02, t["s2"], t["muted"])):
+            k, n = per[lang]
+            ax.barh(i + off, 100 * k / n, height=h, color=color)
+            ax.text(100 * k / n + 1, i + off, f"{k}/{n}", va="center", fontsize=8.5, color=ink)
+    ax.set_yticks(range(len(rows)), [r[0] for r in rows], color=t["text"])
+    ax.set_xlim(0, 108)
+    ax.set_xticks([0, 25, 50, 75, 100], ["0%", "25%", "50%", "75%", "100%"])
+    ax.set_title("Local LLMs as detectors", loc="left", color=t["text"],
+                 fontsize=11.5, fontweight="bold", pad=22)
+    ax.text(0, 1.03, "identifiers found on the same 14 documents, 73 labels per language",
+            transform=ax.transAxes, fontsize=8.5, color=t["muted"])
+    handles = [plt.Rectangle((0, 0), 1, 1, color=t["s1"]), plt.Rectangle((0, 0), 1, 1, color=t["s2"])]
+    leg = ax.legend(handles, ["English", "Finnish"], loc="upper center", bbox_to_anchor=(0.5, -0.12),
+                    ncol=2, frameon=False, fontsize=8.5, handlelength=1.2)
+    for txt in leg.get_texts():
+        txt.set_color(t["text"])
+    save(fig, "rq2-local-llm", theme)
+
+
 def reid_rows():
     rows = load("public-ai-results-2026-10-19.json")["rows"]
 
@@ -191,5 +240,6 @@ def chart_utility(theme):
 if __name__ == "__main__":
     for theme in THEMES:
         chart_recall(theme)
+        chart_llm(theme)
         chart_reid(theme)
         chart_utility(theme)

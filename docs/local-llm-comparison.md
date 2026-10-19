@@ -12,6 +12,11 @@ Does a local LLM add detection accuracy on top of the `combined` detector, and w
 - Standalone local models are weaker: Qwen alone 94/146, Gemma alone 111/146 (1 partial).
 - These counts say nothing about contextual re-identification. Usefulness is in [utility-impact.md](utility-impact.md#2026-10-19-rerun).
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="figures/rq2-local-llm-dark.svg">
+  <img alt="Bar chart, labels found out of 73 per language: combined 70 EN / 66 FI; combined + Gemma 70 / 67; combined + Qwen 70 / 66; Gemma alone 61 / 50; Qwen alone 48 / 46." src="figures/rq2-local-llm-light.svg" width="720">
+</picture>
+
 ## Corpus and metrics
 
 - Corpus: seed 42, `--n 1`, Faker 40.39.0, 73 body labels per language. The generator also plants 46 non-body labels, which are excluded from body recall. Corpus SHA-256: `27934f5e7fc88d0748be7b53d2d79ecfd797ad82c94c68d6fa16fd421c2e40ae`.
