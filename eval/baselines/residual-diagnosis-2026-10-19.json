@@ -1,0 +1,365 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-19",
+  "application_source": "e148240",
+  "scope": "Synthetic diagnostics only; no public-AI pack answer key read; no detector or extraction fixes.",
+  "environment": {
+    "python": "3.12.0",
+    "tesseract": "tesseract 5.5.3",
+    "Faker": "40.39.0",
+    "presidio-analyzer": "2.2.364",
+    "spacy": "3.8.16",
+    "en-core-web-sm": "3.8.0",
+    "fi-core-news-sm": "3.8.0",
+    "gliner": "0.2.29"
+  },
+  "acceptance": {
+    "corpus": {
+      "seed": 42,
+      "n": 5,
+      "documents": 70,
+      "identifiers": 960,
+      "faker": "40.39.0",
+      "corpus_sha256": "6f47fe80cddc30bb59f4a9564dc068a74e8fe2cf16db59a6e7f069efca6ae2e1"
+    },
+    "by_format": [
+      {
+        "format": "csv",
+        "documents": 10,
+        "planted": 90,
+        "returned": 90,
+        "missing": 0,
+        "recall": 1.0
+      },
+      {
+        "format": "docx",
+        "documents": 10,
+        "planted": 200,
+        "returned": 200,
+        "missing": 0,
+        "recall": 1.0
+      },
+      {
+        "format": "pdf",
+        "documents": 10,
+        "planted": 150,
+        "returned": 149,
+        "missing": 1,
+        "recall": 0.9933333333333333
+      },
+      {
+        "format": "png",
+        "documents": 20,
+        "planted": 240,
+        "returned": 228,
+        "missing": 12,
+        "recall": 0.95
+      },
+      {
+        "format": "pptx",
+        "documents": 10,
+        "planted": 150,
+        "returned": 149,
+        "missing": 1,
+        "recall": 0.9933333333333333
+      },
+      {
+        "format": "xlsx",
+        "documents": 10,
+        "planted": 130,
+        "returned": 130,
+        "missing": 0,
+        "recall": 1.0
+      }
+    ],
+    "thresholds": {
+      "min_recall": 1.0,
+      "qualities": [
+        "standard"
+      ],
+      "locations": [
+        "body",
+        "metadata",
+        "notes",
+        "hidden_sheet",
+        "header",
+        "footer",
+        "comment",
+        "tracked_change"
+      ]
+    },
+    "errors": 0,
+    "missing": [
+      {
+        "file": "pdf/en_pdf_00.pdf",
+        "language": "en",
+        "quality": "standard",
+        "entity_type": "EMAIL",
+        "location": "embedded_image",
+        "expected": "lfrench@example.org",
+        "closest_ocr_text": "Ifrencheexample.org",
+        "classification": "extraction failure",
+        "source_sha256": "3b79928f133560b0fef75e0069997a1eecf24c445bb0fdc2df959ca666c0bb36"
+      },
+      {
+        "file": "png/en_png_00_clean.png",
+        "language": "en",
+        "quality": "clean",
+        "entity_type": "EMAIL",
+        "location": "body",
+        "expected": "lking@example.net",
+        "closest_ocr_text": "(Iking@example.net)",
+        "classification": "extraction failure",
+        "source_sha256": "214c335e6e2fcc0ebbc65b236d959fd672c8ea16ec5ccee9a238ef9a45a6c67c"
+      },
+      {
+        "file": "png/en_png_00_low_resolution.png",
+        "language": "en",
+        "quality": "low_resolution",
+        "entity_type": "EMAIL",
+        "location": "body",
+        "expected": "lking@example.net",
+        "closest_ocr_text": "(Iking@example.net)",
+        "classification": "extraction failure",
+        "source_sha256": "09725c08d7e30bf7bea56bf15dc288682c0865e6febaabb7458b1fc7253d41a5"
+      },
+      {
+        "file": "png/en_png_02_low_resolution.png",
+        "language": "en",
+        "quality": "low_resolution",
+        "entity_type": "IBAN",
+        "location": "body",
+        "expected": "GB30IJBH15786109449391",
+        "closest_ocr_text": "GB30lJBH15786109449391",
+        "classification": "extraction failure",
+        "source_sha256": "354d191ad6e49b71db2fbf7c1e09ac5408adcae894c22b387981bd4d33359abc"
+      },
+      {
+        "file": "png/en_png_04_clean.png",
+        "language": "en",
+        "quality": "clean",
+        "entity_type": "IBAN",
+        "location": "body",
+        "expected": "GB02AHZQ05507174371563",
+        "closest_ocr_text": "GBO2AHZQ05507174371563",
+        "classification": "extraction failure",
+        "source_sha256": "cfc634957694c8fb590e190bfa5fd45f7ce8118cc716d5632d3c061815efc519"
+      },
+      {
+        "file": "pptx/fi_pptx_03.pptx",
+        "language": "fi",
+        "quality": "standard",
+        "entity_type": "EMAIL",
+        "location": "embedded_image",
+        "expected": "marja17@example.com",
+        "closest_ocr_text": "marjal7@example.com",
+        "classification": "extraction failure",
+        "source_sha256": "aa0142d21e86b0f847a3d26b860976d02889ec3fdd68ed6d323732487b58ebdc"
+      },
+      {
+        "file": "png/fi_png_01_clean.png",
+        "language": "fi",
+        "quality": "clean",
+        "entity_type": "EMAIL",
+        "location": "body",
+        "expected": "zleppanen@example.org",
+        "closest_ocr_text": "(zZleppanen@example.org),",
+        "classification": "extraction failure",
+        "source_sha256": "af205405acd1b93c9d56a0187eea4bb58cc86d739b8b44dc197a0936c6cad9a7"
+      },
+      {
+        "file": "png/fi_png_01_clean.png",
+        "language": "fi",
+        "quality": "clean",
+        "entity_type": "PERSONAL_ID",
+        "location": "body",
+        "expected": "140796-696J",
+        "closest_ocr_text": "140796-696),",
+        "classification": "extraction failure",
+        "source_sha256": "af205405acd1b93c9d56a0187eea4bb58cc86d739b8b44dc197a0936c6cad9a7"
+      },
+      {
+        "file": "png/fi_png_01_low_resolution.png",
+        "language": "fi",
+        "quality": "low_resolution",
+        "entity_type": "PERSONAL_ID",
+        "location": "body",
+        "expected": "140796-696J",
+        "closest_ocr_text": "140796-696),",
+        "classification": "extraction failure",
+        "source_sha256": "ca00d201cb84d5adb75694abf8ef179d71153f8e2a1cb5caf637b5bd87dff58a"
+      },
+      {
+        "file": "png/fi_png_02_clean.png",
+        "language": "fi",
+        "quality": "clean",
+        "entity_type": "PERSON",
+        "location": "body",
+        "expected": "Pertti Mäkinen",
+        "closest_ocr_text": "Pertti Makinen",
+        "classification": "extraction failure",
+        "source_sha256": "44fbd022ff01b0b42e71a534be9d64f452d3abf60a27915048a35efd6c526bea"
+      },
+      {
+        "file": "png/fi_png_03_clean.png",
+        "language": "fi",
+        "quality": "clean",
+        "entity_type": "PERSON",
+        "location": "body",
+        "expected": "Jussi Honkanen-Lindqvist",
+        "closest_ocr_text": "Jussi Honkanen-Lindgvist",
+        "classification": "extraction failure",
+        "source_sha256": "ed8ca7e927d71c0b486e516ff921c7024c6ceec8528f135f0a27fd32448a5d29"
+      },
+      {
+        "file": "png/fi_png_03_clean.png",
+        "language": "fi",
+        "quality": "clean",
+        "entity_type": "EMAIL",
+        "location": "body",
+        "expected": "anni07@example.com",
+        "closest_ocr_text": "(anni07&example.com),",
+        "classification": "extraction failure",
+        "source_sha256": "ed8ca7e927d71c0b486e516ff921c7024c6ceec8528f135f0a27fd32448a5d29"
+      },
+      {
+        "file": "png/fi_png_03_low_resolution.png",
+        "language": "fi",
+        "quality": "low_resolution",
+        "entity_type": "PERSON",
+        "location": "body",
+        "expected": "Jussi Honkanen-Lindqvist",
+        "closest_ocr_text": "Jussi Honkanen-Lindgvist",
+        "classification": "extraction failure",
+        "source_sha256": "65cc31ee6f03cf36d22cea1ab80dfcd7dd2bd8d9e50eef32f343b8e504322671"
+      },
+      {
+        "file": "png/fi_png_03_low_resolution.png",
+        "language": "fi",
+        "quality": "low_resolution",
+        "entity_type": "EMAIL",
+        "location": "body",
+        "expected": "anni07@example.com",
+        "closest_ocr_text": "(anni07&example.com),",
+        "classification": "extraction failure",
+        "source_sha256": "65cc31ee6f03cf36d22cea1ab80dfcd7dd2bd8d9e50eef32f343b8e504322671"
+      }
+    ]
+  },
+  "hours_wrong_type": [
+    {
+      "document": "a1.md",
+      "detected_text": "hours 18",
+      "type": "DATE_TIME",
+      "score": 0.85,
+      "recognizer": "SpacyRecognizer",
+      "classification": "wrong type"
+    },
+    {
+      "document": "a1.md",
+      "detected_text": "hours 12",
+      "type": "DATE_TIME",
+      "score": 0.85,
+      "recognizer": "SpacyRecognizer",
+      "classification": "wrong type"
+    },
+    {
+      "document": "a2.md",
+      "detected_text": "hours 18",
+      "type": "DATE_TIME",
+      "score": 0.85,
+      "recognizer": "SpacyRecognizer",
+      "classification": "wrong type"
+    },
+    {
+      "document": "a2.md",
+      "detected_text": "hours 12",
+      "type": "DATE_TIME",
+      "score": 0.85,
+      "recognizer": "SpacyRecognizer",
+      "classification": "wrong type"
+    },
+    {
+      "document": "b1.md",
+      "detected_text": "hours 18",
+      "type": "DATE_TIME",
+      "score": 0.85,
+      "recognizer": "SpacyRecognizer",
+      "classification": "wrong type"
+    },
+    {
+      "document": "b1.md",
+      "detected_text": "hours 12",
+      "type": "DATE_TIME",
+      "score": 0.85,
+      "recognizer": "SpacyRecognizer",
+      "classification": "wrong type"
+    }
+  ],
+  "smoke_corpus": {
+    "seed": 42,
+    "n": 1,
+    "documents": 14,
+    "identifiers": 192,
+    "faker": "40.39.0",
+    "corpus_sha256": "27934f5e7fc88d0748be7b53d2d79ecfd797ad82c94c68d6fa16fd421c2e40ae"
+  },
+  "smoke_png_iban": [
+    {
+      "file": "png/en_png_00_clean.png",
+      "expected": "GB05JAWQ61529714180291",
+      "closest_ocr_text": "GBO5JAWQ61529714180291",
+      "native_iban_spans": 1,
+      "ocr_iban_spans": 0,
+      "classification": "extraction failure",
+      "source_sha256": "88b7edc5ffcd6f4945edb1218b3b2c2bab24e8d46e1be4ef356747b2f290c376"
+    },
+    {
+      "file": "png/en_png_00_low_resolution.png",
+      "expected": "GB05JAWQ61529714180291",
+      "closest_ocr_text": "GBOSJAWQ61529714180291",
+      "native_iban_spans": 1,
+      "ocr_iban_spans": 0,
+      "classification": "extraction failure",
+      "source_sha256": "a9a173c8dff3e38516e59e918fc1b61160aa4b9ecbb337170fdba2d2fc0a5f70"
+    }
+  ],
+  "finnish_company": {
+    "file": "docx/fi_docx_00.docx",
+    "method": "combined",
+    "input": "full extracted Markdown, eng+fin OCR",
+    "company": "Lehto",
+    "occurrences": [
+      {
+        "start": 333,
+        "end": 338,
+        "context": "Lasse Parviainen (jarvinenchristina@example.org), Lehto.\n\nSuora numero +358 846965515",
+        "spans": {
+          "rules": [],
+          "gliner": [],
+          "combined": []
+        }
+      }
+    ],
+    "source_sha256": "e7fdaed6ab17cc24cfdbfd1520f0a069a6f0d9e003c921207a45346433a76631",
+    "fake_corpus": {
+      "seed": 42,
+      "n": 10,
+      "documents": 140,
+      "identifiers": 1919,
+      "faker": "40.39.0",
+      "corpus_sha256": "334a5819412f78713ad3352325c647ca0fade247e4419b5091b97197d6acdaed"
+    },
+    "classification": "detection miss",
+    "gliner_model": "urchade/gliner_multi_pii-v1",
+    "gliner_threshold": 0.4,
+    "device": "cpu"
+  },
+  "application_file_sha256": {
+    "detect/combined.py": "dc24d95e56c94c1fef26d636fdf149fdce42f695309e6d794391df82d7e5c6c8",
+    "detect/gliner_detector.py": "0d696d8b4175be3f34377ecec3f05b15667a7293f39a192c6e3c2c5ef0bec613",
+    "detect/adapter.py": "26f32ac0189ec8d334fa76fea015c30061b6dabcacaccf8b177723b12209e763",
+    "pipeline/extractors.py": "873c3a200379b67d91ff2fb132728d4ac85574bc559f6944f8e7d9da49592872",
+    "corpus/generate.py": "0f09daf54e139718877af7aaf659e77a888f17ad7b595d538115c6868095d30e"
+  }
+}

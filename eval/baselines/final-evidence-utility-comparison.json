@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "measured_date": "2026-10-19",
+  "languages": [
+    {
+      "language": "en",
+      "variants": [
+        {
+          "variant": "raw",
+          "paired_requests": 9,
+          "identical_prompts": 9,
+          "identical_answer_payloads": 9
+        },
+        {
+          "variant": "redacted",
+          "paired_requests": 9,
+          "identical_prompts": 9,
+          "identical_answer_payloads": 9
+        },
+        {
+          "variant": "pseudonymized",
+          "paired_requests": 9,
+          "identical_prompts": 9,
+          "identical_answer_payloads": 9
+        }
+      ],
+      "source_files": [
+        "final-evidence-utility-en-combined.json",
+        "final-evidence-utility-en-gemma-final.json"
+      ]
+    },
+    {
+      "language": "fi",
+      "variants": [
+        {
+          "variant": "raw",
+          "paired_requests": 9,
+          "identical_prompts": 9,
+          "identical_answer_payloads": 9
+        },
+        {
+          "variant": "redacted",
+          "paired_requests": 9,
+          "identical_prompts": 9,
+          "identical_answer_payloads": 9
+        },
+        {
+          "variant": "pseudonymized",
+          "paired_requests": 9,
+          "identical_prompts": 9,
+          "identical_answer_payloads": 9
+        }
+      ],
+      "source_files": [
+        "final-evidence-utility-fi-combined.json",
+        "final-evidence-utility-fi-gemma-final.json"
+      ]
+    }
+  ],
+  "scope": "Compare corresponding requests only; no pooling English and Finnish scores or raw-correct denominators"
+}

@@ -139,6 +139,11 @@ Public and synthetic only. Nothing real enters this repository.
 
 ## Docs
 
+- [docs/final-evidence-run.md](docs/final-evidence-run.md), execution record, pending human work and exact changed-file manifest
+- [docs/options-map.md](docs/options-map.md), format-by-format decision guide, option tradeoffs and review flow
+- [docs/public-ai-pack.md](docs/public-ai-pack.md), blind manual-study pack and Finnish document IDs
+- [docs/local-llm-comparison.md](docs/local-llm-comparison.md), current five-configuration local comparison
+- [docs/residual-misses.md](docs/residual-misses.md), reproduced failures and unsupported content; diagnosis only
 - [docs/pipeline.md](docs/pipeline.md), pipeline interfaces and module integration
 - [docs/extraction-validation.md](docs/extraction-validation.md), extraction recall results and validation commands
 - [docs/techniques.md](docs/techniques.md), anonymization techniques and where each one breaks

@@ -5,6 +5,11 @@ experiments. Corrected-code evidence is recorded separately in the new labelled
 matrix and CPU smoke sections. Keep their sources, metrics and denominators
 separate.
 
+The current [2026-10-19 five-configuration comparison](local-llm-comparison.md)
+reruns the frozen fourteen-document body corpus, including both final passes.
+Use its staged base-cache commands to keep GLiNER and the LLM out of memory
+at the same time; the archived commands below predate that constraint.
+
 Issue [#29](https://github.com/Riteshbhandarii/data-anonymization/issues/29)
 collects the measured options. Detection runs locally; spaCy, GLiNER, GLiNER2
 and Privacy Filter need a one-time weight download. The LLM route uses cached
