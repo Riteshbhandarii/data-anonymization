@@ -283,5 +283,7 @@
   ],
   "verified_listener": "127.0.0.1:1234 (lsof after server start)",
   "final_pass_utility_selection": "A final pass qualifies for utility follow-up if it increases correctly typed whole-value coverage above136/146 with zero failed documents. If both qualify, choose greater coverage, then higher typed-overlap precision. Report all precision/wrong-type/unlabelled costs; this criterion does not establish contextual privacy benefit.",
-  "utility_followup_selected": "Combined + Gemma:137/146 vs combined136/146, zero failures; Finnish COMPANY full coverage2/7 to3/7"
+  "utility_followup_selected": "Combined + Gemma:137/146 vs combined136/146, zero failures; Finnish COMPANY full coverage2/7 to3/7",
+  "final_loaded_state": [],
+  "final_status": "All five detector configurations and108utilityrequests complete; LLMs unloaded; loopback server left running"
 }
