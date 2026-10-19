@@ -76,7 +76,7 @@ counts the values Tesseract could not read before redaction: a person or a
 vision model may still read them, so it is the safer number. **Text recall**
 runs the same detector on the generator's text for the same image, out of all
 planted values, so it compares with hidden / planted. It is not comparable to
-the [dataset runs](dataset-runs.md), which also require the correct entity
+the [dataset runs](archive/dataset-runs.md), which also require the correct entity
 type; for an image, any box hides the value.
 
 **Words blacked** is the share of all OCR words filled. The synthetic snips

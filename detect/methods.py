@@ -2,8 +2,9 @@
 
 Each method is one way of finding identifiers. Adding a method here makes it
 available everywhere that lists METHODS, so results stay comparable. The
-"good" and "weak" notes come from the dataset runs (docs/dataset-runs.md) and
-should be updated when a rerun changes the picture.
+"good" and "weak" notes come from the dataset runs
+(docs/archive/dataset-runs.md) and should be updated when a rerun changes the
+picture.
 """
 
 from functools import cache

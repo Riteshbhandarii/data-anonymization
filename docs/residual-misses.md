@@ -79,13 +79,13 @@ does not mean all identifiers were extracted. The historical Windows OCR
 study's 948/960 and the current host's 946/960 remain separate runs; see
 [extraction-validation.md](extraction-validation.md),
 [ocr-survey.md](ocr-survey.md) and
-[pre-review-audit.md](pre-review-audit.md). No proposed OCR fix was applied
+[pre-review-audit.md](archive/pre-review-audit.md). No proposed OCR fix was applied
 or measured in this diagnosis.
 
 ## Unsupported-content table
 
 The reader limits below come from
-[pre-review-audit.md](pre-review-audit.md), with the native-format boundary
+[pre-review-audit.md](archive/pre-review-audit.md), with the native-format boundary
 checked in [pipeline/extractors.py](../pipeline/extractors.py). They are
 coverage limits, not new test results. Output is Markdown; it is not a
 sanitized copy of the original Office/PDF file.

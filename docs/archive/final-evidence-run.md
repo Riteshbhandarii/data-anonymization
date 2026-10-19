@@ -1,21 +1,23 @@
 # Final evidence run
 
+> **Archived.** Execution record of the 2026-10-19 evidence run. Current results are listed in the [docs index](../README.md).
+
 Evidence run of 2026-10-19 on base commit `e148240`, run locally with no paid
 API, cloud document upload or new account. Public primary-source documentation
 was read for the desk-research rows. Later the same day the public-AI answers
-were collected and scored ([results](public-ai-results.md)) and the Finnish
-utility suite was reviewed ([review](../eval/utility_fi/README.md)); the status
+were collected and scored ([results](../public-ai-results.md)) and the Finnish
+utility suite was reviewed ([review](../../eval/utility_fi/README.md)); the status
 lines below are as of this run.
 
 ## Execution record
 
 | Task | Status / source |
 |---|---|
-| #44 public-AI pack | See [pack record](public-ai-pack.md). Actual answers and public-model safety test PENDING human execution. |
-| #60 local LLM comparison | See [current comparison](local-llm-comparison.md); same 14 documents/146 body labels in each configuration. |
-| #61 diagnosis | Complete; [residual misses](residual-misses.md), [compact evidence](../eval/baselines/residual-diagnosis-2026-10-19.json). No application fixes. |
-| #62 utility | See [2026-10-19 rerun](utility-impact.md); Finnish draft NEEDS HUMAN REVIEW. |
-| #63 options map | [Options map](options-map.md). The paper draft is kept local, outside the repository. |
+| #44 public-AI pack | See [pack record](../public-ai-pack.md). Actual answers and public-model safety test PENDING human execution. |
+| #60 local LLM comparison | See [current comparison](../local-llm-comparison.md); same 14 documents/146 body labels in each configuration. |
+| #61 diagnosis | Complete; [residual misses](../residual-misses.md), [compact evidence](../../eval/baselines/residual-diagnosis-2026-10-19.json). No application fixes. |
+| #62 utility | See [2026-10-19 rerun](../utility-impact.md); Finnish draft NEEDS HUMAN REVIEW. |
+| #63 options map | [Options map](../options-map.md). The paper draft is kept local, outside the repository. |
 
 The initial pack attempt used CPU and was terminated before real-uk completed;
 its partial files remain in `outputs/2026-10-19-e148240/incomplete-cpu-runs/`.
@@ -55,7 +57,7 @@ was not opened until every public-AI answer had been recorded.
 | Item | Finish condition |
 |---|---|
 | #44 | Review prepared documents, collect all planned model/search conditions, then score blind according to the pack instructions. Pack construction is not an experiment result. |
-| Finnish utility | Review all three fictional memos, the nine questions and accepted answers in [eval/utility_fi/](../eval/utility_fi/), then accept or revise the study before using it as validated Finnish evidence. |
+| Finnish utility | Review all three fictional memos, the nine questions and accepted answers in [eval/utility_fi/](../../eval/utility_fi), then accept or revise the study before using it as validated Finnish evidence. |
 | #45 | Real-office documents still lack hand labels. TAB and Turku do not replace those format-specific labels; retain the paper limitation until the team resolves this. |
 | Legal section | Teammate provides verified legislation/holding contribution; draft retains explicit placeholder. |
 | Related work / paper claims | Verify full texts and bibliography, then write abstract/conclusion once evidence permits. |
@@ -67,7 +69,7 @@ was not opened until every public-AI answer had been recorded.
 |---|---|
 | Local body recall, same 146 labels | combined 136; Qwen 94; Gemma 111; combined + Qwen 136; combined + Gemma 137 |
 | English utility, each method independently | raw 7/9; redacted 5/9; pseudonyms 4/9. Paired retention 5/7 and 4/7 |
-| Finnish draft utility, each method independently | raw 9/9; redacted 1/9; pseudonyms 6/9. Paired retention 1/9 and 6/9. Evidence-supported counts (0/9, 3/9 in both languages) were added after review: [utility-impact.md](utility-impact.md#evidence-supported-answers) |
+| Finnish draft utility, each method independently | raw 9/9; redacted 1/9; pseudonyms 6/9. Paired retention 1/9 and 6/9. Evidence-supported counts (0/9, 3/9 in both languages) were added after review: [utility-impact.md](../utility-impact.md#evidence-supported-answers) |
 | Utility method comparison | 108 requests; zero invalid/error; corresponding prompts and answer payloads identical between combined and Gemma final in both languages |
 | Final resource state | No LLM loaded; LM Studio loopback server remains running |
 

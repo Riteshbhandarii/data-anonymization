@@ -47,7 +47,7 @@ new review locations or image fixtures. It remains a historical result for that
 corpus; it is not evidence of complete extraction on the expanded dataset. The
 two totals should not be treated as a before/after comparison on identical data.
 
-See [assigned-task-results.md](assigned-task-results.md) for the complete task
+See [assigned-task-results.md](archive/assigned-task-results.md) for the complete task
 status, detector/full-pipeline comparison, environment, and remaining checks.
 See [ocr-survey.md](ocr-survey.md) for the separate local OCR comparison.
 

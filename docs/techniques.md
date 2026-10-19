@@ -47,25 +47,26 @@ Grouped by what they actually do, with the failure mode for each.
 
 ## Toolkit map
 
-Which of the techniques above this repository already has, and where each one fits. Status is as of early October 2026; it changes as the open pull requests land.
+Which of the techniques above this repository implements, as of 2026-10-19.
+Measured results for each are linked from the [docs index](README.md).
 
 ### Finding identifiers
 
 | Technique | Fits | Cannot do | Status here |
 |---|---|---|---|
-| Pattern recognizers (regex) | Identifiers with a fixed shape: email, IBAN, phone, plate, invoice reference, identity code | Anything without a fixed shape, such as names. Every country and company has its own formats, so the set is never finished | Presidio's built-in patterns in `main` (#4). Plate, invoice and identity code in progress (#5) |
-| Checksum validation | Identifiers with a check character: IBAN, Finnish identity code | Catch a mistyped real value, which a strict checksum rejects | Presidio built-in. Whether to validate is open, see `open-questions.md` |
-| Statistical NER (spaCy, Stanza) | Names, organisations and places in running text | Values with no sentence around them, such as table cells and signature blocks. Finnish quality is lower than English and depends on model size | spaCy small models via Presidio in `main` (#4). Large models in progress (#6). Stanza not started (#7) |
-| Zero-shot NER (GLiNER) | Entity types described in plain words, including domain-specific ones | Run fast; untested on Finnish here | Not started (#8) |
-| Local language model as detector | Identifiers that need context, and quasi-identifiers | Run quickly or deterministically; needs a GPU | Not started (#9) |
+| Pattern recognizers (regex) | Identifiers with a fixed shape: email, IBAN, phone, plate, invoice reference, identity code | Anything without a fixed shape, such as names. Every country and company has its own formats, so the set is never finished | Built: Presidio's patterns plus plate, invoice and identity-code patterns (`rules`). The extra patterns follow the synthetic generator's formats |
+| Checksum validation | Identifiers with a check character: IBAN, Finnish identity code | Catch a mistyped real value, which a strict checksum rejects | Presidio built-in. Whether to validate is an open question, see [limitations.md](limitations.md) |
+| Statistical NER (spaCy, Stanza) | Names, organisations and places in running text | Values with no sentence around them, such as table cells and signature blocks. Finnish quality is lower than English and depends on model size | spaCy small and large models via Presidio (`basic`, `rules`, `rules-lg`). Stanza not built |
+| Zero-shot NER (GLiNER) | Entity types described in plain words, including domain-specific ones | Run fast | Built (`gliner`, `gliner2`, and inside `combined`); measured on English and Finnish |
+| Local language model as detector | Identifiers that need context, and quasi-identifiers | Run quickly or deterministically; needs a GPU | Built as an optional final pass after `combined` (Qwen, Gemma); measured in [local-llm-comparison.md](local-llm-comparison.md) |
 | Deny lists | A company's own known names: customers, products, projects | Find anything not on the list | Not built |
 
 ### Transforming what was found
 
 | Technique | Fits | Cannot do | Status here |
 |---|---|---|---|
-| Suppression / replacement with a type label | Any data; the safe default | Keep the document useful when too much is removed | In review (#3, `redact/`) |
-| Consistent pseudonyms | Model input where relationships between people matter | Stop linkage: a consistent token across documents lets two documents be tied to the same person | In review (#3, alias map with explicit document or corpus scope) |
+| Suppression / replacement with a type label | Any data; the safe default | Keep the document useful when too much is removed | Built (`redact/`) |
+| Consistent pseudonyms | Model input where relationships between people matter | Stop linkage: a consistent token across documents lets two documents be tied to the same person | Built (`redact/`, alias map with explicit document or corpus scope) |
 | Surrogate values (fake names, numbers) | Model input that must stay readable | Guarantee a fake value never matches a real one | Not built. Faker is used only to generate the test corpus |
 | Masking | Display | Act as a data control | Not built |
 | Generalization, date shifting, top and bottom coding | Tabular data | Help free text | Not built |
@@ -76,7 +77,7 @@ Which of the techniques above this repository already has, and where each one fi
 
 | Technique | Fits | Status here |
 |---|---|---|
-| Reading hidden content: document properties, speaker notes, hidden sheets, headers, footers, comments, tracked changes | Office files | In review (#3) |
-| OCR for scans and embedded images | Scanned PDF, images inside documents | In review (#3), options compared under #31 |
-| Image redaction with solid boxes | Screenshots and snips pasted into a chat model | `redact/image.py`, measured in [screenshot-redaction.md](screenshot-redaction.md) (#30). Logos, signatures and stamps are not covered |
-| Rebuilding a redacted file in its original format | Users who need to keep editing the document | Not built; the pipeline outputs Markdown text. See the output format question in `open-questions.md` |
+| Reading hidden content: document properties, speaker notes, hidden sheets, headers, footers, comments, tracked changes | Office files | Built (`pipeline/`); limits in [the reader audit](archive/pre-review-audit.md) |
+| OCR for scans and embedded images | Scanned PDF, images inside documents | Built with Tesseract; engines compared in [ocr-survey.md](ocr-survey.md) |
+| Image redaction with solid boxes | Screenshots and snips pasted into a chat model | `redact/image.py`, measured in [screenshot-redaction.md](screenshot-redaction.md). Logos, signatures and stamps are not covered |
+| Rebuilding a redacted file in its original format | Users who need to keep editing the document | Not built; the pipeline outputs Markdown text |

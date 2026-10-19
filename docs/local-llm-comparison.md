@@ -1,6 +1,6 @@
 # Local LLM comparison, 2026-10-19
 
-Measured detector source: `e148240`. The fresh combined gate reproduced **136/146 body labels (93.2%)**, with zero failed documents, before any LLM inference. These are current runs. The earlier experiments in [local-model-options.md](local-model-options.md) remain archived pre-audit evidence.
+Measured detector source: `e148240`. The fresh combined gate reproduced **136/146 body labels (93.2%)**, with zero failed documents, before any LLM inference. These are current runs. The earlier experiments in [local-model-options.md](archive/local-model-options.md) remain archived pre-audit evidence.
 
 All five configurations use the same frozen corpus: seed 42, `--n 1`, Faker 40.39.0, fourteen documents (seven English and seven Finnish), 146 body labels (73 per language). The generator also plants 46 non-body labels, excluded from body recall. Verified corpus SHA-256: `27934f5e7fc88d0748be7b53d2d79ecfd797ad82c94c68d6fa16fd421c2e40ae`. No extraction quality or public-AI re-identification result is claimed.
 

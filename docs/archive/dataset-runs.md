@@ -1,5 +1,7 @@
 # Dataset runs
 
+> **Archived.** Superseded by the corrected 2026-10-14 matrix in [dataset-audit-runs.md](../dataset-audit-runs.md). Its numbers are pre-audit.
+
 These tables are archived pre-audit measurements. Detector windows,
 outer document chunks and negative-document precision were corrected.
 The [current labelled matrix](https://github.com/Riteshbhandarii/data-anonymization/blob/c34f6ba316831480cc5dc7d453e31cb913a54909/docs/dataset-audit-runs.md)
@@ -64,7 +66,7 @@ span-labelled datasets have one. These datasets leave some personal data
 unannotated, so a detection over nothing is not always a mistake, and the
 numbers are a lower bound on precision. The fake corpus is measured by
 `eval/bench.py` instead; its counting rule and results are in
-[eval/README.md](../eval/README.md#precision).
+[eval/README.md](../../eval/README.md#precision).
 
 | dataset | basic | rules | rules-lg | gliner | combined |
 |---|---|---|---|---|---|

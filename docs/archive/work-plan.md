@@ -1,5 +1,7 @@
 # Work plan and pathway ownership
 
+> **Archived.** Team work plan as of 2026-10-14. Statuses here are historical.
+
 Current plan for #32, updated 2026-10-14 from repository issues, submitted PRs
 and the established pipeline split. Build work and the owner's survey pathways
 both have deliverables below. **Group agreement and a named #27 issue owner
@@ -13,7 +15,7 @@ under #32, followed by the paper/cookbook.
 
 | Pathway / work | Confirmed owner or contributor | Reviewable deliverable / evidence | Remaining finish condition |
 |---|---|---|---|
-| Commercial products, free and paid (#27) | Commercial research contributors: @SiriwitW (#46), @anuntachin (#51); #27 closed after merging the survey | [Nine-option inventory](product-options.md), merged free-tool research #51 and commercial research #46 | Group confirms one accountable commercial pathway owner under #32 |
+| Commercial products, free and paid (#27) | Commercial research contributors: @SiriwitW (#46), @anuntachin (#51); #27 closed after merging the survey | [Nine-option inventory](../options-map.md#appendix-product-inventory-and-sources), merged free-tool research #51 and commercial research #46 | Group confirms one accountable commercial pathway owner under #32 |
 | Own algorithms/toolkit | @Riteshbhandarii: detection/evaluation; @wycffff: extraction/redaction | Merged pipeline/techniques, combined/precision #53 and hidden-content/evaluation audit #58 | Maintain per-language/per-type metrics and reader limits |
 | Local models (#29, #43) | @Riteshbhandarii | Merged methods #54; overview/LM Studio experiments/corrected smoke #56; seven-method labelled matrix #58 | Keep current matrix and archived local-LLM trials separate |
 | Data clipping (#30, closed) | @Riteshbhandarii | Screenshot/snips meaning confirmed; merged image redaction/tool survey #52 | Public-model logo/letterhead test remains in #44 |
@@ -34,7 +36,7 @@ assignments made on their behalf.
 
 1. Use the merged pipeline, UI, model methods and utility workflow on `main`.
    The [audit](pre-review-audit.md) records fixed defects and reader limits;
-   the [current matrix](dataset-audit-runs.md) records the measured tradeoffs.
+   the [current matrix](../dataset-audit-runs.md) records the measured tradeoffs.
    Registry/window conflicts retained #54's builders and pattern helper,
    with all UI labels and regression tests. #49's duplicate work was excluded.
 2. Complete the manual public-AI run (#44) and the real-document annotation

@@ -17,7 +17,7 @@ Raw documents, model inputs, entity values and source identities are absent
 from that archive. Model weights were cached; no remote request or paid API
 was used.
 
-The older [dataset tables](dataset-runs.md) remain historical. This rerun supersedes their accuracy comparisons for the
+The older [dataset tables](archive/dataset-runs.md) remain historical. This rerun supersedes their accuracy comparisons for the
 listed labelled selections.
 Unlabelled real-uk timing/detection counts, the earlier Qwen/Gemma trials and
 the public-model privacy experiment are outside this run. Do not relabel

@@ -11,7 +11,7 @@ necessary input, process locally, then review the actual output.
 |---|---|---|
 | Current seven-method matrix | 885 documents per method; 11,070 labelled values per method. Whole-value accepted-type coverage; partial spans fail. Datasets retain separate denominators. | [Report](dataset-audit-runs.md), [aggregate JSON](../eval/baselines/dataset-audit-matrix.json) |
 | Current local LLM comparison | 14 short synthetic documents, 146 body labels; typed-overlap precision is a different metric from matrix precision. | [Comparison](local-llm-comparison.md) |
-| Extraction acceptance | 70 generated documents, 960 labels; 946 returned, 14 OCR misses. This measures extraction before detection. | [Audit](pre-review-audit.md), [diagnosis](residual-misses.md) |
+| Extraction acceptance | 70 generated documents, 960 labels; 946 returned, 14 OCR misses. This measures extraction before detection. | [Audit](archive/pre-review-audit.md), [diagnosis](residual-misses.md) |
 | Earlier screenshot study | 40 PNGs, 480 planted values, 467 readable before redaction. Hidden/readable and hidden/planted are distinct. This study predates the audit and excludes combined. | [Screenshot report](screenshot-redaction.md) |
 | Earlier OCR study | 20 PNGs, 240 planted values, paired clean/half-resolution variants; Windows CPU. OCR accuracy is not redaction accuracy. | [OCR report](ocr-survey.md) |
 | Commercial samples | Azure: 4 documents/48 labels. Google: 10/98. Limina: 8 successful/74 body labels, out of 10 submitted. Earlier team tests, not rerun here. | [Azure](commercial/azure_document_pii_redaction.md), [Google](commercial/google_cloud_dlp.md), [Limina](commercial/limina_anonymization.md) |
@@ -59,7 +59,7 @@ that gap. Hosted variants explicitly send data off the machine.
 
 | Option | Free/paid | Local/cloud: does data leave? | Formats | Finnish support | Measured result, sample and source | GOOD | BAD | WHEN TO USE | WHEN NOT TO |
 |---|---|---|---|---|---|---|---|---|---|
-| Presidio | Free/open source | Local analyzer; remote recognizers require separate review | Text; image extension separately below | Our configured EN/FI spaCy models and recognizers measured | See basic/rules rows below; [inventory](product-options.md), [official docs](https://microsoft.github.io/presidio/) | Configurable recognizers and operators | Not an Office/PDF reader; default models miss entities | Local detector component with format extraction | As a complete document safety guarantee |
+| Presidio | Free/open source | Local analyzer; remote recognizers require separate review | Text; image extension separately below | Our configured EN/FI spaCy models and recognizers measured | See basic/rules rows below; [inventory](#appendix-product-inventory-and-sources), [official docs](https://microsoft.github.io/presidio/) | Configurable recognizers and operators | Not an Office/PDF reader; default models miss entities | Local detector component with format extraction | As a complete document safety guarantee |
 | ARX | Free/open source | Local Java | Structured tables; prepared CSV/XLSX inputs | Language-independent values; no Finnish NER claim | Screenshots only; no comparable labelled recall result. [Artifacts](../eval/free_tools/arx/screenshots/), [official framework](https://arx.deidentifier.org/development/framework/) | Generalization, suppression and privacy models | Manual schema/hierarchy/risk choices; weak fit for prose | Tabular quasi-identifiers and explicit release models | Free-text documents or automatic safe-to-paste decisions |
 | scrubadub | Free/open source | Local | Extracted text | Tested pattern values; Finnish people/companies unestablished | 1,049/6,400 extractable values changed, 100/6,500 not extracted; changed, unverified. [CSV](../eval/free_tools/scrubadub/results/format_language_summary_v2.csv) | Simple pattern scrubbing | Tested config changes no names/companies; change is not verified removal | Narrow known-format fields plus manual checks | General Finnish document anonymization |
 | DataFog Core | Free/open source | Local bindings | Text/JSON; Office extraction external | Patterns tested; Finnish free-text NER unestablished | 2,769/6,400 extractable values changed; 100/6,500 not extracted. Addresses: postal-code replacement only, changed, unverified. [CSV](../eval/free_tools/datafog/results/format_language_summary_v2.csv), [manual address review](../eval/free_tools/datafog/results/datafog_address_manual_validation.csv) | Local pattern processing | No people/companies changed in tested config; address remains identifiable | Pattern layer with explicit field policies | Treating changed addresses as removed addresses |
@@ -169,3 +169,38 @@ option was called during this 2026-10-19 work.
    risk, extraction completeness or output review is unresolved, do not send.
    Record the tool/configuration and review decision; the measurements here
    are evidence for that decision, not automatic permission.
+
+## Appendix: product inventory and sources
+
+Survey checked 2026-10-13. This is an inventory, not a purchase
+recommendation. It covers **nine options: four free local libraries/tools,
+three metered cloud APIs and two proprietary platforms**. Free trials and
+community access do not make a proprietary service an open-source local tool.
+No paid service was called or subscribed to during this survey.
+
+| Category / option | Cost model | Where data is processed | Data handled | Finnish | Setup | Source / project evidence |
+|---|---|---|---|---|---|---|
+| Local: Presidio | Free, open source | Local Python / containers | Extracted text; image redaction extension | Our configured spaCy/recognizer pipeline is measured in English and Finnish; language-specific setup required | Python, models, extraction/OCR adapters | [Project documentation](https://microsoft.github.io/presidio/), [language configuration](https://github.com/data-privacy-stack/presidio/blob/main/docs/analyzer/languages.md), [matrix](dataset-audit-runs.md) |
+| Local: ARX | Free, open source | Local Java GUI/library | Structured tables; generalization, suppression and statistical privacy models | Language-independent table values; requires chosen identifiers, hierarchies and privacy model; no Finnish text NER claim | Java plus manual column/risk configuration | [Official framework](https://arx.deidentifier.org/development/framework/), [source](https://github.com/ARX-deidentifier/arx), [free-tool results](../eval/free_tools/) |
+| Local: scrubadub | Free, open source | Local Python | Free text; optional name/address detectors | Finnish regex-style values tested in the free-tool runs; Finnish name/company support is not established by that configuration | Python; optional detectors need additional models/packages | [Official documentation](https://scrubadub.readthedocs.io/en/stable/), [free-tool results](../eval/free_tools/) |
+| Local: DataFog Core | Free, open source | Local Rust/Python/JS/WASM bindings | Pattern detection in text and structured JSON; names from configured JSON fields | Patterns can match Finnish data, but free-text Finnish NER is not documented; tested configuration in the free-tool runs | Install binding; document extraction remains separate | [Official source](https://github.com/DataFog/datafog-core), [free-tool results](../eval/free_tools/) |
+| Cloud API: Google Sensitive Data Protection | Metered service; free allowances depend on operation | **Google cloud: source data leaves the local machine** | Text, structured records, storage inspection and image inspection/redaction | Finland national-ID detector documented; Finnish person/company quality requires measured evidence | Google project, credentials, API configuration and extraction where needed | [Capabilities](https://docs.cloud.google.com/sensitive-data-protection/docs), [detectors](https://docs.cloud.google.com/sensitive-data-protection/docs/infotypes-reference), [pricing](https://cloud.google.com/sensitive-data-protection/pricing), [commercial reports](#products-and-free-tools) |
+| Cloud API: Amazon Comprehend PII | Metered service; advertised free tier subject to terms | **AWS cloud: source data leaves the local machine** | Text PII detection; asynchronous text redaction | PII guide documents English/Spanish; **Finnish PII not supported by this workflow** | AWS credentials; text extraction; S3 for batch redaction | [PII documentation](https://docs.aws.amazon.com/comprehend/latest/dg/pii.html), [pricing](https://aws.amazon.com/comprehend/pricing/) |
+| Cloud API: Azure AI Language PII | Metered service; free/student access subject to terms | **Azure cloud: source data leaves the local machine** | Text PII; document redaction tested on DOCX/PDF; our tested endpoint rejected PPTX/XLSX/CSV | Finnish appears in official text/document language tables; four-file representative test, not a general benchmark | Azure Language, storage/SAS for document jobs, polling and output validation | [Language support](https://learn.microsoft.com/en-us/azure/ai-services/language-service/personally-identifiable-information/language-support), [pricing](https://azure.microsoft.com/en-us/pricing/details/language/), [commercial reports](#products-and-free-tools) |
+| Proprietary: Limina | Free trial/community access; commercial terms quoted by vendor | Hosted community API was tested; vendor also offers containers in customer VPC/on-premises | Text and file processing; PDF/XLSX/PPTX/CSV worked in the team's sample, DOCX returned HTTP 500 | Finnish synthetic results in the commercial report; vendor's multilingual claim is not our measured guarantee | API key for hosted trial; vendor deployment for local infrastructure | [Official platform](https://www.getlimina.ai/en), [pricing](https://www.getlimina.ai/en/pricing), [commercial reports](#products-and-free-tools) |
+| Proprietary: Tonic Textual | Paid usage / enterprise contract | Tonic Cloud or paid self-hosted deployment | Unstructured text and document/image formats listed by vendor, including DOCX/PDF/PPTX/CSV | Vendor advertises 50+ languages; **Finnish has not been verified or tested here** | Account/API/pipeline setup; own infrastructure for self-hosting | [Official capabilities](https://www.tonic.ai/products/textual), [pricing/deployment](https://www.tonic.ai/pricing) |
+
+The hosted rows require sending source data to a third party. They are research
+comparators; this table does not authorize uploading private documents. A
+self-hosted commercial deployment is a different route from the hosted trial
+and needs its own deployment and data-flow verification.
+
+### Reading the inventory
+
+The existing results have different denominators. The [detector matrix](dataset-audit-runs.md)
+scores whole labelled values. The [free-tool results](../eval/free_tools/) record
+changed text needing review, which is not equivalent to verified removal.
+Commercial tests use much smaller synthetic samples and distinguish any-type
+coverage from type-aware detection. ARX's tabular risk/utility measures do not
+share a text-span recall denominator. These numbers must not be ranked in one
+accuracy column.
