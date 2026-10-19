@@ -23,9 +23,11 @@ OUT = ROOT / "docs" / "figures"
 # contrast on each surface.
 THEMES = {
     "light": {"surface": "#fcfcfb", "text": "#0b0b0b", "muted": "#52514e",
-              "grid": "#e4e3df", "s1": "#2a78d6", "s2": "#eb6834", "badge_rule": "#e4e3df"},
+              "grid": "#e4e3df", "s1": "#2a78d6", "s2": "#eb6834", "s3": "#1baf7a",
+              "badge_rule": "#e4e3df"},
     "dark": {"surface": "#1a1a19", "text": "#f0efec", "muted": "#c3c2b7",
-             "grid": "#34332f", "s1": "#3987e5", "s2": "#d95926", "badge_rule": "#d6d5d0"},
+             "grid": "#34332f", "s1": "#3987e5", "s2": "#d95926", "s3": "#199e70",
+             "badge_rule": "#d6d5d0"},
 }
 
 plt.rcParams.update({
@@ -99,24 +101,24 @@ def chart_recall(theme):
     save(fig, "rq2-recall", theme)
 
 
-LLM_CONFIGS = [  # (aggregate file stem, label, logo, group)
+LLM_CONFIGS = [  # (configuration in the diagnosis aggregate, label, logo, group)
     ("combined", "combined", "combined", "No LLM"),
-    ("gemma-final", "combined + Gemma", "gemma", "Combined, then an LLM final pass"),
-    ("qwen-final", "combined + Qwen", "qwen", "Combined, then an LLM final pass"),
-    ("gemma-alone", "Gemma 4 E4B", "gemma", "LLM alone"),
     ("qwen-alone", "Qwen 3.5 9B", "qwen", "LLM alone"),
+    ("gemma-alone", "Gemma 4 E4B", "gemma", "LLM alone"),
+    ("combined + qwen final pass", "combined → Qwen", "qwen", "LLM on the masked text"),
+    ("combined + gemma final pass", "combined → Gemma", "gemma", "LLM on the masked text"),
+    ("combined ∪ qwen-alone", "combined + Qwen", "qwen", "Both on the original text, merged"),
+    ("combined ∪ gemma-alone", "combined + Gemma", "gemma", "Both on the original text, merged"),
 ]
 
 
 def llm_rows():
-    """Typed whole-value recall per language for the five local configurations."""
+    """Values hidden by any span, per language, for each local configuration."""
+    data = {c["configuration"]: c for c in load("contextual-llm-diagnosis-2026-10-20.json")["configurations"]}
     out = []
-    for stem, label, logo, group in LLM_CONFIGS:
-        rows = load(f"final-evidence-local-{stem}.json")["recall"]
-        per = {}
-        for lang in ("en", "fi"):
-            sel = [r for r in rows if r["language"] == lang]
-            per[lang] = (sum(r["covered"] for r in sel), sum(r["planted"] for r in sel))
+    for key, label, logo, group in LLM_CONFIGS:
+        any_type = data[key]["any_type"]
+        per = {lang: (any_type[lang]["covered"], any_type[lang]["planted"]) for lang in ("en", "fi")}
         out.append((label, logo, group, per))
     return out
 
@@ -149,7 +151,7 @@ def chart_llm(theme):
     from matplotlib.offsetbox import AnnotationBbox, OffsetImage
     t = THEMES[theme]
     rows = llm_rows()
-    fig, ax = plt.subplots(figsize=(7.6, 4.6), facecolor=t["surface"])
+    fig, ax = plt.subplots(figsize=(7.6, 5.6), facecolor=t["surface"])
     style(ax, t)
     ax.set_yticks([])
     # Layout top to bottom: a group heading, then its rows.
@@ -188,17 +190,60 @@ def chart_llm(theme):
     ax.set_xticks([0, 25, 50, 75, 100], ["0%", "25%", "50%", "75%", "100%"])
     ax.set_title("Local LLMs as detectors", loc="left", x=-0.36, color=t["text"],
                  fontsize=12, fontweight="bold", pad=24)
-    ax.text(-0.36, 1.035, "identifiers found on the same 14 documents, 73 per language",
+    ax.text(-0.36, 1.035, "identifiers hidden by any detection, same 14 documents, 73 per language",
             transform=ax.transAxes, fontsize=8.5, color=t["muted"])
     handles = [plt.Rectangle((0, 0), 1, 1, color=t["s1"]), plt.Rectangle((0, 0), 1, 1, color=t["s2"])]
     leg = ax.legend(handles, ["English", "Finnish"], loc="lower right", bbox_to_anchor=(1.0, 1.0),
                     ncol=2, frameon=False, fontsize=8.5, handlelength=1.0, borderaxespad=0.3)
     for txt in leg.get_texts():
         txt.set_color(t["text"])
-    fig.text(0.142, -0.02, "Scored on identifiers that rules already find. Contextual items such as licence "
-             "numbers and project codes were not tested.", fontsize=7.5, color=t["muted"], style="italic")
-    fig.subplots_adjust(left=0.36, right=0.97)
+    fig.text(0.142, -0.02, "Earlier scoring also required the right label, which undercounted the LLMs: "
+             "Qwen alone scored 94/146 typed, 144/146 here.", fontsize=7.5, color=t["muted"], style="italic")
+    fig.subplots_adjust(left=0.38, right=0.97)
     save(fig, "rq2-local-llm", theme)
+
+
+CTX_CATEGORIES = [("LICENCE", "Licence / permit no."), ("CONTRACT", "Contract / order no."),
+                  ("BUSINESS_ID", "Business ID / VAT"), ("PROJECT", "Project code name"),
+                  ("SYSTEM", "Internal system name"), ("QUASI", "Job + place clue"),
+                  ("HIDDEN", "Detail in notes"), ("STANDARD", "Names, emails, phones")]
+CTX_CONFIGS = [("combined", "combined"), ("qwen alone, contextual prompt", "Qwen, contextual prompt"),
+               ("combined ∪ qwen alone, contextual prompt", "combined + Qwen, merged")]
+
+
+def chart_contextual(theme):
+    t = THEMES[theme]
+    data = {c["configuration"]: c["score"]["test"] for c in load("contextual-llm-2026-10-20.json")["configurations"]}
+    colors = [t["s2"], t["s1"], t["s3"]]
+    fig, ax = plt.subplots(figsize=(7.6, 5.2), facecolor=t["surface"])
+    style(ax, t)
+    h, gap = 0.24, 0.03
+    rows = CTX_CATEGORIES[::-1]
+    for i, (key, _) in enumerate(rows):
+        for j, (conf, _) in enumerate(CTX_CONFIGS):
+            cat = data[conf]["categories"][key]
+            y = i + (1 - j) * (h + gap)
+            share = 100 * cat["covered"] / cat["planted"]
+            ax.barh(y, share, height=h, color=colors[j])
+            ax.text(share + 1, y, f"{cat['covered']}/{cat['planted']}", va="center", fontsize=7.5,
+                    color=t["text"] if j == 2 else t["muted"])
+    ax.set_yticks(range(len(rows)), [label for _, label in rows], color=t["text"])
+    ax.set_xlim(0, 112)
+    ax.set_xticks([0, 25, 50, 75, 100], ["0%", "25%", "50%", "75%", "100%"])
+    ax.set_title("What rules miss and a local LLM catches", loc="left", color=t["text"],
+                 fontsize=12, fontweight="bold", pad=24)
+    ax.text(0, 1.035, "items fully hidden, 18 held-out fictional documents in English and Finnish",
+            transform=ax.transAxes, fontsize=8.5, color=t["muted"])
+    handles = [plt.Rectangle((0, 0), 1, 1, color=c) for c in colors]
+    leg = ax.legend(handles, [label for _, label in CTX_CONFIGS], loc="upper center",
+                    bbox_to_anchor=(0.45, -0.08), ncol=3, frameon=False, fontsize=8.5, handlelength=1.0)
+    for txt in leg.get_texts():
+        txt.set_color(t["text"])
+    d = [data[c]["decoys"] for c, _ in CTX_CONFIGS]
+    wrong = ", ".join(f"{name} {x['masked']}/{x['total']}" for name, x in zip(("combined", "Qwen", "merged"), d))
+    fig.text(0.02, -0.04, f"Look-alikes wrongly hidden (decoys): {wrong}. Same team wrote the corpus and the prompt.",
+             fontsize=7.5, color=t["muted"], style="italic")
+    save(fig, "rq2-contextual-llm", theme)
 
 
 def reid_rows():
@@ -294,5 +339,6 @@ if __name__ == "__main__":
     for theme in THEMES:
         chart_recall(theme)
         chart_llm(theme)
+        chart_contextual(theme)
         chart_reid(theme)
         chart_utility(theme)

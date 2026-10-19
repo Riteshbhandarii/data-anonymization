@@ -103,19 +103,27 @@ the machine. Email, logs and code, CAD and audio/video are desk research only.
   (basic) to 63.7% (combined) on TAB, and from 52.2% to 26.5% on Turku.
 - Extraction: 946 of 960 planted values reach the text; all 14 misses are OCR
   errors ([residual-misses](docs/residual-misses.md)).
-- Local LLMs were tested two ways: alone, and as an extra pass after
-  `combined`. Alone they find fewer identifiers; as an extra pass they add at
-  most one ([comparison](docs/local-llm-comparison.md)). This test only covered
-  identifiers that rules already find; contextual items such as licence
-  numbers and project codes are untested
-  ([#73](https://github.com/Riteshbhandarii/data-anonymization/issues/73)).
+- A local LLM helps when it reads the original text. Counting any detection
+  that hides a value, Qwen alone hides 144/146, `combined` 139/146, and the two
+  merged 146/146. Run on text `combined` has already masked, the LLM loses
+  context and adds one value ([contextual-llm](docs/contextual-llm.md)).
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/figures/rq2-local-llm-dark.svg">
-  <img alt="Bar chart, labels found out of 73 per language: combined 70 EN / 66 FI; combined + Gemma 70 / 67; combined + Qwen 70 / 66; Gemma alone 61 / 50; Qwen alone 48 / 46." src="docs/figures/rq2-local-llm-light.svg" width="720">
+  <img alt="Bar chart of identifiers hidden by any detection, out of 73 per language. combined 71 EN, 68 FI. Qwen alone 72, 72. Gemma alone 72, 61. combined then Qwen 71, 69. combined then Gemma 71, 69. combined plus Qwen merged 73, 73. combined plus Gemma merged 73, 70." src="docs/figures/rq2-local-llm-light.svg" width="720">
 </picture>
 
-Source: [dataset-audit-runs](docs/dataset-audit-runs.md).
+- Rules miss what has no fixed shape. On 18 fictional documents `combined`
+  hides 26 of 71 contextual items (licence, contract and business-ID numbers,
+  project and system names, identifying clues). Merged with Qwen and a
+  contextual prompt it hides 58 of 71.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/figures/rq2-contextual-llm-dark.svg">
+  <img alt="Bar chart of contextual items fully hidden on 18 test documents. Licence numbers: combined 1/8, Qwen 8/8, merged 8/8. Contract numbers 3/12, 12/12, 12/12. Business ID 5/9, 9/9, 9/9. Project code name 8/11, 8/11, 9/11. System name 3/13, 11/13, 11/13. Job and place clue 0/12, 3/12, 3/12. Detail in notes 6/6 each. Names, emails, phones 44/44, 25/44, 44/44." src="docs/figures/rq2-contextual-llm-light.svg" width="720">
+</picture>
+
+Source: [dataset-audit-runs](docs/dataset-audit-runs.md), [contextual-llm](docs/contextual-llm.md).
 
 ### RQ3: can public AI re-identify?
 
