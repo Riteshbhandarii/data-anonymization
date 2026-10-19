@@ -12,7 +12,7 @@ Public primary-source documentation was read for the desk-research rows.
 | #60 local LLM comparison | See [current comparison](local-llm-comparison.md); same 14 documents/146 body labels in each configuration. |
 | #61 diagnosis | Complete; [residual misses](residual-misses.md), [compact evidence](../eval/baselines/residual-diagnosis-2026-10-19.json). No application fixes. |
 | #62 utility | See [2026-10-19 rerun](utility-impact.md); Finnish draft NEEDS HUMAN REVIEW. |
-| #63 options map and draft | [Options map](options-map.md), [RQ1–RQ4 paper](paper-draft.md). Abstract/conclusion and public-AI result remain PENDING; legislation contribution awaits teammate. |
+| #63 options map | [Options map](options-map.md). The paper draft is kept local, outside the repository. |
 
 The initial pack attempt used CPU and was terminated before real-uk completed;
 its partial files remain in `outputs/2026-10-19-e148240/incomplete-cpu-runs/`.
@@ -83,8 +83,8 @@ Relative to `e148240` (A added, M modified). No file under `app/`, `corpus/`,
 
 | Area | Files |
 |---|---|
-| Overview | M `README.md` |
-| Docs | A `docs/final-evidence-run.md`, A `docs/local-llm-comparison.md`, M `docs/local-model-options.md`, A `docs/options-map.md`, A `docs/paper-draft.md`, A `docs/public-ai-pack.md`, A `docs/residual-misses.md`, M `docs/utility-impact.md` |
+| Overview | M `.gitignore`, M `README.md` |
+| Docs | A `docs/final-evidence-run.md`, A `docs/local-llm-comparison.md`, M `docs/local-model-options.md`, A `docs/options-map.md`, A `docs/public-ai-pack.md`, A `docs/residual-misses.md`, M `docs/utility-impact.md` |
 | Local detector aggregates | A `eval/baselines/final-evidence-local-combined.json`, A `eval/baselines/final-evidence-local-configuration.json`, A `eval/baselines/final-evidence-local-gemma-alone.json`, A `eval/baselines/final-evidence-local-gemma-final.json`, A `eval/baselines/final-evidence-local-qwen-alone.json`, A `eval/baselines/final-evidence-local-qwen-final.json`, A `eval/baselines/final-evidence-local-qwen-server-down.json` |
 | Utility aggregates | A `eval/baselines/final-evidence-utility-comparison.json`, A `eval/baselines/final-evidence-utility-en-combined.json`, A `eval/baselines/final-evidence-utility-en-gemma-final.json`, A `eval/baselines/final-evidence-utility-fi-combined.json`, A `eval/baselines/final-evidence-utility-fi-gemma-final.json` |
 | Pack / diagnosis records | A `eval/baselines/public-ai-pack-e148240.json`, A `eval/baselines/residual-diagnosis-2026-10-19.json` |

@@ -19,3 +19,6 @@ eval/results/
 
 # generated pipeline output
 outputs/
+
+# local-only paper draft
+docs/paper-draft.md
