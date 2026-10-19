@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "synthetic": true,
+  "review_status": "NEEDS HUMAN REVIEW",
+  "documents": [
+    {
+      "id": "a1", "file": "a1.md", "language": "fi", "subject_id": "A",
+      "utility": [
+        {"id": "total_hours", "question": "Kuinka monta tuntia näihin kahteen projektiin on varattu yhteensä? Vastaa vain numerolla.", "answers": ["30"]},
+        {"id": "larger_project", "question": "Kumpaan projektiin on varattu enemmän tunteja? Vastaa vain Kuusi tai Mänty.", "answers": ["Kuusi"]},
+        {"id": "same_contact", "question": "Onko Kuusi- ja Mänty-projekteilla sama yhteyshenkilö? Vastaa kyllä tai ei, tai kieltäydy vastaamasta, jos asia ei selviä.", "answers": ["kyllä"]}
+      ]
+    },
+    {
+      "id": "a2", "file": "a2.md", "language": "fi", "subject_id": "A",
+      "utility": [
+        {"id": "total_hours", "question": "Kuinka monta tuntia näihin kahteen projektiin on varattu yhteensä? Vastaa vain numerolla.", "answers": ["30"]},
+        {"id": "larger_project", "question": "Kumpaan projektiin on varattu enemmän tunteja? Vastaa vain Kuusi tai Mänty.", "answers": ["Kuusi"]},
+        {"id": "same_contact", "question": "Onko Kuusi- ja Mänty-projekteilla sama yhteyshenkilö? Vastaa kyllä tai ei, tai kieltäydy vastaamasta, jos asia ei selviä.", "answers": ["ei"]}
+      ]
+    },
+    {
+      "id": "b1", "file": "b1.md", "language": "fi", "subject_id": "B",
+      "utility": [
+        {"id": "total_hours", "question": "Kuinka monta tuntia näihin kahteen projektiin on varattu yhteensä? Vastaa vain numerolla.", "answers": ["30"]},
+        {"id": "larger_project", "question": "Kumpaan projektiin on varattu enemmän tunteja? Vastaa vain Kuusi tai Mänty.", "answers": ["Kuusi"]},
+        {"id": "same_contact", "question": "Onko Kuusi- ja Mänty-projekteilla sama yhteyshenkilö? Vastaa kyllä tai ei, tai kieltäydy vastaamasta, jos asia ei selviä.", "answers": ["kyllä"]}
+      ]
+    }
+  ]
+}
