@@ -8,8 +8,8 @@
     "identifiers": "33143f8e2114a384644641a015869788419f44939b8f42eef7d81d6fa35e9652",
     "contextual": "c79231576e4995b9354a41fc2c7e99bfd6d1e96fd7c9e9a7849a3e7548ca406e"
   },
-  "metric_note": "covered = whole value hidden by any span; partial = some of it hidden; decoys = values that must stay visible; outside_share = masked characters outside every label. Report the test split; dev was used only to sanity-check the prompt.",
-  "caveat": "The same team wrote the corpus and the prompt. Prompt examples were written without the corpus values. Gemma runs and the identifier-prompt final pass were stopped to limit load and are not reported.",
+  "metric_note": "covered = whole value hidden by any span; partial = some of it hidden; decoys = values that must stay visible; outside_share = masked characters outside every label. The prompt was fixed before any run and nothing was tuned on the dev split; all 24 documents ran together and dev and test are reported separately.",
+  "caveat": "The same team wrote the corpus and the prompt. Prompt examples were written without the corpus values. Gemma runs and the identifier-prompt final pass were stopped to limit load and are not reported. The contextual prompt says names and emails are already masked; in the merged design it runs on original text.",
   "configurations": [
     {
       "configuration": "combined",

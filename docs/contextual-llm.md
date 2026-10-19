@@ -12,7 +12,7 @@ Gemma 4 E4B in LM Studio.
 
 - The earlier test undercounted the LLMs: it required the right type label. Counting any detection that hides the value, Qwen alone hides 144/146 identifiers, not 94/146.
 - Running the LLM on text that `combined` has already masked loses context: `combined → Qwen` hides 140/146.
-- Running both on the original text and merging their detections hides 146/146, with 0.12% of characters masked outside labels.
+- Running both on the original text and merging their detections hides 146/146. That corpus has little unlabelled prose, so its 0.12% over-masking says little; on the contextual corpus the merged design masks 9.6% of characters outside labels.
 - On contextual items `combined` hides 26/71. Merged with Qwen and a contextual prompt it hides 58/71, including every licence, contract and business-ID number.
 - `combined` alone wrongly hides 21 of 46 look-alikes (decoys). Qwen with the contextual prompt hides 2.
 
@@ -99,6 +99,8 @@ What this shows:
 - **The contextual prompt is the better instruction.** It beats the identifier
   prompt on contextual items (57 vs 48) and over-masks less (2 vs 10 decoys).
   It skips most names and emails because it is told they are already hidden.
+  That instruction was written for masked text, yet the merged design runs it
+  on the original text; a variant for original text is the next step.
 - **Merging keeps the strengths of both.** All standard identifiers come from
   `combined`, the contextual ones from Qwen.
 - **Over-masking comes from `combined`.** It hides 21 of 46 decoys: 8 of 11
@@ -119,6 +121,9 @@ dropped and counted.
   without the corpus values, and results are reported on held-out documents,
   but the categories were known to both.
 - Synthetic documents, one run per configuration, one model size each.
+- Runtime grows with length: about 5.6 s per short document here. A long
+  export of 400,000 characters is over 100 windows, so the merged design costs
+  minutes or more per long document on this laptop.
 - Gemma and the identifier-prompt final pass were stopped to limit load on
   the laptop and are not reported for the contextual test.
 - On masked text Qwen sometimes repeated itself until its 2,048-token limit,
