@@ -9,13 +9,13 @@
     },
     "pipelines": "Actual raw components once, unchanged route, then c07a2e8 or frozen current filter; no business/glossary additions"
   },
-  "created_utc": "2026-10-20T12:54:07.735748+00:00",
+  "created_utc": "2026-10-20T12:56:33.915893+00:00",
   "cases": 120,
   "fixture_sha256": "96964af553983fdb00cd3f1c78ca140ded9f9cfd99e5faae70257770fe14801c",
   "raw_sha256": "18f65a00d608256210a40d65464c0701e87f61f5124ece3183c8ed04bde34585",
   "old_policy_sha256": "0c6efd036fce6f7f2496c09df6142ef5d1a8b21a3c4547eeea6514cf1a5468bf",
   "current_policy_sha256": "b15ef89cce764877ec53902484aafcbd29adecc2447b41e0e10a6ad85c2c23b9",
-  "runner_sha256": "3a5fb0d08e4c930a6aea68c5643a5358935f0f14745ef1153d2ac5fe122d8cc9",
+  "runner_sha256": "be74cbb8fda6a42f945888549d6c12145867a57f1953ed3c2756a0320926436b",
   "groups": {
     "category/birth_date": {
       "targets": 10,

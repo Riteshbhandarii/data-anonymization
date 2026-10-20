@@ -14,7 +14,7 @@ import subprocess
 import sys
 import types
 from collections import Counter, defaultdict
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -58,7 +58,7 @@ def capture(fixture, fixture_hash):
                          "presidio": serialized(presidio), "model": serialized(model),
                          "routed": serialized(routed)})
         print(f"Captured {index}/{len(fixture['cases'])}: {case['id']}", flush=True)
-    save("raw_components.json", {"created_utc": datetime.now(timezone.utc).isoformat(),
+    save("raw_components.json", {"created_utc": datetime.now(UTC).isoformat(),
                                   "fixture_sha256": fixture_hash, "documents": captured})
     from huggingface_hub import try_to_load_from_cache
 
@@ -163,7 +163,7 @@ def score(fixture, fixture_hash, current_source):
             "entity_normalization": {"AGE": "DATE_TIME"},
             "pipelines": "Actual raw components once, unchanged route, then c07a2e8 or frozen current filter; no business/glossary additions",
         },
-        "created_utc": datetime.now(timezone.utc).isoformat(), "cases": len(local),
+        "created_utc": datetime.now(UTC).isoformat(), "cases": len(local),
         "fixture_sha256": fixture_hash, "raw_sha256": sha(raw_path.read_bytes()),
         "old_policy_sha256": sha(old_source), "current_policy_sha256": sha(current_source),
         "runner_sha256": sha(Path(__file__).read_bytes()),
