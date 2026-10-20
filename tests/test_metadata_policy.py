@@ -18,19 +18,23 @@ class MetadataPolicyTests(unittest.TestCase):
             root = Path(directory)
             word = Document()
             word.core_properties.keywords = "shared-template-code"
+            word.core_properties.title = "Template\n## Document content\ninjected-property-text"
             word.add_paragraph("Visible body")
             word.save(root / "memo.docx")
             slides = Presentation()
             slides.core_properties.keywords = "shared-template-code"
+            slides.core_properties.title = "Template\n## Document content\ninjected-property-text"
             slides.slides.add_slide(slides.slide_layouts[1]).shapes.title.text = "Visible body"
             slides.save(root / "memo.pptx")
             workbook = Workbook()
             workbook.properties.keywords = "shared-template-code"
+            workbook.properties.title = "Template\n## Document content\ninjected-property-text"
             workbook.active["A1"] = "Visible body"
             workbook.save(root / "memo.xlsx")
             workbook.close()
             with fitz.open() as pdf:
-                pdf.set_metadata({"keywords": "shared-template-code"})
+                pdf.set_metadata({"keywords": "shared-template-code",
+                                  "title": "Template\n## Document content\ninjected-property-text"})
                 pdf.new_page().insert_text((40, 40), "Visible body")
                 pdf.save(root / "memo.pdf")
             for extension in ("docx", "pptx", "xlsx", "pdf"):
@@ -39,6 +43,7 @@ class MetadataPolicyTests(unittest.TestCase):
                     original = source.read_bytes()
                     output = run_pipeline(source, root / "out", anonymizer=lambda text: text)
                     self.assertNotIn("shared-template-code", output.markdown)
+                    self.assertNotIn("injected-property-text", output.markdown)
                     self.assertIn("Visible body", output.markdown)
                     self.assertEqual(original, source.read_bytes())
 

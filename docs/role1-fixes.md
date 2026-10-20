@@ -74,7 +74,9 @@ properties so missing extraction cannot be hidden by the release policy.
 
 Complete `Document metadata` sections are removed before detection in the
 pipeline/UI, and before truncation of sanitized manual-pack exports. Repeated
-sections, nested headings, CRLF and fenced code are handled. Notes, comments,
+sections, nested headings, CRLF and fenced code are handled. Property-value line
+breaks are folded into spaces so a property cannot inject a body heading and
+escape removal. The property text remains available to audits. Notes, comments,
 headers/footers, hidden sheets and body text remain subject to normal processing.
 The UI excludes intentionally omitted metadata labels from its denominator;
 changing the option invalidates the previous result. Original files are unchanged.

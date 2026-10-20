@@ -25,6 +25,19 @@ def digest(value):
     return hashlib.sha256(value).hexdigest()
 
 
+def prediction_provenance():
+    """Record inference versions at capture time, not at a later cache replay."""
+    project = Path(__file__).resolve().parents[1]
+    return {
+        "versions": {name: importlib.metadata.version(name) for name in
+                     ("spacy", "gliner", "torch", "presidio-analyzer",
+                      "en-core-web-sm", "fi-core-news-sm")},
+        "model_source_sha256": {name: digest((project / name).read_bytes()) for name in
+                                ("detect/adapter.py", "detect/gliner_detector.py",
+                                 "detect/pattern_recognizers.py", "eval/bench.py")},
+    }
+
+
 def capture(root):
     """Freeze each family's actual predictions before comparing postprocessing."""
     from detect.methods import get_detector
@@ -51,10 +64,13 @@ def capture(root):
             doc[name] = [{key: getattr(span, key) for key in ("start", "end", "entity_type", "score")}
                          for span in family.detect(doc["text"], doc["language"])]
         print(f"Captured {index}/{len(documents)}", flush=True)
-    return {"source_commit": "61eb73f", "documents": documents}
+    return {"source_commit": "61eb73f", "documents": documents,
+            "prediction_provenance": prediction_provenance()}
 
 
 def compare(root, components):
+    if "prediction_provenance" not in components:
+        raise ValueError("Prediction versions are absent from the cache; capture a new cache")
     documents = components["documents"]
     lookup = {(d["text"], d["language"]): d for d in documents}
 
@@ -121,13 +137,7 @@ def compare(root, components):
             if state["before"] == "covered" and state["after"] != "covered":
                 losses.append({"document": path.stem, "type": entity["type"]})
     report["new_body_label_losses"] = losses
-    report["versions"] = {name: importlib.metadata.version(name) for name in
-                           ("spacy", "gliner", "torch", "presidio-analyzer",
-                            "en-core-web-sm", "fi-core-news-sm")}
-    report["model_source_sha256"] = {
-        name: digest((Path(__file__).resolve().parents[1] / name).read_bytes())
-        for name in ("detect/adapter.py", "detect/gliner_detector.py",
-                     "detect/pattern_recognizers.py", "eval/bench.py")}
+    report.update(components["prediction_provenance"])
     return report
 
 

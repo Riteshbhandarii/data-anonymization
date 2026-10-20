@@ -1431,5 +1431,5 @@
     "detect/pattern_recognizers.py": "1fb4df59e36d4d28be0e03c68ef487f1cbf8d8b5460180afc160677ee06827d0",
     "eval/bench.py": "8f5a158d9082bdda6bd912abff2e0e01ccd182fa6671850074285e829430efea"
   },
-  "frozen_components_sha256": "cb1c7d881ffce34cfd2818d2d0419f4c0810ffe6ac6e8dbe96f2c25736ff894a"
+  "frozen_components_sha256": "7b8368cdaab37ca81b825ed4df79ee510e229d7d22404272bdec768c04349079"
 }

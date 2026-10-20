@@ -452,7 +452,10 @@ def _office_metadata(properties: Any) -> list[str]:
 def _metadata_section(values: dict[str, Any]) -> list[str]:
     """Keep metadata in the same Markdown stream as document content."""
     lines = [
-        f"- {name}: {str(value).strip()}"
+        # Property values are data, not section boundaries. In particular a
+        # newline followed by '## Document content' must not escape metadata
+        # omission and expose the rest of a property as body text.
+        f"- {name}: {' '.join(str(value).splitlines()).strip()}"
         for name, value in values.items()
         if value is not None and str(value).strip()
     ]
