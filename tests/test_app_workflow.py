@@ -70,6 +70,19 @@ class AppWorkflowTests(unittest.TestCase):
         self.assertTrue(any("document or settings changed" in item.value for item in self.app.info))
         self.assertEqual([], list(self.app.metric))
 
+    def test_metadata_defaults_off_and_changing_policy_invalidates_the_result(self):
+        self.app.default_timeout = 60
+        self.source.write_text("## Document metadata\n- Keywords: Shared-template-code\n"
+                               "## Document content\nContact Alice Example.")
+        self.run_document()
+        self.assertFalse(self.app.sidebar.checkbox[0].value)
+        self.assertNotIn("Shared-template-code", self.app.session_state["res"]["clean"])
+        self.app.sidebar.checkbox[0].check().run()
+        self.assertTrue(any("settings changed" in item.value for item in self.app.info))
+        with patch("detect.methods.get_detector", return_value=FixtureDetector()):
+            self.app.sidebar.button[0].click().run()
+        self.assertIn("Shared-template-code", self.app.session_state["res"]["clean"])
+
     def test_save_failure_is_visible_without_crashing_the_clean_preview(self):
         with patch("pipeline.core._save_markdown", side_effect=OSError("disk full")):
             self.run_document()

@@ -8,6 +8,7 @@ from .errors import (
     UnsupportedFormatError,
 )
 from .extractors import SUPPORTED_EXTENSIONS, detect_format, extract_to_markdown
+from .metadata import remove_document_metadata
 from .normalization import normalize_markdown
 
 __all__ = [
@@ -20,5 +21,6 @@ __all__ = [
     "detect_format",
     "extract_to_markdown",
     "normalize_markdown",
+    "remove_document_metadata",
     "run_pipeline",
 ]

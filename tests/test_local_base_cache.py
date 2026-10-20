@@ -22,7 +22,8 @@ class BaseCacheTests(unittest.TestCase):
             label = '{"language": "fi", "entities": []}'
             text = "Aino\njob Tampere"
             (root / "labels/a.json").write_text(label)
-            (root / "text/a.txt").write_text(text)
+            # The expected digest describes LF bytes on every host, including Windows.
+            (root / "text/a.txt").write_text(text, encoding="utf-8", newline="")
             digest = hashlib.sha256(label.encode() + text.encode()).hexdigest()
             cache = {"method": "combined", "corpus_sha256": digest,
                      "detector_source_sha256": source_digest(), "spans": {

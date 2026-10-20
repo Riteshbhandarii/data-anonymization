@@ -6,6 +6,7 @@ from pathlib import Path
 
 from .errors import AnonymizationError, ExtractionError, PipelineError
 from .extractors import extract_to_markdown
+from .metadata import remove_document_metadata
 from .normalization import normalize_markdown
 
 Anonymizer = Callable[[str], str]
@@ -30,6 +31,7 @@ def run_pipeline(
     anonymizer: Anonymizer,
     extractor: Extractor | None = None,
     ocr_language: str = "eng",
+    include_metadata: bool = False,
     progress: ProgressCallback | None = None,
 ) -> PipelineResult:
     """Extract Markdown, call the anonymization module, and save its output.
@@ -41,6 +43,8 @@ def run_pipeline(
     the built-in extractor. ``progress`` receives a message at each stage.
     Output names retain the input extension and gain a numbered suffix when a
     file with the same output name already exists.
+    Document metadata sections are omitted before anonymization by default.
+    Set ``include_metadata=True`` only for a reviewed need or extraction audit.
     """
     source = Path(input_path)
     destination_dir = Path(output_dir)
@@ -66,6 +70,8 @@ def run_pipeline(
 
     _report(progress, "Normalizing extracted content as Markdown")
     markdown = normalize_markdown(markdown)
+    if not include_metadata:
+        markdown = remove_document_metadata(markdown)
 
     # Hand the complete Markdown to the anonymization module and receive its output.
     _report(progress, "Anonymizing Markdown")

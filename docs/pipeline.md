@@ -132,6 +132,7 @@ def run_pipeline(
     anonymizer,
     extractor=None,
     ocr_language="eng",
+    include_metadata=False,
     progress=None,
 ) -> PipelineResult:
     ...
@@ -144,9 +145,17 @@ def run_pipeline(
 | `extractor` | Optional callable: `Path -> str` | Replaces built-in format selection and extraction; receives the input path and returns Markdown |
 | `output_dir` | `str` or `pathlib.Path` | Defaults to `outputs/` in the repository root |
 | `ocr_language` | `str` | Tesseract language code for the built-in reader; defaults to `eng` |
+| `include_metadata` | `bool`, default `False` | Omit extracted document-property sections before calling the anonymizer. Set `True` only for a reviewed need or a complete extraction audit |
 | `progress` | Optional callable: `str -> None` | Receives a short message when each processing stage starts; use `print` for console output |
 
 ## Existing readers
+
+The low-level readers retain metadata for local inspection and validation.
+`run_pipeline()` removes entire `Document metadata` sections before anonymization
+by default. The UI uses the same default; **Keep document metadata** opts in.
+Comments, notes, hidden sheets and document content remain subject to detection.
+This policy changes exported Markdown only. Paste the cleaned text, never upload
+the original file. See the [clean-text cookbook](clean-text-cookbook.md).
 
 Extension matching is case-insensitive. All readers return Markdown strings through `extract_to_markdown()`.
 
