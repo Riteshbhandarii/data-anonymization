@@ -1,0 +1,790 @@
+{
+  "candidate_contract": {
+    "entity_type_normalization": {
+      "AGE": "DATE_TIME"
+    },
+    "normalization_applied_identically_to": [
+      "baseline",
+      "current"
+    ],
+    "normalized_candidates": 34,
+    "retention_key": [
+      "start",
+      "end",
+      "entity_type"
+    ],
+    "score": 0.9
+  },
+  "evaluation_scope": "candidate-policy validation, not detector recall",
+  "fixture": {
+    "by_category": {
+      "birth_date": 10,
+      "job_title": 12,
+      "named_facility": 10,
+      "person_name": 10,
+      "personal_age": 12,
+      "personal_location": 12,
+      "quantity": 10,
+      "service_duration": 12,
+      "street_address": 10,
+      "technical_standard": 10,
+      "unnamed_facility": 12
+    },
+    "by_language": {
+      "en": 60,
+      "fi": 60
+    },
+    "candidates": 120,
+    "cases": 120,
+    "path": "tests/fixtures/context_holdout.json",
+    "scope": "independently authored synthetic contract checks, not real-world accuracy",
+    "sha256": "96964af553983fdb00cd3f1c78ca140ded9f9cfd99e5faae70257770fe14801c"
+  },
+  "policies": {
+    "baseline": {
+      "commit": "c07a2e8788bea8dfbad80893ae4a28cf74d821e4",
+      "requested_revision": "c07a2e8",
+      "source_path": "detect/context_rules.py",
+      "source_sha256": "0c6efd036fce6f7f2496c09df6142ef5d1a8b21a3c4547eeea6514cf1a5468bf"
+    },
+    "current": {
+      "head_commit": "c07a2e8788bea8dfbad80893ae4a28cf74d821e4",
+      "revision": "working tree",
+      "source_path": "detect/context_rules.py",
+      "source_sha256": "b15ef89cce764877ec53902484aafcbd29adecc2447b41e0e10a6ad85c2c23b9"
+    }
+  },
+  "results": {
+    "by_category": {
+      "birth_date": {
+        "baseline": {
+          "discard_dropped": 0,
+          "discard_retained": 0,
+          "discard_total": 0,
+          "preserve_dropped": 0,
+          "preserve_retained": 10,
+          "preserve_total": 10
+        },
+        "current": {
+          "discard_dropped": 0,
+          "discard_retained": 0,
+          "discard_total": 0,
+          "preserve_dropped": 0,
+          "preserve_retained": 10,
+          "preserve_total": 10
+        },
+        "new_sensitive_losses": 0,
+        "recovered_sensitive_candidates": 0
+      },
+      "job_title": {
+        "baseline": {
+          "discard_dropped": 0,
+          "discard_retained": 12,
+          "discard_total": 12,
+          "preserve_dropped": 0,
+          "preserve_retained": 0,
+          "preserve_total": 0
+        },
+        "current": {
+          "discard_dropped": 0,
+          "discard_retained": 12,
+          "discard_total": 12,
+          "preserve_dropped": 0,
+          "preserve_retained": 0,
+          "preserve_total": 0
+        },
+        "new_sensitive_losses": 0,
+        "recovered_sensitive_candidates": 0
+      },
+      "named_facility": {
+        "baseline": {
+          "discard_dropped": 0,
+          "discard_retained": 0,
+          "discard_total": 0,
+          "preserve_dropped": 0,
+          "preserve_retained": 10,
+          "preserve_total": 10
+        },
+        "current": {
+          "discard_dropped": 0,
+          "discard_retained": 0,
+          "discard_total": 0,
+          "preserve_dropped": 0,
+          "preserve_retained": 10,
+          "preserve_total": 10
+        },
+        "new_sensitive_losses": 0,
+        "recovered_sensitive_candidates": 0
+      },
+      "person_name": {
+        "baseline": {
+          "discard_dropped": 0,
+          "discard_retained": 0,
+          "discard_total": 0,
+          "preserve_dropped": 0,
+          "preserve_retained": 10,
+          "preserve_total": 10
+        },
+        "current": {
+          "discard_dropped": 0,
+          "discard_retained": 0,
+          "discard_total": 0,
+          "preserve_dropped": 0,
+          "preserve_retained": 10,
+          "preserve_total": 10
+        },
+        "new_sensitive_losses": 0,
+        "recovered_sensitive_candidates": 0
+      },
+      "personal_age": {
+        "baseline": {
+          "discard_dropped": 0,
+          "discard_retained": 0,
+          "discard_total": 0,
+          "preserve_dropped": 1,
+          "preserve_retained": 11,
+          "preserve_total": 12
+        },
+        "current": {
+          "discard_dropped": 0,
+          "discard_retained": 0,
+          "discard_total": 0,
+          "preserve_dropped": 0,
+          "preserve_retained": 12,
+          "preserve_total": 12
+        },
+        "new_sensitive_losses": 0,
+        "recovered_sensitive_candidates": 1
+      },
+      "personal_location": {
+        "baseline": {
+          "discard_dropped": 0,
+          "discard_retained": 0,
+          "discard_total": 0,
+          "preserve_dropped": 0,
+          "preserve_retained": 12,
+          "preserve_total": 12
+        },
+        "current": {
+          "discard_dropped": 0,
+          "discard_retained": 0,
+          "discard_total": 0,
+          "preserve_dropped": 0,
+          "preserve_retained": 12,
+          "preserve_total": 12
+        },
+        "new_sensitive_losses": 0,
+        "recovered_sensitive_candidates": 0
+      },
+      "quantity": {
+        "baseline": {
+          "discard_dropped": 0,
+          "discard_retained": 10,
+          "discard_total": 10,
+          "preserve_dropped": 0,
+          "preserve_retained": 0,
+          "preserve_total": 0
+        },
+        "current": {
+          "discard_dropped": 0,
+          "discard_retained": 10,
+          "discard_total": 10,
+          "preserve_dropped": 0,
+          "preserve_retained": 0,
+          "preserve_total": 0
+        },
+        "new_sensitive_losses": 0,
+        "recovered_sensitive_candidates": 0
+      },
+      "service_duration": {
+        "baseline": {
+          "discard_dropped": 3,
+          "discard_retained": 9,
+          "discard_total": 12,
+          "preserve_dropped": 0,
+          "preserve_retained": 0,
+          "preserve_total": 0
+        },
+        "current": {
+          "discard_dropped": 0,
+          "discard_retained": 12,
+          "discard_total": 12,
+          "preserve_dropped": 0,
+          "preserve_retained": 0,
+          "preserve_total": 0
+        },
+        "new_sensitive_losses": 0,
+        "recovered_sensitive_candidates": 0
+      },
+      "street_address": {
+        "baseline": {
+          "discard_dropped": 0,
+          "discard_retained": 0,
+          "discard_total": 0,
+          "preserve_dropped": 0,
+          "preserve_retained": 10,
+          "preserve_total": 10
+        },
+        "current": {
+          "discard_dropped": 0,
+          "discard_retained": 0,
+          "discard_total": 0,
+          "preserve_dropped": 0,
+          "preserve_retained": 10,
+          "preserve_total": 10
+        },
+        "new_sensitive_losses": 0,
+        "recovered_sensitive_candidates": 0
+      },
+      "technical_standard": {
+        "baseline": {
+          "discard_dropped": 4,
+          "discard_retained": 6,
+          "discard_total": 10,
+          "preserve_dropped": 0,
+          "preserve_retained": 0,
+          "preserve_total": 0
+        },
+        "current": {
+          "discard_dropped": 4,
+          "discard_retained": 6,
+          "discard_total": 10,
+          "preserve_dropped": 0,
+          "preserve_retained": 0,
+          "preserve_total": 0
+        },
+        "new_sensitive_losses": 0,
+        "recovered_sensitive_candidates": 0
+      },
+      "unnamed_facility": {
+        "baseline": {
+          "discard_dropped": 0,
+          "discard_retained": 12,
+          "discard_total": 12,
+          "preserve_dropped": 0,
+          "preserve_retained": 0,
+          "preserve_total": 0
+        },
+        "current": {
+          "discard_dropped": 0,
+          "discard_retained": 12,
+          "discard_total": 12,
+          "preserve_dropped": 0,
+          "preserve_retained": 0,
+          "preserve_total": 0
+        },
+        "new_sensitive_losses": 0,
+        "recovered_sensitive_candidates": 0
+      }
+    },
+    "by_language": {
+      "en": {
+        "baseline": {
+          "discard_dropped": 4,
+          "discard_retained": 24,
+          "discard_total": 28,
+          "preserve_dropped": 0,
+          "preserve_retained": 32,
+          "preserve_total": 32
+        },
+        "current": {
+          "discard_dropped": 3,
+          "discard_retained": 25,
+          "discard_total": 28,
+          "preserve_dropped": 0,
+          "preserve_retained": 32,
+          "preserve_total": 32
+        },
+        "new_sensitive_losses": 0,
+        "recovered_sensitive_candidates": 0
+      },
+      "fi": {
+        "baseline": {
+          "discard_dropped": 3,
+          "discard_retained": 25,
+          "discard_total": 28,
+          "preserve_dropped": 1,
+          "preserve_retained": 31,
+          "preserve_total": 32
+        },
+        "current": {
+          "discard_dropped": 1,
+          "discard_retained": 27,
+          "discard_total": 28,
+          "preserve_dropped": 0,
+          "preserve_retained": 32,
+          "preserve_total": 32
+        },
+        "new_sensitive_losses": 0,
+        "recovered_sensitive_candidates": 1
+      }
+    },
+    "by_language_category": {
+      "en": {
+        "birth_date": {
+          "baseline": {
+            "discard_dropped": 0,
+            "discard_retained": 0,
+            "discard_total": 0,
+            "preserve_dropped": 0,
+            "preserve_retained": 5,
+            "preserve_total": 5
+          },
+          "current": {
+            "discard_dropped": 0,
+            "discard_retained": 0,
+            "discard_total": 0,
+            "preserve_dropped": 0,
+            "preserve_retained": 5,
+            "preserve_total": 5
+          },
+          "new_sensitive_losses": 0,
+          "recovered_sensitive_candidates": 0
+        },
+        "job_title": {
+          "baseline": {
+            "discard_dropped": 0,
+            "discard_retained": 6,
+            "discard_total": 6,
+            "preserve_dropped": 0,
+            "preserve_retained": 0,
+            "preserve_total": 0
+          },
+          "current": {
+            "discard_dropped": 0,
+            "discard_retained": 6,
+            "discard_total": 6,
+            "preserve_dropped": 0,
+            "preserve_retained": 0,
+            "preserve_total": 0
+          },
+          "new_sensitive_losses": 0,
+          "recovered_sensitive_candidates": 0
+        },
+        "named_facility": {
+          "baseline": {
+            "discard_dropped": 0,
+            "discard_retained": 0,
+            "discard_total": 0,
+            "preserve_dropped": 0,
+            "preserve_retained": 5,
+            "preserve_total": 5
+          },
+          "current": {
+            "discard_dropped": 0,
+            "discard_retained": 0,
+            "discard_total": 0,
+            "preserve_dropped": 0,
+            "preserve_retained": 5,
+            "preserve_total": 5
+          },
+          "new_sensitive_losses": 0,
+          "recovered_sensitive_candidates": 0
+        },
+        "person_name": {
+          "baseline": {
+            "discard_dropped": 0,
+            "discard_retained": 0,
+            "discard_total": 0,
+            "preserve_dropped": 0,
+            "preserve_retained": 5,
+            "preserve_total": 5
+          },
+          "current": {
+            "discard_dropped": 0,
+            "discard_retained": 0,
+            "discard_total": 0,
+            "preserve_dropped": 0,
+            "preserve_retained": 5,
+            "preserve_total": 5
+          },
+          "new_sensitive_losses": 0,
+          "recovered_sensitive_candidates": 0
+        },
+        "personal_age": {
+          "baseline": {
+            "discard_dropped": 0,
+            "discard_retained": 0,
+            "discard_total": 0,
+            "preserve_dropped": 0,
+            "preserve_retained": 6,
+            "preserve_total": 6
+          },
+          "current": {
+            "discard_dropped": 0,
+            "discard_retained": 0,
+            "discard_total": 0,
+            "preserve_dropped": 0,
+            "preserve_retained": 6,
+            "preserve_total": 6
+          },
+          "new_sensitive_losses": 0,
+          "recovered_sensitive_candidates": 0
+        },
+        "personal_location": {
+          "baseline": {
+            "discard_dropped": 0,
+            "discard_retained": 0,
+            "discard_total": 0,
+            "preserve_dropped": 0,
+            "preserve_retained": 6,
+            "preserve_total": 6
+          },
+          "current": {
+            "discard_dropped": 0,
+            "discard_retained": 0,
+            "discard_total": 0,
+            "preserve_dropped": 0,
+            "preserve_retained": 6,
+            "preserve_total": 6
+          },
+          "new_sensitive_losses": 0,
+          "recovered_sensitive_candidates": 0
+        },
+        "quantity": {
+          "baseline": {
+            "discard_dropped": 0,
+            "discard_retained": 5,
+            "discard_total": 5,
+            "preserve_dropped": 0,
+            "preserve_retained": 0,
+            "preserve_total": 0
+          },
+          "current": {
+            "discard_dropped": 0,
+            "discard_retained": 5,
+            "discard_total": 5,
+            "preserve_dropped": 0,
+            "preserve_retained": 0,
+            "preserve_total": 0
+          },
+          "new_sensitive_losses": 0,
+          "recovered_sensitive_candidates": 0
+        },
+        "service_duration": {
+          "baseline": {
+            "discard_dropped": 1,
+            "discard_retained": 5,
+            "discard_total": 6,
+            "preserve_dropped": 0,
+            "preserve_retained": 0,
+            "preserve_total": 0
+          },
+          "current": {
+            "discard_dropped": 0,
+            "discard_retained": 6,
+            "discard_total": 6,
+            "preserve_dropped": 0,
+            "preserve_retained": 0,
+            "preserve_total": 0
+          },
+          "new_sensitive_losses": 0,
+          "recovered_sensitive_candidates": 0
+        },
+        "street_address": {
+          "baseline": {
+            "discard_dropped": 0,
+            "discard_retained": 0,
+            "discard_total": 0,
+            "preserve_dropped": 0,
+            "preserve_retained": 5,
+            "preserve_total": 5
+          },
+          "current": {
+            "discard_dropped": 0,
+            "discard_retained": 0,
+            "discard_total": 0,
+            "preserve_dropped": 0,
+            "preserve_retained": 5,
+            "preserve_total": 5
+          },
+          "new_sensitive_losses": 0,
+          "recovered_sensitive_candidates": 0
+        },
+        "technical_standard": {
+          "baseline": {
+            "discard_dropped": 3,
+            "discard_retained": 2,
+            "discard_total": 5,
+            "preserve_dropped": 0,
+            "preserve_retained": 0,
+            "preserve_total": 0
+          },
+          "current": {
+            "discard_dropped": 3,
+            "discard_retained": 2,
+            "discard_total": 5,
+            "preserve_dropped": 0,
+            "preserve_retained": 0,
+            "preserve_total": 0
+          },
+          "new_sensitive_losses": 0,
+          "recovered_sensitive_candidates": 0
+        },
+        "unnamed_facility": {
+          "baseline": {
+            "discard_dropped": 0,
+            "discard_retained": 6,
+            "discard_total": 6,
+            "preserve_dropped": 0,
+            "preserve_retained": 0,
+            "preserve_total": 0
+          },
+          "current": {
+            "discard_dropped": 0,
+            "discard_retained": 6,
+            "discard_total": 6,
+            "preserve_dropped": 0,
+            "preserve_retained": 0,
+            "preserve_total": 0
+          },
+          "new_sensitive_losses": 0,
+          "recovered_sensitive_candidates": 0
+        }
+      },
+      "fi": {
+        "birth_date": {
+          "baseline": {
+            "discard_dropped": 0,
+            "discard_retained": 0,
+            "discard_total": 0,
+            "preserve_dropped": 0,
+            "preserve_retained": 5,
+            "preserve_total": 5
+          },
+          "current": {
+            "discard_dropped": 0,
+            "discard_retained": 0,
+            "discard_total": 0,
+            "preserve_dropped": 0,
+            "preserve_retained": 5,
+            "preserve_total": 5
+          },
+          "new_sensitive_losses": 0,
+          "recovered_sensitive_candidates": 0
+        },
+        "job_title": {
+          "baseline": {
+            "discard_dropped": 0,
+            "discard_retained": 6,
+            "discard_total": 6,
+            "preserve_dropped": 0,
+            "preserve_retained": 0,
+            "preserve_total": 0
+          },
+          "current": {
+            "discard_dropped": 0,
+            "discard_retained": 6,
+            "discard_total": 6,
+            "preserve_dropped": 0,
+            "preserve_retained": 0,
+            "preserve_total": 0
+          },
+          "new_sensitive_losses": 0,
+          "recovered_sensitive_candidates": 0
+        },
+        "named_facility": {
+          "baseline": {
+            "discard_dropped": 0,
+            "discard_retained": 0,
+            "discard_total": 0,
+            "preserve_dropped": 0,
+            "preserve_retained": 5,
+            "preserve_total": 5
+          },
+          "current": {
+            "discard_dropped": 0,
+            "discard_retained": 0,
+            "discard_total": 0,
+            "preserve_dropped": 0,
+            "preserve_retained": 5,
+            "preserve_total": 5
+          },
+          "new_sensitive_losses": 0,
+          "recovered_sensitive_candidates": 0
+        },
+        "person_name": {
+          "baseline": {
+            "discard_dropped": 0,
+            "discard_retained": 0,
+            "discard_total": 0,
+            "preserve_dropped": 0,
+            "preserve_retained": 5,
+            "preserve_total": 5
+          },
+          "current": {
+            "discard_dropped": 0,
+            "discard_retained": 0,
+            "discard_total": 0,
+            "preserve_dropped": 0,
+            "preserve_retained": 5,
+            "preserve_total": 5
+          },
+          "new_sensitive_losses": 0,
+          "recovered_sensitive_candidates": 0
+        },
+        "personal_age": {
+          "baseline": {
+            "discard_dropped": 0,
+            "discard_retained": 0,
+            "discard_total": 0,
+            "preserve_dropped": 1,
+            "preserve_retained": 5,
+            "preserve_total": 6
+          },
+          "current": {
+            "discard_dropped": 0,
+            "discard_retained": 0,
+            "discard_total": 0,
+            "preserve_dropped": 0,
+            "preserve_retained": 6,
+            "preserve_total": 6
+          },
+          "new_sensitive_losses": 0,
+          "recovered_sensitive_candidates": 1
+        },
+        "personal_location": {
+          "baseline": {
+            "discard_dropped": 0,
+            "discard_retained": 0,
+            "discard_total": 0,
+            "preserve_dropped": 0,
+            "preserve_retained": 6,
+            "preserve_total": 6
+          },
+          "current": {
+            "discard_dropped": 0,
+            "discard_retained": 0,
+            "discard_total": 0,
+            "preserve_dropped": 0,
+            "preserve_retained": 6,
+            "preserve_total": 6
+          },
+          "new_sensitive_losses": 0,
+          "recovered_sensitive_candidates": 0
+        },
+        "quantity": {
+          "baseline": {
+            "discard_dropped": 0,
+            "discard_retained": 5,
+            "discard_total": 5,
+            "preserve_dropped": 0,
+            "preserve_retained": 0,
+            "preserve_total": 0
+          },
+          "current": {
+            "discard_dropped": 0,
+            "discard_retained": 5,
+            "discard_total": 5,
+            "preserve_dropped": 0,
+            "preserve_retained": 0,
+            "preserve_total": 0
+          },
+          "new_sensitive_losses": 0,
+          "recovered_sensitive_candidates": 0
+        },
+        "service_duration": {
+          "baseline": {
+            "discard_dropped": 2,
+            "discard_retained": 4,
+            "discard_total": 6,
+            "preserve_dropped": 0,
+            "preserve_retained": 0,
+            "preserve_total": 0
+          },
+          "current": {
+            "discard_dropped": 0,
+            "discard_retained": 6,
+            "discard_total": 6,
+            "preserve_dropped": 0,
+            "preserve_retained": 0,
+            "preserve_total": 0
+          },
+          "new_sensitive_losses": 0,
+          "recovered_sensitive_candidates": 0
+        },
+        "street_address": {
+          "baseline": {
+            "discard_dropped": 0,
+            "discard_retained": 0,
+            "discard_total": 0,
+            "preserve_dropped": 0,
+            "preserve_retained": 5,
+            "preserve_total": 5
+          },
+          "current": {
+            "discard_dropped": 0,
+            "discard_retained": 0,
+            "discard_total": 0,
+            "preserve_dropped": 0,
+            "preserve_retained": 5,
+            "preserve_total": 5
+          },
+          "new_sensitive_losses": 0,
+          "recovered_sensitive_candidates": 0
+        },
+        "technical_standard": {
+          "baseline": {
+            "discard_dropped": 1,
+            "discard_retained": 4,
+            "discard_total": 5,
+            "preserve_dropped": 0,
+            "preserve_retained": 0,
+            "preserve_total": 0
+          },
+          "current": {
+            "discard_dropped": 1,
+            "discard_retained": 4,
+            "discard_total": 5,
+            "preserve_dropped": 0,
+            "preserve_retained": 0,
+            "preserve_total": 0
+          },
+          "new_sensitive_losses": 0,
+          "recovered_sensitive_candidates": 0
+        },
+        "unnamed_facility": {
+          "baseline": {
+            "discard_dropped": 0,
+            "discard_retained": 6,
+            "discard_total": 6,
+            "preserve_dropped": 0,
+            "preserve_retained": 0,
+            "preserve_total": 0
+          },
+          "current": {
+            "discard_dropped": 0,
+            "discard_retained": 6,
+            "discard_total": 6,
+            "preserve_dropped": 0,
+            "preserve_retained": 0,
+            "preserve_total": 0
+          },
+          "new_sensitive_losses": 0,
+          "recovered_sensitive_candidates": 0
+        }
+      }
+    },
+    "overall": {
+      "baseline": {
+        "discard_dropped": 7,
+        "discard_retained": 49,
+        "discard_total": 56,
+        "preserve_dropped": 1,
+        "preserve_retained": 63,
+        "preserve_total": 64
+      },
+      "current": {
+        "discard_dropped": 4,
+        "discard_retained": 52,
+        "discard_total": 56,
+        "preserve_dropped": 0,
+        "preserve_retained": 64,
+        "preserve_total": 64
+      },
+      "new_sensitive_losses": 0,
+      "recovered_sensitive_candidates": 1
+    }
+  },
+  "schema_version": 1
+}

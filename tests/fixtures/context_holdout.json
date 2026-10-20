@@ -1,0 +1,1686 @@
+{
+  "schema_version": 1,
+  "scope": "independently authored synthetic contract checks, not real-world accuracy",
+  "cases": [
+    {
+      "id": "en_quantity_01",
+      "language": "en",
+      "text": "Dose the cleaning tank with 4.5 litres of concentrate.",
+      "category": "quantity",
+      "spans": [
+        {
+          "start": 28,
+          "end": 31,
+          "entity_type": "AGE",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_quantity_02",
+      "language": "en",
+      "text": "Keep the storage room at 18 degrees Celsius during testing.",
+      "category": "quantity",
+      "spans": [
+        {
+          "start": 25,
+          "end": 27,
+          "entity_type": "AGE",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_quantity_03",
+      "language": "en",
+      "text": "The empty transport crate weighs 72 kilograms.",
+      "category": "quantity",
+      "spans": [
+        {
+          "start": 33,
+          "end": 35,
+          "entity_type": "AGE",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_quantity_04",
+      "language": "en",
+      "text": "Reduce the valve opening to 35 percent before startup.",
+      "category": "quantity",
+      "spans": [
+        {
+          "start": 28,
+          "end": 30,
+          "entity_type": "AGE",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_quantity_05",
+      "language": "en",
+      "text": "Each replacement kit contains 14 identical washers.",
+      "category": "quantity",
+      "spans": [
+        {
+          "start": 30,
+          "end": 32,
+          "entity_type": "AGE",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_quantity_01",
+      "language": "fi",
+      "text": "Puhdistussäiliöön annostellaan 6,5 litraa pesuainetta.",
+      "category": "quantity",
+      "spans": [
+        {
+          "start": 31,
+          "end": 34,
+          "entity_type": "AGE",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_quantity_02",
+      "language": "fi",
+      "text": "Koetilan lämpötilaksi asetetaan 21 celsiusastetta.",
+      "category": "quantity",
+      "spans": [
+        {
+          "start": 32,
+          "end": 34,
+          "entity_type": "AGE",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_quantity_03",
+      "language": "fi",
+      "text": "Tyhjän kuljetuslaatikon massa on 84 kilogrammaa.",
+      "category": "quantity",
+      "spans": [
+        {
+          "start": 33,
+          "end": 35,
+          "entity_type": "AGE",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_quantity_04",
+      "language": "fi",
+      "text": "Venttiilin aukko säädetään 45 prosenttiin ennen käynnistystä.",
+      "category": "quantity",
+      "spans": [
+        {
+          "start": 27,
+          "end": 29,
+          "entity_type": "AGE",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_quantity_05",
+      "language": "fi",
+      "text": "Varaosasarjassa on 16 samanlaista tiivistettä.",
+      "category": "quantity",
+      "spans": [
+        {
+          "start": 19,
+          "end": 21,
+          "entity_type": "AGE",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_service_duration_01",
+      "language": "en",
+      "text": "The 27-year-old supply contract remains in force until replacement.",
+      "category": "service_duration",
+      "spans": [
+        {
+          "start": 4,
+          "end": 15,
+          "entity_type": "AGE",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_service_duration_02",
+      "language": "en",
+      "text": "After 63 years of service, the boiler will be replaced.",
+      "category": "service_duration",
+      "spans": [
+        {
+          "start": 6,
+          "end": 14,
+          "entity_type": "AGE",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_service_duration_03",
+      "language": "en",
+      "text": "The seven-year-old server failed its final hardware test.",
+      "category": "service_duration",
+      "spans": [
+        {
+          "start": 4,
+          "end": 18,
+          "entity_type": "AGE",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_service_duration_04",
+      "language": "en",
+      "text": "The coating is forty-two days old and ready for inspection.",
+      "category": "service_duration",
+      "spans": [
+        {
+          "start": 15,
+          "end": 33,
+          "entity_type": "AGE",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_service_duration_05",
+      "language": "en",
+      "text": "Equipment aged 58 months must undergo a pressure test.",
+      "category": "service_duration",
+      "spans": [
+        {
+          "start": 15,
+          "end": 24,
+          "entity_type": "AGE",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_service_duration_06",
+      "language": "en",
+      "text": "The maintenance agreement covers 80 full weeks of operation.",
+      "category": "service_duration",
+      "spans": [
+        {
+          "start": 33,
+          "end": 46,
+          "entity_type": "AGE",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_service_duration_01",
+      "language": "fi",
+      "text": "Toimitussopimus on jo 29-vuotias, ja sen uusiminen valmistellaan.",
+      "category": "service_duration",
+      "spans": [
+        {
+          "start": 22,
+          "end": 32,
+          "entity_type": "AGE",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_service_duration_02",
+      "language": "fi",
+      "text": "Laitteen huoltoväli on kuuden vuoden pituinen.",
+      "category": "service_duration",
+      "spans": [
+        {
+          "start": 23,
+          "end": 36,
+          "entity_type": "AGE",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_service_duration_03",
+      "language": "fi",
+      "text": "Järjestelmä on palvellut 46 vuotta ilman suuria muutoksia.",
+      "category": "service_duration",
+      "spans": [
+        {
+          "start": 25,
+          "end": 34,
+          "entity_type": "AGE",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_service_duration_04",
+      "language": "fi",
+      "text": "Seitsemänkymmentä vuotta käytössä ollut pumppu vaihdetaan.",
+      "category": "service_duration",
+      "spans": [
+        {
+          "start": 0,
+          "end": 24,
+          "entity_type": "AGE",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_service_duration_05",
+      "language": "fi",
+      "text": "Mittari poistettiin käytöstä 62-vuotiaana varaosapulan vuoksi.",
+      "category": "service_duration",
+      "spans": [
+        {
+          "start": 29,
+          "end": 41,
+          "entity_type": "AGE",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_service_duration_06",
+      "language": "fi",
+      "text": "Takuuaika päättyy 38. käyttökuukauden lopussa.",
+      "category": "service_duration",
+      "spans": [
+        {
+          "start": 18,
+          "end": 21,
+          "entity_type": "AGE",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_technical_standard_01",
+      "language": "en",
+      "text": "The inspection plan follows EN 1090-2 for steel structures.",
+      "category": "technical_standard",
+      "spans": [
+        {
+          "start": 28,
+          "end": 37,
+          "entity_type": "DATE_TIME",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_technical_standard_02",
+      "language": "en",
+      "text": "Record the test procedure under ISO 14644-1:2015.",
+      "category": "technical_standard",
+      "spans": [
+        {
+          "start": 32,
+          "end": 48,
+          "entity_type": "DATE_TIME",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_technical_standard_03",
+      "language": "en",
+      "text": "Electrical drawings must comply with IEC 60204-1.",
+      "category": "technical_standard",
+      "spans": [
+        {
+          "start": 37,
+          "end": 48,
+          "entity_type": "DATE_TIME",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_technical_standard_04",
+      "language": "en",
+      "text": "Use the requirements of ASTM D638-22 for this material test.",
+      "category": "technical_standard",
+      "spans": [
+        {
+          "start": 24,
+          "end": 36,
+          "entity_type": "DATE_TIME",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_technical_standard_05",
+      "language": "en",
+      "text": "The certificate cites ISO/IEC 27001:2022 in its scope.",
+      "category": "technical_standard",
+      "spans": [
+        {
+          "start": 22,
+          "end": 40,
+          "entity_type": "DATE_TIME",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_technical_standard_01",
+      "language": "fi",
+      "text": "Hitsausohje laaditaan standardin SFS-EN ISO 9606-1 mukaisesti.",
+      "category": "technical_standard",
+      "spans": [
+        {
+          "start": 33,
+          "end": 50,
+          "entity_type": "DATE_TIME",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_technical_standard_02",
+      "language": "fi",
+      "text": "Koemenetelmä perustuu standardiin ISO 5667-3:2024.",
+      "category": "technical_standard",
+      "spans": [
+        {
+          "start": 34,
+          "end": 49,
+          "entity_type": "DATE_TIME",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_technical_standard_03",
+      "language": "fi",
+      "text": "Piirustuksissa viitataan standardiin EN 1993-1-8.",
+      "category": "technical_standard",
+      "spans": [
+        {
+          "start": 37,
+          "end": 48,
+          "entity_type": "DATE_TIME",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_technical_standard_04",
+      "language": "fi",
+      "text": "Raportin standardiviite on IEC 60529:1989+A1:1999.",
+      "category": "technical_standard",
+      "spans": [
+        {
+          "start": 27,
+          "end": 49,
+          "entity_type": "DATE_TIME",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_technical_standard_05",
+      "language": "fi",
+      "text": "Sertifikaatin soveltamisalaan kuuluu ISO 45001:2018.",
+      "category": "technical_standard",
+      "spans": [
+        {
+          "start": 37,
+          "end": 51,
+          "entity_type": "DATE_TIME",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_job_title_01",
+      "language": "en",
+      "text": "Assign the shift supervisor to the evening inspection.",
+      "category": "job_title",
+      "spans": [
+        {
+          "start": 11,
+          "end": 27,
+          "entity_type": "PERSON",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_job_title_02",
+      "language": "en",
+      "text": "The senior procurement specialist approves routine orders.",
+      "category": "job_title",
+      "spans": [
+        {
+          "start": 4,
+          "end": 33,
+          "entity_type": "PERSON",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_job_title_03",
+      "language": "en",
+      "text": "A duty maintenance technician must be available during startup.",
+      "category": "job_title",
+      "spans": [
+        {
+          "start": 2,
+          "end": 29,
+          "entity_type": "PERSON",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_job_title_04",
+      "language": "en",
+      "text": "Escalate the exception to the regional sales director.",
+      "category": "job_title",
+      "spans": [
+        {
+          "start": 30,
+          "end": 53,
+          "entity_type": "PERSON",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_job_title_05",
+      "language": "en",
+      "text": "The lead software architect reviews interface changes.",
+      "category": "job_title",
+      "spans": [
+        {
+          "start": 4,
+          "end": 27,
+          "entity_type": "PERSON",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_job_title_06",
+      "language": "en",
+      "text": "Obtain a signature from the responsible site manager.",
+      "category": "job_title",
+      "spans": [
+        {
+          "start": 28,
+          "end": 52,
+          "entity_type": "PERSON",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_job_title_01",
+      "language": "fi",
+      "text": "Toimita hyväksyntäpyyntö henkilöstöpäällikölle.",
+      "category": "job_title",
+      "spans": [
+        {
+          "start": 25,
+          "end": 46,
+          "entity_type": "PERSON",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_job_title_02",
+      "language": "fi",
+      "text": "Johtava ohjelmistoarkkitehti arvioi rajapintamuutokset.",
+      "category": "job_title",
+      "spans": [
+        {
+          "start": 0,
+          "end": 28,
+          "entity_type": "PERSON",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_job_title_03",
+      "language": "fi",
+      "text": "Päivystävä huoltoteknikko valvoo koekäyttöä.",
+      "category": "job_title",
+      "spans": [
+        {
+          "start": 0,
+          "end": 25,
+          "entity_type": "PERSON",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_job_title_04",
+      "language": "fi",
+      "text": "Poikkeama vaatii alueellisen myyntijohtajan hyväksynnän.",
+      "category": "job_title",
+      "spans": [
+        {
+          "start": 17,
+          "end": 43,
+          "entity_type": "PERSON",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_job_title_05",
+      "language": "fi",
+      "text": "Tarkastuksessa tarvitaan vastaavan työnjohtajan allekirjoitus.",
+      "category": "job_title",
+      "spans": [
+        {
+          "start": 25,
+          "end": 47,
+          "entity_type": "PERSON",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_job_title_06",
+      "language": "fi",
+      "text": "Pyydä aikataulu tuotannon suunnittelijalta.",
+      "category": "job_title",
+      "spans": [
+        {
+          "start": 16,
+          "end": 42,
+          "entity_type": "PERSON",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_unnamed_facility_01",
+      "language": "en",
+      "text": "Move the sealed cartons to the warehouse after barcode scanning.",
+      "category": "unnamed_facility",
+      "spans": [
+        {
+          "start": 27,
+          "end": 40,
+          "entity_type": "LOCATION",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_unnamed_facility_02",
+      "language": "en",
+      "text": "The distribution centre must have a separate returns lane.",
+      "category": "unnamed_facility",
+      "spans": [
+        {
+          "start": 0,
+          "end": 23,
+          "entity_type": "LOCATION",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_unnamed_facility_03",
+      "language": "en",
+      "text": "Load empty pallets at the depot before dispatch.",
+      "category": "unnamed_facility",
+      "spans": [
+        {
+          "start": 22,
+          "end": 31,
+          "entity_type": "LOCATION",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_unnamed_facility_04",
+      "language": "en",
+      "text": "Return reusable containers from the packing hall to the sorting area.",
+      "category": "unnamed_facility",
+      "spans": [
+        {
+          "start": 32,
+          "end": 48,
+          "entity_type": "LOCATION",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_unnamed_facility_05",
+      "language": "en",
+      "text": "A clinic requires washable surfaces in the specimen handling room.",
+      "category": "unnamed_facility",
+      "spans": [
+        {
+          "start": 0,
+          "end": 8,
+          "entity_type": "LOCATION",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_unnamed_facility_06",
+      "language": "en",
+      "text": "Install the spare sensor inside the cold store during the shutdown.",
+      "category": "unnamed_facility",
+      "spans": [
+        {
+          "start": 32,
+          "end": 46,
+          "entity_type": "LOCATION",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_unnamed_facility_01",
+      "language": "fi",
+      "text": "Siirrä suljetut laatikot varastoon viivakoodin lukemisen jälkeen.",
+      "category": "unnamed_facility",
+      "spans": [
+        {
+          "start": 25,
+          "end": 34,
+          "entity_type": "LOCATION",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_unnamed_facility_02",
+      "language": "fi",
+      "text": "Terminaalissa on oltava erillinen kaista palautuksille.",
+      "category": "unnamed_facility",
+      "spans": [
+        {
+          "start": 0,
+          "end": 13,
+          "entity_type": "LOCATION",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_unnamed_facility_03",
+      "language": "fi",
+      "text": "Tyhjät lavat noudetaan vastaanottoalueelta ennen lastausta.",
+      "category": "unnamed_facility",
+      "spans": [
+        {
+          "start": 23,
+          "end": 42,
+          "entity_type": "LOCATION",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_unnamed_facility_04",
+      "language": "fi",
+      "text": "Lajittelukeskuksesta palautetaan uudelleenkäytettävät kuljetuslaatikot.",
+      "category": "unnamed_facility",
+      "spans": [
+        {
+          "start": 0,
+          "end": 20,
+          "entity_type": "LOCATION",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_unnamed_facility_05",
+      "language": "fi",
+      "text": "Pakkaamolla käytettävät kuljettimet puhdistetaan viikoittain.",
+      "category": "unnamed_facility",
+      "spans": [
+        {
+          "start": 0,
+          "end": 11,
+          "entity_type": "LOCATION",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_unnamed_facility_06",
+      "language": "fi",
+      "text": "Kylmävarastossa säilytetään vain suljettuja tuote-eriä.",
+      "category": "unnamed_facility",
+      "spans": [
+        {
+          "start": 0,
+          "end": 15,
+          "entity_type": "LOCATION",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_personal_age_01",
+      "language": "en",
+      "text": "The applicant is 27 years old and requests a callback.",
+      "category": "personal_age",
+      "spans": [
+        {
+          "start": 17,
+          "end": 29,
+          "entity_type": "AGE",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_personal_age_02",
+      "language": "en",
+      "text": "At age 63, my father moved into a smaller flat.",
+      "category": "personal_age",
+      "spans": [
+        {
+          "start": 7,
+          "end": 9,
+          "entity_type": "AGE",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_personal_age_03",
+      "language": "en",
+      "text": "The seven-year-old patient attended with a guardian.",
+      "category": "personal_age",
+      "spans": [
+        {
+          "start": 4,
+          "end": 18,
+          "entity_type": "AGE",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_personal_age_04",
+      "language": "en",
+      "text": "My sister turned forty-two last week.",
+      "category": "personal_age",
+      "spans": [
+        {
+          "start": 17,
+          "end": 26,
+          "entity_type": "AGE",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_personal_age_05",
+      "language": "en",
+      "text": "The client, aged 58, asked for the record to be corrected.",
+      "category": "personal_age",
+      "spans": [
+        {
+          "start": 17,
+          "end": 19,
+          "entity_type": "AGE",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_personal_age_06",
+      "language": "en",
+      "text": "We visited him on his 80th birthday.",
+      "category": "personal_age",
+      "spans": [
+        {
+          "start": 22,
+          "end": 26,
+          "entity_type": "AGE",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_personal_age_01",
+      "language": "fi",
+      "text": "Hakija on 29-vuotias ja pyytää yhteydenottoa.",
+      "category": "personal_age",
+      "spans": [
+        {
+          "start": 10,
+          "end": 20,
+          "entity_type": "AGE",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_personal_age_02",
+      "language": "fi",
+      "text": "Lapsi on kuuden vuoden ikäinen ja tuli huoltajansa kanssa.",
+      "category": "personal_age",
+      "spans": [
+        {
+          "start": 9,
+          "end": 30,
+          "entity_type": "AGE",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_personal_age_03",
+      "language": "fi",
+      "text": "46 vuotta täyttänyt asiakas pyysi tietojensa korjaamista.",
+      "category": "personal_age",
+      "spans": [
+        {
+          "start": 0,
+          "end": 9,
+          "entity_type": "AGE",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_personal_age_04",
+      "language": "fi",
+      "text": "Seitsemänkymppinen isäni muutti pienempään asuntoon.",
+      "category": "personal_age",
+      "spans": [
+        {
+          "start": 0,
+          "end": 18,
+          "entity_type": "AGE",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_personal_age_05",
+      "language": "fi",
+      "text": "Aloitin uuden harrastuksen 62-vuotiaana.",
+      "category": "personal_age",
+      "spans": [
+        {
+          "start": 27,
+          "end": 39,
+          "entity_type": "AGE",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_personal_age_06",
+      "language": "fi",
+      "text": "Vietin juuri 38. syntymäpäivääni perheeni kanssa.",
+      "category": "personal_age",
+      "spans": [
+        {
+          "start": 13,
+          "end": 16,
+          "entity_type": "AGE",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_birth_date_01",
+      "language": "en",
+      "text": "Her date of birth is 23 April 1987.",
+      "category": "birth_date",
+      "spans": [
+        {
+          "start": 21,
+          "end": 34,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_birth_date_02",
+      "language": "en",
+      "text": "Birthday: 9 November; send the card to the home address.",
+      "category": "birth_date",
+      "spans": [
+        {
+          "start": 10,
+          "end": 20,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_birth_date_03",
+      "language": "en",
+      "text": "The child was born on the first of June 1996.",
+      "category": "birth_date",
+      "spans": [
+        {
+          "start": 22,
+          "end": 44,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_birth_date_04",
+      "language": "en",
+      "text": "She will celebrate her birthday on 18 August.",
+      "category": "birth_date",
+      "spans": [
+        {
+          "start": 35,
+          "end": 44,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_birth_date_05",
+      "language": "en",
+      "text": "His birth record gives 2001-02-07 as the date.",
+      "category": "birth_date",
+      "spans": [
+        {
+          "start": 23,
+          "end": 33,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_birth_date_01",
+      "language": "fi",
+      "text": "Syntymäaikani on 4. tammikuuta 1979.",
+      "category": "birth_date",
+      "spans": [
+        {
+          "start": 17,
+          "end": 35,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_birth_date_02",
+      "language": "fi",
+      "text": "Hänen syntymäpäivänsä on 18.9., ja juhla pidetään kotona.",
+      "category": "birth_date",
+      "spans": [
+        {
+          "start": 25,
+          "end": 30,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_birth_date_03",
+      "language": "fi",
+      "text": "Lapsi on syntynyt kahdentenatoista elokuuta 2018.",
+      "category": "birth_date",
+      "spans": [
+        {
+          "start": 18,
+          "end": 48,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_birth_date_04",
+      "language": "fi",
+      "text": "Syntymätodistukseen on merkitty 1993-11-26.",
+      "category": "birth_date",
+      "spans": [
+        {
+          "start": 32,
+          "end": 42,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_birth_date_05",
+      "language": "fi",
+      "text": "Juhlin syntymäpäivääni toukokuun kolmantena.",
+      "category": "birth_date",
+      "spans": [
+        {
+          "start": 23,
+          "end": 43,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_person_name_01",
+      "language": "en",
+      "text": "Shift supervisor Nessa Varell approved the inspection.",
+      "category": "person_name",
+      "spans": [
+        {
+          "start": 0,
+          "end": 29,
+          "entity_type": "PERSON",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_person_name_02",
+      "language": "en",
+      "text": "Senior procurement specialist Oren Kellivar signed the order.",
+      "category": "person_name",
+      "spans": [
+        {
+          "start": 0,
+          "end": 43,
+          "entity_type": "PERSON",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_person_name_03",
+      "language": "en",
+      "text": "Duty maintenance technician Mira Quenlow is the contact person.",
+      "category": "person_name",
+      "spans": [
+        {
+          "start": 0,
+          "end": 40,
+          "entity_type": "PERSON",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_person_name_04",
+      "language": "en",
+      "text": "Regional sales director Tavin Ellory requested the amendment.",
+      "category": "person_name",
+      "spans": [
+        {
+          "start": 0,
+          "end": 36,
+          "entity_type": "PERSON",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_person_name_05",
+      "language": "en",
+      "text": "Please forward the document to Liora Mae Fenrick.",
+      "category": "person_name",
+      "spans": [
+        {
+          "start": 31,
+          "end": 48,
+          "entity_type": "PERSON",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_person_name_01",
+      "language": "fi",
+      "text": "Henkilöstöpäällikkö Aava Sommelon hyväksyi hakemuksen.",
+      "category": "person_name",
+      "spans": [
+        {
+          "start": 0,
+          "end": 33,
+          "entity_type": "PERSON",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_person_name_02",
+      "language": "fi",
+      "text": "Sain viestin johtavalta ohjelmistoarkkitehdiltä Eero Valmikkeelta.",
+      "category": "person_name",
+      "spans": [
+        {
+          "start": 48,
+          "end": 65,
+          "entity_type": "PERSON",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_person_name_03",
+      "language": "fi",
+      "text": "Pyysin päivystävää huoltoteknikkoa Usva Meriluppoa paikalle.",
+      "category": "person_name",
+      "spans": [
+        {
+          "start": 35,
+          "end": 50,
+          "entity_type": "PERSON",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_person_name_04",
+      "language": "fi",
+      "text": "Alueellisen myyntijohtajan Saimi Tuulikiven allekirjoitus puuttuu.",
+      "category": "person_name",
+      "spans": [
+        {
+          "start": 27,
+          "end": 43,
+          "entity_type": "PERSON",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_person_name_05",
+      "language": "fi",
+      "text": "Palautin lomakkeen Aino-Lumi Kaarnoiselle.",
+      "category": "person_name",
+      "spans": [
+        {
+          "start": 19,
+          "end": 41,
+          "entity_type": "PERSON",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_street_address_01",
+      "language": "en",
+      "text": "Deliver the crates to 47 Morrow Finch Lane, unit 6B.",
+      "category": "street_address",
+      "spans": [
+        {
+          "start": 22,
+          "end": 51,
+          "entity_type": "LOCATION",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_street_address_02",
+      "language": "en",
+      "text": "The loading entrance is at 208 Larkspur Comet Road.",
+      "category": "street_address",
+      "spans": [
+        {
+          "start": 27,
+          "end": 50,
+          "entity_type": "LOCATION",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_street_address_03",
+      "language": "en",
+      "text": "My return address is 13 Copper Wren Close.",
+      "category": "street_address",
+      "spans": [
+        {
+          "start": 21,
+          "end": 41,
+          "entity_type": "LOCATION",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_street_address_04",
+      "language": "en",
+      "text": "The workshop at 86 Moonthistle Street needs a new lock.",
+      "category": "street_address",
+      "spans": [
+        {
+          "start": 16,
+          "end": 37,
+          "entity_type": "LOCATION",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_street_address_05",
+      "language": "en",
+      "text": "Use the side gate beside 5B Brindle Hollow Avenue.",
+      "category": "street_address",
+      "spans": [
+        {
+          "start": 25,
+          "end": 49,
+          "entity_type": "LOCATION",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_street_address_01",
+      "language": "fi",
+      "text": "Toimita laatikot osoitteeseen Kuvakuiskeenkuja 47 B 6.",
+      "category": "street_address",
+      "spans": [
+        {
+          "start": 30,
+          "end": 53,
+          "entity_type": "LOCATION",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_street_address_02",
+      "language": "fi",
+      "text": "Lastaussisäänkäynti sijaitsee Tähtisammaltie 208:ssa.",
+      "category": "street_address",
+      "spans": [
+        {
+          "start": 30,
+          "end": 52,
+          "entity_type": "LOCATION",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_street_address_03",
+      "language": "fi",
+      "text": "Kotiosoitteeni on Pilvikehrääjänpolku 13 A 2.",
+      "category": "street_address",
+      "spans": [
+        {
+          "start": 18,
+          "end": 44,
+          "entity_type": "LOCATION",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_street_address_04",
+      "language": "fi",
+      "text": "Korjaamo osoitteessa Kuusikajonkatu 86 tarvitsee uuden lukon.",
+      "category": "street_address",
+      "spans": [
+        {
+          "start": 21,
+          "end": 38,
+          "entity_type": "LOCATION",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_street_address_05",
+      "language": "fi",
+      "text": "Sivuportti on osoitteen Unikkoharjanne 5 B vieressä.",
+      "category": "street_address",
+      "spans": [
+        {
+          "start": 24,
+          "end": 42,
+          "entity_type": "LOCATION",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_named_facility_01",
+      "language": "en",
+      "text": "Transfer the sealed samples to Brindle Comet Clinic.",
+      "category": "named_facility",
+      "spans": [
+        {
+          "start": 31,
+          "end": 51,
+          "entity_type": "LOCATION",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_named_facility_02",
+      "language": "en",
+      "text": "The goods were scanned at Copper Heron Distribution Centre.",
+      "category": "named_facility",
+      "spans": [
+        {
+          "start": 26,
+          "end": 58,
+          "entity_type": "LOCATION",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_named_facility_03",
+      "language": "en",
+      "text": "Collect the spare parts from Alder Lantern Depot.",
+      "category": "named_facility",
+      "spans": [
+        {
+          "start": 29,
+          "end": 48,
+          "entity_type": "LOCATION",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_named_facility_04",
+      "language": "en",
+      "text": "The meeting room is inside Silver Thimble Primary School.",
+      "category": "named_facility",
+      "spans": [
+        {
+          "start": 27,
+          "end": 56,
+          "entity_type": "LOCATION",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_named_facility_05",
+      "language": "en",
+      "text": "The inspection report concerns Quiet Kestrel Care Home.",
+      "category": "named_facility",
+      "spans": [
+        {
+          "start": 31,
+          "end": 54,
+          "entity_type": "LOCATION",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_named_facility_01",
+      "language": "fi",
+      "text": "Näytteet siirretään Hattarapuron kuntoutuskeskukseen.",
+      "category": "named_facility",
+      "spans": [
+        {
+          "start": 20,
+          "end": 52,
+          "entity_type": "LOCATION",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_named_facility_02",
+      "language": "fi",
+      "text": "Tavarat luettiin sisään Kuparipöllön jakelukeskuksessa.",
+      "category": "named_facility",
+      "spans": [
+        {
+          "start": 24,
+          "end": 54,
+          "entity_type": "LOCATION",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_named_facility_03",
+      "language": "fi",
+      "text": "Varaosat noudetaan Unikkokomeetan varikolta.",
+      "category": "named_facility",
+      "spans": [
+        {
+          "start": 19,
+          "end": 43,
+          "entity_type": "LOCATION",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_named_facility_04",
+      "language": "fi",
+      "text": "Kokoustila on Samettisateen peruskoulun yhteydessä.",
+      "category": "named_facility",
+      "spans": [
+        {
+          "start": 14,
+          "end": 39,
+          "entity_type": "LOCATION",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_named_facility_05",
+      "language": "fi",
+      "text": "Tarkastusraportti koskee Hopeakäen hoivakotia.",
+      "category": "named_facility",
+      "spans": [
+        {
+          "start": 25,
+          "end": 45,
+          "entity_type": "LOCATION",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_personal_location_01",
+      "language": "en",
+      "text": "I work at the warehouse mentioned in my employment file.",
+      "category": "personal_location",
+      "spans": [
+        {
+          "start": 10,
+          "end": 23,
+          "entity_type": "LOCATION",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_personal_location_02",
+      "language": "en",
+      "text": "My interview took place at the distribution centre.",
+      "category": "personal_location",
+      "spans": [
+        {
+          "start": 27,
+          "end": 50,
+          "entity_type": "LOCATION",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_personal_location_03",
+      "language": "en",
+      "text": "I received my own test results at the clinic.",
+      "category": "personal_location",
+      "spans": [
+        {
+          "start": 34,
+          "end": 44,
+          "entity_type": "LOCATION",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_personal_location_04",
+      "language": "en",
+      "text": "My country of residence is Valdoria.",
+      "category": "personal_location",
+      "spans": [
+        {
+          "start": 27,
+          "end": 35,
+          "entity_type": "LOCATION",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_personal_location_05",
+      "language": "en",
+      "text": "The applicant was born in Neralune.",
+      "category": "personal_location",
+      "spans": [
+        {
+          "start": 26,
+          "end": 34,
+          "entity_type": "LOCATION",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_personal_location_06",
+      "language": "en",
+      "text": "My daughter attends the primary school near our flat.",
+      "category": "personal_location",
+      "spans": [
+        {
+          "start": 20,
+          "end": 38,
+          "entity_type": "LOCATION",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_personal_location_01",
+      "language": "fi",
+      "text": "Työskentelen varastossa, joka mainitaan työsopimuksessani.",
+      "category": "personal_location",
+      "spans": [
+        {
+          "start": 13,
+          "end": 23,
+          "entity_type": "LOCATION",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_personal_location_02",
+      "language": "fi",
+      "text": "Oma työhaastatteluni järjestettiin terminaalissa.",
+      "category": "personal_location",
+      "spans": [
+        {
+          "start": 35,
+          "end": 48,
+          "entity_type": "LOCATION",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_personal_location_03",
+      "language": "fi",
+      "text": "Sain omat tutkimustulokseni neuvolasta.",
+      "category": "personal_location",
+      "spans": [
+        {
+          "start": 28,
+          "end": 38,
+          "entity_type": "LOCATION",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_personal_location_04",
+      "language": "fi",
+      "text": "Nykyinen asuinmaani on Kervanmaa.",
+      "category": "personal_location",
+      "spans": [
+        {
+          "start": 23,
+          "end": 32,
+          "entity_type": "LOCATION",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_personal_location_05",
+      "language": "fi",
+      "text": "Synnyin Lumikaarteen kylässä, ja se lukee todistuksessani.",
+      "category": "personal_location",
+      "spans": [
+        {
+          "start": 8,
+          "end": 28,
+          "entity_type": "LOCATION",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_personal_location_06",
+      "language": "fi",
+      "text": "Lapseni käy kotimme lähellä olevassa päiväkodissa.",
+      "category": "personal_location",
+      "spans": [
+        {
+          "start": 37,
+          "end": 49,
+          "entity_type": "LOCATION",
+          "expect": "preserve_detection"
+        }
+      ]
+    }
+  ]
+}

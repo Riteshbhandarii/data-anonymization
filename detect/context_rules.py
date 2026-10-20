@@ -39,21 +39,150 @@ _JOB_TITLE = re.compile(
 )
 _BUSINESS_ID = re.compile(r"(?<![\w-])\d{7}-\d(?![\w-])")
 _VAT = re.compile(r"(?<!\w)FI\s?\d{8}(?!\w)", re.IGNORECASE)
-_AGE_CONTEXT = re.compile(r"\b(?:born|birth|dob|aged?|syntynyt|syntymä\w*|ikä)\b", re.IGNORECASE)
+_AGE_CONTEXT = re.compile(
+    r"\b(?:born|birth\w*|dob|aged?|turn(?:s|ed|ing)?|"
+    r"synt(?:y|ym)\w*|ikä\w*|iä\w*|täyt\w*|potila\w*|hakija\w*|"
+    r"patient\w*|applicant\w*|child\w*|infant\w*|doctor\w*|laps\w*|vauva\w*|lääkäri\w*|"
+    r"tenure|lifespan|lived|experience|palvelusvuo\w*)\b",
+    re.IGNORECASE,
+)
+_AGE_SUFFIX = re.compile(r"^[\s-]*(?:old(?:er)?|young(?:er)?|vanh\w*|ikä\w*)\b", re.IGNORECASE)
+_HUMAN_REFERENCE = re.compile(
+    r"\b(?:i|he|she|him|her|we|they|you|hän|hänen|minä|sinä|me|te|heidän|"
+    r"person\w*|woman|man|people|parent\w*|daughter\w*|son|sister\w*|brother\w*|"
+    r"henkilö\w*|tytär\w*|poika\w*|äiti\w*|isä\w*)\b", re.IGNORECASE,
+)
+# Positive bindings end immediately before the quantity. An operational word
+# elsewhere in the sentence cannot establish what that quantity describes.
+_DURATION_FIELD = re.compile(
+    r"\b(?:allocation|allocated(?:\s+(?:time|hours))?|duration|term|period|"
+    r"varattu(?:\s+aika)?|kesto|sopimuskausi)\s*"
+    r"(?:(?:is|was|on|oli)\s*|[:=]\s*)?$", re.IGNORECASE,
+)
+_TIME_SUBJECT_EN = (
+    r"(?:contract|(?:service\s+)?agreement|lease|warranty|service|delivery|shipment|"
+    r"response|retention|maintenance|project|system|software|migration|review|inspection)"
+)
+_TIME_SUBJECT_FI = (
+    r"(?:sopimus|vuokrasopimus|takuu|huolto|projekti|järjestelmä|siirtymä|"
+    r"katselmus|tarkastus|toimitus)"
+)
+_BOUND_DURATION = re.compile(
+    rf"\b{_TIME_SUBJECT_EN}\s+(?:"
+    r"(?:lasts?|lasted|takes?|continues?|runs?)\s+(?:for\s+)?|"
+    r"(?:is|was|remains?|stays?)\s+(?:active|available|valid|open|in force)\s+(?:for\s+)?)$|"
+    rf"\b{_TIME_SUBJECT_FI}\s+(?:"
+    r"(?:kestää|kesti|jatkuu|tapahtuu)\s+|"
+    r"(?:on|oli|pysyy)\s+(?:voimassa|käytössä|lukutilassa)\s+)$|"
+    r"\b(?:on\s+)?varattu\s+(?:aika\s+)?$",
+    re.IGNORECASE,
+)
+_HOURS_FIELD = re.compile(r"^(?:hours?|allocated hours|tunnit|työtunnit)\b", re.IGNORECASE)
+
+# This is a class of unnamed facilities, never a list of study place names.
+# Only lowercase common-noun phrases in impersonal logistics clauses qualify.
+_FACILITY = re.compile(
+    r"(?<!\w)(?:(?i:the|a|an)\s+)?(?:(?:main|central|regional|local)\s+)?"
+    r"(?:warehouse|depot|stockroom|storeroom|loading bay|storage area)(?!\w)|"
+    r"(?<!\w)(?:pää|keskus)?varasto(?:ssa|sta|on|lla|lta|lle|a|n)?(?!\w)"
+)
+_LOGISTICS = re.compile(
+    r"\b(?:stock|inventory|goods|cargo|deliver(?:y|ies)|shipments?|consignments?|pallets?|"
+    r"toimit\w*|tavar\w*|lähety\w*|varastosal\w*|palaut\w*)\b", re.IGNORECASE,
+)
+_PERSONAL_PLACE = re.compile(
+    r"\b(?:my|your|his|her|our|their|its|whose|only|sole|unique|home|private|personal|"
+    r"residen\w*|live[sd]?|workplace|works?|employee\w*|supervisor\w*|contact|"
+    r"minun|sinun|hänen|heidän|meidän|ainoa\w*|koti\w*|yksityi\w*|asuu|asuva\w*|"
+    r"henkilö\w*|työntekij\w*|yhteyshenkil\w*|sijai\w*|osoit\w*|nimeltä|"
+    r"located|situated|named|called)\b|['’]s\b", re.IGNORECASE,
+)
+_FACILITY_END = re.compile(
+    r"^\s*(?:$|,?\s*(?:and|but|while|whereas)\s+(?:the|a|an|this|that|these|those)\b|"
+    r",\s*eikä\b)", re.IGNORECASE,
+)
+_FACILITY_PREFIX = re.compile(
+    r"(?:at|to|in|from|into|through|within|inside|"
+    r"tule\w*|saapu\w*|siirr\w*|palaut\w*|toimit\w*|vied\w*|mene\w*)$", re.IGNORECASE,
+)
+_SAFE_SENTENCE_START = re.compile(
+    r"(?:the|a|an|all|returned|incoming|outgoing|stock|inventory|goods|cargo|"
+    r"deliveries|shipments|pallets|toimit\w*|tavar\w*|lähety\w*|palaut\w*)$", re.IGNORECASE,
+)
+
+
+def _clause(text, start, end):
+    """Return sentence/field boundaries without splitting inside the candidate."""
+    left = max(text.rfind(mark, 0, start) for mark in "\n.;!?") + 1
+    right = min((at for mark in "\n.;!?" if (at := text.find(mark, end)) >= 0),
+                default=len(text))
+    return left, right
+
+
+def _unnamed_logistics_facility(text, span, spans, facilities):
+    for phrase in facilities:
+        if not phrase.start() <= span.start < span.end <= phrase.end():
+            continue
+        left, right = _clause(text, phrase.start(), phrase.end())
+        context = text[left:right]
+        if (not _LOGISTICS.search(context) or _PERSONAL_PLACE.search(context)
+                or any(char.isdigit() for char in context)
+                or not _FACILITY_END.match(text[phrase.end():right])):
+            continue
+        # Do not exempt a common-noun substring inside an owner/locality name.
+        previous = re.search(r"(\w+)\W*$", text[left:phrase.start()])
+        if previous and not _FACILITY_PREFIX.fullmatch(previous.group(1)):
+            continue
+        words = list(re.finditer(r"[^\W\d_][\w-]*", context))
+        if any(m.group()[0].isupper() and not (
+                index == 0 and _SAFE_SENTENCE_START.fullmatch(m.group()))
+               for index, m in enumerate(words)):
+            continue
+        if any(s.entity_type in {"PERSON", "ORGANIZATION", "LOCATION"}
+               and s.start < right and s.end > left
+               and not phrase.start() <= s.start < s.end <= phrase.end() for s in spans):
+            continue
+        return True
+    return False
 
 
 def filter_context_spans(text: str, spans) -> list:
     """Keep identifying dates/names; discard narrowly evidenced false positives."""
-    quantities = [(m.start(), m.end()) for pattern in (_QUANTITIES, _STANDARDS)
-                  for m in pattern.finditer(text)]
+    spans = list(spans)
+    quantities = list(_QUANTITIES.finditer(text))
+    standards = list(_STANDARDS.finditer(text))
+    facilities = list(_FACILITY.finditer(text))
     result = []
     for span in spans:
-        nearby = text[max(0, span.start - 40):span.end + 12]
-        if span.entity_type == "DATE_TIME" and not _AGE_CONTEXT.search(nearby) and any(
-                start <= span.start < span.end <= end for start, end in quantities):
-            continue
+        if span.entity_type == "DATE_TIME":
+            if any(m.start() <= span.start < span.end <= m.end() for m in standards):
+                continue
+            for quantity in quantities:
+                if quantity.start() <= span.start < span.end <= quantity.end():
+                    left, right = _clause(text, quantity.start(), quantity.end())
+                    context = text[left:right]
+                    before = text[left:quantity.start()]
+                    hours_field = _HOURS_FIELD.match(quantity.group())
+                    bound_duration = (_DURATION_FIELD.search(before)
+                                      or _BOUND_DURATION.search(before))
+                    human = (_HUMAN_REFERENCE.search(context) or _JOB_TITLE.search(context)
+                             or any(s.entity_type == "PERSON" and s.start < right and s.end > left
+                                    for s in spans))
+                    # Unknown temporal context stays masked. Positive operational
+                    # evidence is required; an age-suffix blacklist alone is unsafe.
+                    if ((hours_field or (bound_duration and not human))
+                            and not _AGE_CONTEXT.search(context)
+                            and not _AGE_SUFFIX.match(text[quantity.end():right])):
+                        break
+            else:
+                quantity = None
+            if quantity is not None:
+                continue
         if span.entity_type == "PERSON" and _JOB_TITLE.fullmatch(
                 text[span.start:span.end].strip()):
+            continue
+        if span.entity_type == "LOCATION" and _unnamed_logistics_facility(
+                text, span, spans, facilities):
             continue
         result.append(span)
     return result

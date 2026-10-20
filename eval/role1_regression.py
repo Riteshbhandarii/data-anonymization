@@ -16,7 +16,7 @@ from pathlib import Path
 from types import SimpleNamespace
 
 from detect.combined import CombinedDetector, route
-from eval.contextual_bench import corpus_digest, load_corpus, score
+from eval.contextual_bench import corpus_digest, load_corpus, masked_chars, score
 from eval.local_llm_bench import benchmark
 from redact import redact
 
@@ -93,6 +93,7 @@ def compare(root, components):
               "scope": "Shared frozen raw model predictions; routing/context changes only. "
                        "Hours retention measures available text, not LLM answer accuracy.",
               "contextual_corpus_sha256": corpus_digest(contextual), "policies": {}}
+    contextual_masks = {}
     for name, detector in policies.items():
         body = benchmark(root / "corpus", detector)
         # Cached lookup duration is not model runtime and must not be compared
@@ -103,6 +104,8 @@ def compare(root, components):
             raise ValueError("Frozen predictions do not cover all body inputs")
         spans = {d["id"]: [(s.start, s.end) for s in detector.detect(d["text"], d["language"])]
                  for d in contextual}
+        contextual_masks[name] = {d["id"]: masked_chars(spans[d["id"]], len(d["text"]))
+                                  for d in contextual}
         hours = {}
         for language in ("en", "fi"):
             quantities = retained = 0
@@ -137,6 +140,18 @@ def compare(root, components):
             if state["before"] == "covered" and state["after"] != "covered":
                 losses.append({"document": path.stem, "type": entity["type"]})
     report["new_body_label_losses"] = losses
+    # Compare each contextual label too: equal totals can hide a newly exposed
+    # label compensated by an unrelated improvement elsewhere.
+    contextual_losses = []
+    for doc in contextual:
+        for label in doc["labels"]:
+            state = {name: all(masks[doc["id"]][label["start"]:label["end"]])
+                     for name, masks in contextual_masks.items()}
+            if state["before"] and not state["after"]:
+                contextual_losses.append({"document": doc["id"], "category": label["category"]})
+    report["new_contextual_label_losses"] = contextual_losses
+    report["context_policy_sha256"] = digest(
+        (Path(__file__).resolve().parents[1] / "detect/context_rules.py").read_bytes())
     report.update(components["prediction_provenance"])
     return report
 
@@ -167,8 +182,8 @@ def main():
         json.dump(report, stream, ensure_ascii=False, indent=2)
         stream.write("\n")
     print(args.out)
-    if report["new_body_label_losses"]:
-        raise SystemExit("Context corrections lost previously covered body identifiers")
+    if report["new_body_label_losses"] or report["new_contextual_label_losses"]:
+        raise SystemExit("Context corrections lost previously covered identifiers")
 
 
 if __name__ == "__main__":

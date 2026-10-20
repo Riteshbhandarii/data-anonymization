@@ -14,6 +14,75 @@ def span(text, value, kind):
 
 
 class ContextRulesTests(unittest.TestCase):
+    def test_finnish_age_inflections_and_birthdays_are_never_business_durations(self):
+        for age in (9, 24, 53):
+            for text, value in (
+                (f"Hakija on {age} vuotta vanha.", f"{age} vuotta"),
+                (f"Potilas on {age} vuoden ikäinen.", f"{age} vuoden"),
+                (f"Hän täyttää {age} vuotta.", f"{age} vuotta"),
+                (f"Sopimuksen hakija on {age} vuoden ikäiselle lapselle.", f"{age} vuoden"),
+                (f"The review concerns a {age}-years-old applicant.", f"{age}-years"),
+            ):
+                with self.subTest(text=text):
+                    candidate = span(text, value, "DATE_TIME")
+                    self.assertEqual([candidate], filter_context_spans(text, [candidate]))
+
+    def test_temporal_uncertainty_is_retained_without_positive_operational_context(self):
+        for text in ("She is 31 years.", "Hän on 31 vuotta.", "31 years.", "31 vuotta.",
+                     "The project manager is 31 years.", "The system records that she is 31 years.",
+                     "Projekti kertoo, että hän on 31 vuotta.", "The contractor's daughter is 31 years."):
+            candidate = span(text, "31", "DATE_TIME")
+            self.assertEqual([candidate], filter_context_spans(text, [candidate]))
+
+    def test_age_words_do_not_confuse_old_systems_with_personal_ages(self):
+        for text, value in (("The old system remains active for three weeks.", "three weeks"),
+                            ("Vanha järjestelmä on käytössä kolme viikkoa.", "kolme viikkoa")):
+            self.assertEqual([], filter_context_spans(text, [span(text, value, "DATE_TIME")]))
+
+    def test_unrelated_operational_words_cannot_exempt_a_personal_quantity(self):
+        for text, value in (
+            ("The review concerns a newborn of 2 weeks.", "2 weeks"),
+            ("The review concerns a toddler of 18 months.", "18 months"),
+            ("The contractor, 28 years, signed the agreement.", "28 years"),
+            ("Tarkastus koskee 17 vuoden nuorukaista.", "17 vuoden"),
+            ("Her employment duration is 18 years.", "18 years"),
+            ("Her prison term: 4 years.", "4 years"),
+        ):
+            with self.subTest(text=text):
+                candidate = span(text, value, "DATE_TIME")
+                self.assertEqual([candidate], filter_context_spans(text, [candidate]))
+
+    def test_only_unnamed_impersonal_logistics_facilities_are_exempted(self):
+        for text, value in (("Stock is stored in a regional depot.", "regional depot"),
+                            ("Incoming goods are kept in the storage area.", "storage area"),
+                            ("Tavarat siirretään keskusvarastoon.", "keskusvarastoon")):
+            with self.subTest(text=text):
+                self.assertEqual([], filter_context_spans(text, [span(text, value, "LOCATION")]))
+
+    def test_named_personal_or_uncertain_facilities_remain_masked(self):
+        for text, value in (
+            ("Goods arrive at North Example warehouse.", "warehouse"),
+            ("Goods arrive at north example warehouse.", "warehouse"),
+            ("Goods arrive at the warehouse at Dock Road 41.", "warehouse"),
+            ("Goods arrive at her warehouse.", "warehouse"),
+            ("Goods arrive at warehouse SITE-B.", "warehouse"),
+            ("The only supervisor receives goods at the warehouse.", "warehouse"),
+            ("Goods arrive at the warehouse named northpoint.", "warehouse"),
+            ("Goods arrive at the warehouse northpoint.", "warehouse"),
+            ("Goods arrive at the warehouse (northpoint).", "warehouse"),
+            ("Goods arrive at the warehouse — northpoint.", "warehouse"),
+            ("Goods arrive at the warehouse along dock road.", "warehouse"),
+            ("Goods arrive at Main Warehouse.", "Main Warehouse"),
+            ("Toimitukset tulevat Turun päävarastolle.", "päävarastolle"),
+            ("Toimitukset tulevat heidän päävarastolle.", "päävarastolle"),
+            ("The warehouse is described here.", "warehouse"),
+            ("Goods are stored in Finland.", "Finland"),
+            ("Tavarat säilytetään Suomessa.", "Suomessa"),
+        ):
+            with self.subTest(text=text):
+                candidate = span(text, value, "LOCATION")
+                self.assertEqual([candidate], filter_context_spans(text, [candidate]))
+
     def test_quantities_and_standards_are_retained_but_calendar_dates_are_masked(self):
         for quantity in ("hours 37", "hours: 4.5", "18 months", "2 years", "14 days",
                          "18 kuukautta", "7 tuntia", "three weeks", "kahden kuukauden",

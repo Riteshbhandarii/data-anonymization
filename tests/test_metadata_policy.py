@@ -62,6 +62,48 @@ class MetadataPolicyTests(unittest.TestCase):
             text = f"{fence}\n## Document metadata\nexample\n{fence}\nBody metadata text.\n"
             self.assertEqual(text, remove_document_metadata(text))
 
+    def test_inline_backticks_and_invalid_info_do_not_hide_later_metadata(self):
+        prefixes = (
+            "```inline example```",
+            " ````inline ` example````",
+            "   ```inline example```  ",
+            "```language `invalid info`",
+            "    ```indented code",
+            "\t```indented code",
+            "~~not a fence",
+        )
+        for prefix in prefixes:
+            with self.subTest(prefix=prefix):
+                text = (f"{prefix}\r\nOrdinary body  \r\n## Document metadata\r\n"
+                        "- Keywords: synthetic-template\r\n"
+                        "## Document content\r\nVisible body\r\n")
+                expected = (f"{prefix}\r\nOrdinary body  \r\n"
+                            "## Document content\r\nVisible body\r\n")
+                self.assertEqual(expected, remove_document_metadata(text))
+
+    def test_real_fences_preserve_examples_and_allow_only_matching_closers(self):
+        fences = (
+            ("```python", "```"),
+            ("  ````python", "   ````` \t"),
+            ("~~~language `backticks in tilde info`", "~~~~"),
+        )
+        for opening, closing in fences:
+            with self.subTest(opening=opening):
+                example = (f"{opening}\n## Document metadata\nExample property\n"
+                           "``\n~~\n    ```\n```not a closing fence\n"
+                           "## Document metadata\nAnother example\n"
+                           f"{closing}\n")
+                text = (example + "## Document metadata\n- Keywords: secret\n"
+                        "## Document content\nVisible body\n")
+                self.assertEqual(example + "## Document content\nVisible body\n",
+                                 remove_document_metadata(text))
+
+    def test_unclosed_real_fence_keeps_heading_examples_as_code(self):
+        for opening in ("```python", "~~~language `valid info`"):
+            with self.subTest(opening=opening):
+                text = f"{opening}\n## Document metadata\nExample property\n"
+                self.assertEqual(text, remove_document_metadata(text))
+
     def test_fences_inside_metadata_do_not_resume_body(self):
         text = "## Document metadata\n```\n## Fake body\n```\nsecret\n## Page 1\nBody\n"
         self.assertEqual("## Page 1\nBody\n", remove_document_metadata(text))
@@ -97,6 +139,30 @@ class MetadataPolicyTests(unittest.TestCase):
             result = run_pipeline(source, Path(directory) / "out", anonymizer=lambda text: text,
                                   extractor=lambda path: "## Document metadata\nsecret")
             self.assertEqual("", result.markdown)
+
+    def test_pipeline_inline_code_cannot_bypass_metadata_release_policy(self):
+        text = ("```inline example```\n## Document metadata\n"
+                "- Keywords: synthetic-template\n## Document content\nVisible body\n")
+        expected = "```inline example```\n## Document content\nVisible body\n"
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            for extension in ("md", "txt", "bin"):
+                with self.subTest(extension=extension):
+                    source = root / f"memo.{extension}"
+                    source.write_text(text, encoding="utf-8")
+                    inputs = []
+
+                    def anonymize(markdown, captured=inputs):
+                        captured.append(markdown)
+                        return markdown
+
+                    extractor = (lambda path: text) if extension == "bin" else None
+                    result = run_pipeline(source, root / "out", anonymizer=anonymize,
+                                          extractor=extractor)
+                    self.assertEqual([expected], inputs)
+                    self.assertEqual(expected, result.markdown)
+                    self.assertEqual(expected, result.output_path.read_text(encoding="utf-8"))
+                    self.assertEqual(text, source.read_text(encoding="utf-8"))
 
 
 if __name__ == "__main__":
