@@ -50,11 +50,25 @@ def normalized_entity_type(entity_type: str) -> str:
     return ENTITY_TYPE_NORMALIZATION.get(entity_type, entity_type)
 
 
-def load_fixture(path: Path | str = DEFAULT_FIXTURE) -> dict[str, Any]:
-    """Validate the original frozen bytes, schema, and Python Unicode offsets."""
+def load_fixture(
+    path: Path | str = DEFAULT_FIXTURE,
+    *,
+    expected_sha256: str = FROZEN_FIXTURE_SHA256,
+) -> dict[str, Any]:
+    """Validate explicitly pinned bytes, schema, and Python Unicode offsets.
+
+    The original fixture remains pinned by default. A separately frozen fixture
+    requires its expected SHA256 explicitly; changing a path never relaxes this.
+    """
+    _require(
+        isinstance(expected_sha256, str)
+        and len(expected_sha256) == 64
+        and all(character in "0123456789abcdef" for character in expected_sha256),
+        "Expected fixture SHA256 must be 64 lowercase hexadecimal characters",
+    )
     raw = Path(path).read_bytes()
     digest = hashlib.sha256(raw).hexdigest()
-    _require(digest == FROZEN_FIXTURE_SHA256, "Frozen fixture SHA256 mismatch")
+    _require(digest == expected_sha256, "Frozen fixture SHA256 mismatch")
     _require(b"\r" not in raw, "Fixture must use LF line endings")
     try:
         fixture = json.loads(raw.decode("utf-8"))
@@ -68,7 +82,8 @@ def load_fixture(path: Path | str = DEFAULT_FIXTURE) -> dict[str, Any]:
     )
     _require(type(fixture["schema_version"]) is int, "Invalid schema version type")
     _require(fixture["schema_version"] == 1, "Unsupported schema version")
-    _require(fixture["scope"] == FIXTURE_SCOPE, "Unexpected fixture scope")
+    _require(isinstance(fixture["scope"], str) and bool(fixture["scope"].strip()),
+             "Fixture scope must be a nonempty description")
     _require(isinstance(fixture["cases"], list), "Fixture cases must be a list")
     _require(bool(fixture["cases"]), "Fixture must contain cases")
 
@@ -252,7 +267,7 @@ def _git_output(*arguments: str) -> bytes:
         )
     except (OSError, subprocess.CalledProcessError):
         raise ValidationError(
-            f"CLI comparison requires a Git checkout containing baseline {BASELINE_REVISION}"
+            "CLI comparison requires a Git checkout containing the requested revision"
         ) from None
     return result.stdout
 
@@ -286,18 +301,24 @@ def load_current_filter() -> PolicyFilter:
     return _load_policy(source_path.read_bytes(), "current", str(source_path))
 
 
-def build_report(fixture_path: Path | str = DEFAULT_FIXTURE) -> dict[str, Any]:
+def build_report(
+    fixture_path: Path | str = DEFAULT_FIXTURE,
+    *,
+    fixture_sha256: str = FROZEN_FIXTURE_SHA256,
+    baseline_ref: str = BASELINE_REVISION,
+    evaluation_stage: str = "development-replay",
+) -> dict[str, Any]:
     """Compare the pinned historical filter with the current source, model-free.
 
     Policy source is read only when this function is explicitly called.  Merely
     importing the module or validating the fixture does not load either policy.
     """
-    fixture = load_fixture(fixture_path)
+    fixture = load_fixture(fixture_path, expected_sha256=fixture_sha256)
     source_path = POLICY_SOURCE_PATH.as_posix()
-    baseline_source = _git_output("show", f"{BASELINE_REVISION}:{source_path}")
+    baseline_source = _git_output("show", f"{baseline_ref}:{source_path}")
     current_source = (REPOSITORY_ROOT / POLICY_SOURCE_PATH).read_bytes()
     baseline_filter = _load_policy(
-        baseline_source, "baseline", f"git:{BASELINE_REVISION}:{source_path}"
+        baseline_source, "baseline", f"git:{baseline_ref}:{source_path}"
     )
     current_filter = _load_policy(current_source, "current", str(REPOSITORY_ROOT / POLICY_SOURCE_PATH))
     results = evaluate_cases(fixture["cases"], baseline_filter, current_filter)
@@ -309,9 +330,11 @@ def build_report(fixture_path: Path | str = DEFAULT_FIXTURE) -> dict[str, Any]:
     return {
         "schema_version": 1,
         "evaluation_scope": EVALUATION_SCOPE,
+        "evaluation_stage": evaluation_stage,
+        "baseline_ref": baseline_ref,
         "fixture": {
             "path": fixture_label,
-            "sha256": FROZEN_FIXTURE_SHA256,
+            "sha256": fixture_sha256,
             "scope": fixture["scope"],
             "cases": len(fixture["cases"]),
             "candidates": len(candidates),
@@ -329,8 +352,8 @@ def build_report(fixture_path: Path | str = DEFAULT_FIXTURE) -> dict[str, Any]:
         },
         "policies": {
             "baseline": {
-                "requested_revision": BASELINE_REVISION,
-                "commit": _git_output("rev-parse", f"{BASELINE_REVISION}^{{commit}}").decode().strip(),
+                "requested_revision": baseline_ref,
+                "commit": _git_output("rev-parse", f"{baseline_ref}^{{commit}}").decode().strip(),
                 "source_path": source_path,
                 "source_sha256": hashlib.sha256(baseline_source).hexdigest(),
             },
@@ -354,11 +377,20 @@ def main(argv: list[str] | None = None) -> int:
         help="Path to the exact frozen fixture; its SHA256 is always enforced",
     )
     parser.add_argument("--out", type=Path, help="Save the aggregate JSON report")
+    parser.add_argument("--fixture-sha", default=FROZEN_FIXTURE_SHA256,
+                        help="Expected SHA256; the original fixture hash remains the default")
+    parser.add_argument("--baseline-ref", default=BASELINE_REVISION,
+                        help="Git revision of the comparison policy (default: original c07a2e8)")
+    parser.add_argument("--evaluation-stage", default="development-replay",
+                        choices=("development-replay", "post-freeze-holdout"),
+                        help="Declare whether this data was unseen until policy freeze")
     arguments = parser.parse_args(argv)
     if arguments.out and arguments.out.exists():
         parser.exit(2, "Holdout validation failed: output report already exists\n")
     try:
-        report = build_report(arguments.fixture)
+        report = build_report(arguments.fixture, fixture_sha256=arguments.fixture_sha,
+                              baseline_ref=arguments.baseline_ref,
+                              evaluation_stage=arguments.evaluation_stage)
         serialized = json.dumps(report, ensure_ascii=False, indent=2, sort_keys=True) + "\n"
         if arguments.out:
             arguments.out.parent.mkdir(parents=True, exist_ok=True)

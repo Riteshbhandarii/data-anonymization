@@ -1,0 +1,609 @@
+{
+  "baseline_ref": "8051239",
+  "candidate_contract": {
+    "entity_type_normalization": {
+      "AGE": "DATE_TIME"
+    },
+    "normalization_applied_identically_to": [
+      "baseline",
+      "current"
+    ],
+    "normalized_candidates": 0,
+    "retention_key": [
+      "start",
+      "end",
+      "entity_type"
+    ],
+    "score": 0.9
+  },
+  "evaluation_scope": "candidate-policy validation, not detector recall",
+  "evaluation_stage": "post-freeze-holdout",
+  "fixture": {
+    "by_category": {
+      "astm_citation": 7,
+      "crossing_reference_personal": 4,
+      "en_marker_personal_date": 4,
+      "en_multipart_citation": 3,
+      "iso_iec_citation": 10,
+      "named_organization": 4,
+      "named_person": 4,
+      "personal_identity_code": 4
+    },
+    "by_language": {
+      "en": 20,
+      "fi": 20
+    },
+    "candidates": 40,
+    "cases": 40,
+    "path": "tests/fixtures/technical_citation_holdout.json",
+    "scope": "independently authored synthetic targeted standards-format conformance checks, not population accuracy",
+    "sha256": "c5371a6758ada6d23e3155daa8224b27c183f25cd291a24adbfa5e78efde1a31"
+  },
+  "policies": {
+    "baseline": {
+      "commit": "8051239972126c4fadfaf3bf084ca2e91c8f2477",
+      "requested_revision": "8051239",
+      "source_path": "detect/context_rules.py",
+      "source_sha256": "b15ef89cce764877ec53902484aafcbd29adecc2447b41e0e10a6ad85c2c23b9"
+    },
+    "current": {
+      "head_commit": "8051239972126c4fadfaf3bf084ca2e91c8f2477",
+      "revision": "working tree",
+      "source_path": "detect/context_rules.py",
+      "source_sha256": "62ae5ce1786af03c8a48fa696bc111f417a954ed87bc04b0149d630a9d29d072"
+    }
+  },
+  "results": {
+    "by_category": {
+      "astm_citation": {
+        "baseline": {
+          "discard_dropped": 0,
+          "discard_retained": 7,
+          "discard_total": 7,
+          "preserve_dropped": 0,
+          "preserve_retained": 0,
+          "preserve_total": 0
+        },
+        "current": {
+          "discard_dropped": 7,
+          "discard_retained": 0,
+          "discard_total": 7,
+          "preserve_dropped": 0,
+          "preserve_retained": 0,
+          "preserve_total": 0
+        },
+        "new_sensitive_losses": 0,
+        "recovered_sensitive_candidates": 0
+      },
+      "crossing_reference_personal": {
+        "baseline": {
+          "discard_dropped": 0,
+          "discard_retained": 0,
+          "discard_total": 0,
+          "preserve_dropped": 0,
+          "preserve_retained": 4,
+          "preserve_total": 4
+        },
+        "current": {
+          "discard_dropped": 0,
+          "discard_retained": 0,
+          "discard_total": 0,
+          "preserve_dropped": 0,
+          "preserve_retained": 4,
+          "preserve_total": 4
+        },
+        "new_sensitive_losses": 0,
+        "recovered_sensitive_candidates": 0
+      },
+      "en_marker_personal_date": {
+        "baseline": {
+          "discard_dropped": 0,
+          "discard_retained": 0,
+          "discard_total": 0,
+          "preserve_dropped": 0,
+          "preserve_retained": 4,
+          "preserve_total": 4
+        },
+        "current": {
+          "discard_dropped": 0,
+          "discard_retained": 0,
+          "discard_total": 0,
+          "preserve_dropped": 0,
+          "preserve_retained": 4,
+          "preserve_total": 4
+        },
+        "new_sensitive_losses": 0,
+        "recovered_sensitive_candidates": 0
+      },
+      "en_multipart_citation": {
+        "baseline": {
+          "discard_dropped": 1,
+          "discard_retained": 2,
+          "discard_total": 3,
+          "preserve_dropped": 0,
+          "preserve_retained": 0,
+          "preserve_total": 0
+        },
+        "current": {
+          "discard_dropped": 3,
+          "discard_retained": 0,
+          "discard_total": 3,
+          "preserve_dropped": 0,
+          "preserve_retained": 0,
+          "preserve_total": 0
+        },
+        "new_sensitive_losses": 0,
+        "recovered_sensitive_candidates": 0
+      },
+      "iso_iec_citation": {
+        "baseline": {
+          "discard_dropped": 7,
+          "discard_retained": 3,
+          "discard_total": 10,
+          "preserve_dropped": 0,
+          "preserve_retained": 0,
+          "preserve_total": 0
+        },
+        "current": {
+          "discard_dropped": 10,
+          "discard_retained": 0,
+          "discard_total": 10,
+          "preserve_dropped": 0,
+          "preserve_retained": 0,
+          "preserve_total": 0
+        },
+        "new_sensitive_losses": 0,
+        "recovered_sensitive_candidates": 0
+      },
+      "named_organization": {
+        "baseline": {
+          "discard_dropped": 0,
+          "discard_retained": 0,
+          "discard_total": 0,
+          "preserve_dropped": 0,
+          "preserve_retained": 4,
+          "preserve_total": 4
+        },
+        "current": {
+          "discard_dropped": 0,
+          "discard_retained": 0,
+          "discard_total": 0,
+          "preserve_dropped": 0,
+          "preserve_retained": 4,
+          "preserve_total": 4
+        },
+        "new_sensitive_losses": 0,
+        "recovered_sensitive_candidates": 0
+      },
+      "named_person": {
+        "baseline": {
+          "discard_dropped": 0,
+          "discard_retained": 0,
+          "discard_total": 0,
+          "preserve_dropped": 0,
+          "preserve_retained": 4,
+          "preserve_total": 4
+        },
+        "current": {
+          "discard_dropped": 0,
+          "discard_retained": 0,
+          "discard_total": 0,
+          "preserve_dropped": 0,
+          "preserve_retained": 4,
+          "preserve_total": 4
+        },
+        "new_sensitive_losses": 0,
+        "recovered_sensitive_candidates": 0
+      },
+      "personal_identity_code": {
+        "baseline": {
+          "discard_dropped": 0,
+          "discard_retained": 0,
+          "discard_total": 0,
+          "preserve_dropped": 0,
+          "preserve_retained": 4,
+          "preserve_total": 4
+        },
+        "current": {
+          "discard_dropped": 0,
+          "discard_retained": 0,
+          "discard_total": 0,
+          "preserve_dropped": 0,
+          "preserve_retained": 4,
+          "preserve_total": 4
+        },
+        "new_sensitive_losses": 0,
+        "recovered_sensitive_candidates": 0
+      }
+    },
+    "by_language": {
+      "en": {
+        "baseline": {
+          "discard_dropped": 5,
+          "discard_retained": 5,
+          "discard_total": 10,
+          "preserve_dropped": 0,
+          "preserve_retained": 10,
+          "preserve_total": 10
+        },
+        "current": {
+          "discard_dropped": 10,
+          "discard_retained": 0,
+          "discard_total": 10,
+          "preserve_dropped": 0,
+          "preserve_retained": 10,
+          "preserve_total": 10
+        },
+        "new_sensitive_losses": 0,
+        "recovered_sensitive_candidates": 0
+      },
+      "fi": {
+        "baseline": {
+          "discard_dropped": 3,
+          "discard_retained": 7,
+          "discard_total": 10,
+          "preserve_dropped": 0,
+          "preserve_retained": 10,
+          "preserve_total": 10
+        },
+        "current": {
+          "discard_dropped": 10,
+          "discard_retained": 0,
+          "discard_total": 10,
+          "preserve_dropped": 0,
+          "preserve_retained": 10,
+          "preserve_total": 10
+        },
+        "new_sensitive_losses": 0,
+        "recovered_sensitive_candidates": 0
+      }
+    },
+    "by_language_category": {
+      "en": {
+        "astm_citation": {
+          "baseline": {
+            "discard_dropped": 0,
+            "discard_retained": 3,
+            "discard_total": 3,
+            "preserve_dropped": 0,
+            "preserve_retained": 0,
+            "preserve_total": 0
+          },
+          "current": {
+            "discard_dropped": 3,
+            "discard_retained": 0,
+            "discard_total": 3,
+            "preserve_dropped": 0,
+            "preserve_retained": 0,
+            "preserve_total": 0
+          },
+          "new_sensitive_losses": 0,
+          "recovered_sensitive_candidates": 0
+        },
+        "crossing_reference_personal": {
+          "baseline": {
+            "discard_dropped": 0,
+            "discard_retained": 0,
+            "discard_total": 0,
+            "preserve_dropped": 0,
+            "preserve_retained": 2,
+            "preserve_total": 2
+          },
+          "current": {
+            "discard_dropped": 0,
+            "discard_retained": 0,
+            "discard_total": 0,
+            "preserve_dropped": 0,
+            "preserve_retained": 2,
+            "preserve_total": 2
+          },
+          "new_sensitive_losses": 0,
+          "recovered_sensitive_candidates": 0
+        },
+        "en_marker_personal_date": {
+          "baseline": {
+            "discard_dropped": 0,
+            "discard_retained": 0,
+            "discard_total": 0,
+            "preserve_dropped": 0,
+            "preserve_retained": 2,
+            "preserve_total": 2
+          },
+          "current": {
+            "discard_dropped": 0,
+            "discard_retained": 0,
+            "discard_total": 0,
+            "preserve_dropped": 0,
+            "preserve_retained": 2,
+            "preserve_total": 2
+          },
+          "new_sensitive_losses": 0,
+          "recovered_sensitive_candidates": 0
+        },
+        "en_multipart_citation": {
+          "baseline": {
+            "discard_dropped": 1,
+            "discard_retained": 1,
+            "discard_total": 2,
+            "preserve_dropped": 0,
+            "preserve_retained": 0,
+            "preserve_total": 0
+          },
+          "current": {
+            "discard_dropped": 2,
+            "discard_retained": 0,
+            "discard_total": 2,
+            "preserve_dropped": 0,
+            "preserve_retained": 0,
+            "preserve_total": 0
+          },
+          "new_sensitive_losses": 0,
+          "recovered_sensitive_candidates": 0
+        },
+        "iso_iec_citation": {
+          "baseline": {
+            "discard_dropped": 4,
+            "discard_retained": 1,
+            "discard_total": 5,
+            "preserve_dropped": 0,
+            "preserve_retained": 0,
+            "preserve_total": 0
+          },
+          "current": {
+            "discard_dropped": 5,
+            "discard_retained": 0,
+            "discard_total": 5,
+            "preserve_dropped": 0,
+            "preserve_retained": 0,
+            "preserve_total": 0
+          },
+          "new_sensitive_losses": 0,
+          "recovered_sensitive_candidates": 0
+        },
+        "named_organization": {
+          "baseline": {
+            "discard_dropped": 0,
+            "discard_retained": 0,
+            "discard_total": 0,
+            "preserve_dropped": 0,
+            "preserve_retained": 2,
+            "preserve_total": 2
+          },
+          "current": {
+            "discard_dropped": 0,
+            "discard_retained": 0,
+            "discard_total": 0,
+            "preserve_dropped": 0,
+            "preserve_retained": 2,
+            "preserve_total": 2
+          },
+          "new_sensitive_losses": 0,
+          "recovered_sensitive_candidates": 0
+        },
+        "named_person": {
+          "baseline": {
+            "discard_dropped": 0,
+            "discard_retained": 0,
+            "discard_total": 0,
+            "preserve_dropped": 0,
+            "preserve_retained": 2,
+            "preserve_total": 2
+          },
+          "current": {
+            "discard_dropped": 0,
+            "discard_retained": 0,
+            "discard_total": 0,
+            "preserve_dropped": 0,
+            "preserve_retained": 2,
+            "preserve_total": 2
+          },
+          "new_sensitive_losses": 0,
+          "recovered_sensitive_candidates": 0
+        },
+        "personal_identity_code": {
+          "baseline": {
+            "discard_dropped": 0,
+            "discard_retained": 0,
+            "discard_total": 0,
+            "preserve_dropped": 0,
+            "preserve_retained": 2,
+            "preserve_total": 2
+          },
+          "current": {
+            "discard_dropped": 0,
+            "discard_retained": 0,
+            "discard_total": 0,
+            "preserve_dropped": 0,
+            "preserve_retained": 2,
+            "preserve_total": 2
+          },
+          "new_sensitive_losses": 0,
+          "recovered_sensitive_candidates": 0
+        }
+      },
+      "fi": {
+        "astm_citation": {
+          "baseline": {
+            "discard_dropped": 0,
+            "discard_retained": 4,
+            "discard_total": 4,
+            "preserve_dropped": 0,
+            "preserve_retained": 0,
+            "preserve_total": 0
+          },
+          "current": {
+            "discard_dropped": 4,
+            "discard_retained": 0,
+            "discard_total": 4,
+            "preserve_dropped": 0,
+            "preserve_retained": 0,
+            "preserve_total": 0
+          },
+          "new_sensitive_losses": 0,
+          "recovered_sensitive_candidates": 0
+        },
+        "crossing_reference_personal": {
+          "baseline": {
+            "discard_dropped": 0,
+            "discard_retained": 0,
+            "discard_total": 0,
+            "preserve_dropped": 0,
+            "preserve_retained": 2,
+            "preserve_total": 2
+          },
+          "current": {
+            "discard_dropped": 0,
+            "discard_retained": 0,
+            "discard_total": 0,
+            "preserve_dropped": 0,
+            "preserve_retained": 2,
+            "preserve_total": 2
+          },
+          "new_sensitive_losses": 0,
+          "recovered_sensitive_candidates": 0
+        },
+        "en_marker_personal_date": {
+          "baseline": {
+            "discard_dropped": 0,
+            "discard_retained": 0,
+            "discard_total": 0,
+            "preserve_dropped": 0,
+            "preserve_retained": 2,
+            "preserve_total": 2
+          },
+          "current": {
+            "discard_dropped": 0,
+            "discard_retained": 0,
+            "discard_total": 0,
+            "preserve_dropped": 0,
+            "preserve_retained": 2,
+            "preserve_total": 2
+          },
+          "new_sensitive_losses": 0,
+          "recovered_sensitive_candidates": 0
+        },
+        "en_multipart_citation": {
+          "baseline": {
+            "discard_dropped": 0,
+            "discard_retained": 1,
+            "discard_total": 1,
+            "preserve_dropped": 0,
+            "preserve_retained": 0,
+            "preserve_total": 0
+          },
+          "current": {
+            "discard_dropped": 1,
+            "discard_retained": 0,
+            "discard_total": 1,
+            "preserve_dropped": 0,
+            "preserve_retained": 0,
+            "preserve_total": 0
+          },
+          "new_sensitive_losses": 0,
+          "recovered_sensitive_candidates": 0
+        },
+        "iso_iec_citation": {
+          "baseline": {
+            "discard_dropped": 3,
+            "discard_retained": 2,
+            "discard_total": 5,
+            "preserve_dropped": 0,
+            "preserve_retained": 0,
+            "preserve_total": 0
+          },
+          "current": {
+            "discard_dropped": 5,
+            "discard_retained": 0,
+            "discard_total": 5,
+            "preserve_dropped": 0,
+            "preserve_retained": 0,
+            "preserve_total": 0
+          },
+          "new_sensitive_losses": 0,
+          "recovered_sensitive_candidates": 0
+        },
+        "named_organization": {
+          "baseline": {
+            "discard_dropped": 0,
+            "discard_retained": 0,
+            "discard_total": 0,
+            "preserve_dropped": 0,
+            "preserve_retained": 2,
+            "preserve_total": 2
+          },
+          "current": {
+            "discard_dropped": 0,
+            "discard_retained": 0,
+            "discard_total": 0,
+            "preserve_dropped": 0,
+            "preserve_retained": 2,
+            "preserve_total": 2
+          },
+          "new_sensitive_losses": 0,
+          "recovered_sensitive_candidates": 0
+        },
+        "named_person": {
+          "baseline": {
+            "discard_dropped": 0,
+            "discard_retained": 0,
+            "discard_total": 0,
+            "preserve_dropped": 0,
+            "preserve_retained": 2,
+            "preserve_total": 2
+          },
+          "current": {
+            "discard_dropped": 0,
+            "discard_retained": 0,
+            "discard_total": 0,
+            "preserve_dropped": 0,
+            "preserve_retained": 2,
+            "preserve_total": 2
+          },
+          "new_sensitive_losses": 0,
+          "recovered_sensitive_candidates": 0
+        },
+        "personal_identity_code": {
+          "baseline": {
+            "discard_dropped": 0,
+            "discard_retained": 0,
+            "discard_total": 0,
+            "preserve_dropped": 0,
+            "preserve_retained": 2,
+            "preserve_total": 2
+          },
+          "current": {
+            "discard_dropped": 0,
+            "discard_retained": 0,
+            "discard_total": 0,
+            "preserve_dropped": 0,
+            "preserve_retained": 2,
+            "preserve_total": 2
+          },
+          "new_sensitive_losses": 0,
+          "recovered_sensitive_candidates": 0
+        }
+      }
+    },
+    "overall": {
+      "baseline": {
+        "discard_dropped": 8,
+        "discard_retained": 12,
+        "discard_total": 20,
+        "preserve_dropped": 0,
+        "preserve_retained": 20,
+        "preserve_total": 20
+      },
+      "current": {
+        "discard_dropped": 20,
+        "discard_retained": 0,
+        "discard_total": 20,
+        "preserve_dropped": 0,
+        "preserve_retained": 20,
+        "preserve_total": 20
+      },
+      "new_sensitive_losses": 0,
+      "recovered_sensitive_candidates": 0
+    }
+  },
+  "schema_version": 1
+}

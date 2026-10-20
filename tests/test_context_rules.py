@@ -14,6 +14,57 @@ def span(text, value, kind):
 
 
 class ContextRulesTests(unittest.TestCase):
+    def test_compositional_standard_codes_correct_numeric_recognizers(self):
+        for code in ("SFS-EN 12000-3-4:2021", "ISO/IEC 25010:2023", "IEC 60529-2",
+                     "ASTM C150-01", "ASTM A36/A36M-24", "ASTM F1234-17a(2022)"):
+            for kind in ("DATE_TIME", "US_DRIVER_LICENSE"):
+                text = f"Technical standard {code}; approved by Nessa Sample on 2023-06-21."
+                candidates = [span(text, code, kind), span(text, "Nessa Sample", "PERSON"),
+                              span(text, "2023-06-21", "DATE_TIME")]
+                with self.subTest(code=code, kind=kind):
+                    self.assertEqual(candidates[1:], filter_context_spans(text, candidates))
+
+    def test_standard_corrections_never_exempt_names_or_other_identifier_types(self):
+        text = "Standard ASTM E123-24 and permit E123-24; contact Nessa Sample."
+        for kind in ("PERSON", "ORGANIZATION", "FI_BUSINESS_ID", "FI_VAT_NUMBER",
+                     "FI_PERSONAL_IDENTITY_CODE", "EMAIL_ADDRESS"):
+            candidate = span(text, "ASTM E123-24", kind)
+            self.assertEqual([candidate], filter_context_spans(text, [candidate]))
+        start = text.rindex("E123-24")
+        outside = SimpleNamespace(start=start, end=start + len("E123-24"),
+                                  entity_type="US_DRIVER_LICENSE", score=0.9)
+        mixed = span(text, "ASTM E123-24 and permit E123-24", "DATE_TIME")
+        self.assertEqual([outside, mixed], filter_context_spans(text, [outside, mixed]))
+        for code in ("ASTM H123-24", "ASTM C123-24extra", "EN 1234567-2", "ISO 1234/name"):
+            candidate = span(code, code, "DATE_TIME")
+            self.assertEqual([candidate], filter_context_spans(code, [candidate]))
+
+    def test_language_markers_and_birth_dates_are_not_technical_citations(self):
+        for text in ("Birth date (EN 2003-7-9).", "Born on EN 2003-7-9.",
+                     "Date EN 2003-7-9.", "Syntymäaika EN 2003-7-9.",
+                     "Certificate issued (EN 2003-7-9).",
+                     "Certification expires on EN 2003-7-9.",
+                     "The patient record cites standard EN 2003-7-9."):
+            candidate = span(text, "2003-7-9", "DATE_TIME")
+            with self.subTest(text=text):
+                self.assertEqual([candidate], filter_context_spans(text, [candidate]))
+
+    def test_local_inanimate_duration_keeps_reporting_person_masked(self):
+        for text, value in (
+            ("Nessa Sample confirmed that the warranty remains valid for 19 months.", "19 months"),
+            ("Nessa Sample vahvisti, että sopimus on voimassa 19 kuukautta.", "19 kuukautta"),
+            ("She confirmed that the software runs for 19 months.", "19 months"),
+        ):
+            candidates = [span(text, value, "DATE_TIME")]
+            if "Nessa Sample" in text:
+                candidates.append(span(text, "Nessa Sample", "PERSON"))
+            self.assertEqual(candidates[1:], filter_context_spans(text, candidates))
+        for text in ("Her service lasted 19 years.", "Her Service lasted 19 years.",
+                     "Her military service lasted 19 years.",
+                     "Her employment duration is 19 years.", "Her prison term is 19 years."):
+            candidate = span(text, "19 years", "DATE_TIME")
+            self.assertEqual([candidate], filter_context_spans(text, [candidate]))
+
     def test_finnish_age_inflections_and_birthdays_are_never_business_durations(self):
         for age in (9, 24, 53):
             for text, value in (

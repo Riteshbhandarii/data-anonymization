@@ -22,8 +22,19 @@ _QUANTITIES = re.compile(
     re.IGNORECASE,
 )
 _STANDARDS = re.compile(
-    r"\b(?:ISO|IEC|EN|SFS)(?:[ /-]+(?:ISO|IEC|EN))?[ -]+\d{3,6}"
-    r"(?:[-:]\d{1,4})?(?!\w)", re.IGNORECASE,
+    r"\b(?:ISO|IEC|EN|SFS)(?:[ /-]+(?:ISO|IEC|EN))*[ -]+\d{3,6}"
+    r"(?:-\d{1,4})*(?::\d{4})?(?![\w:/-])|"
+    r"\bASTM[ ]+[A-G]\d{1,5}M?(?:/[A-G]\d{1,5}M?)?"
+    r"(?:-\d{2}[a-z]?(?:\(\d{4}\))?)?(?![\w:/-])", re.IGNORECASE,
+)
+# Only numeric/date recognizers are corrected inside technical citations.
+# Never discard PERSON, ORGANIZATION or a business/personal ID merely because
+# another overlapping candidate resembles a standard number.
+_STANDARD_CANDIDATE_TYPES = {"DATE_TIME", "US_DRIVER_LICENSE"}
+_CALENDAR_SHAPE = re.compile(r"\b\d{4}-\d{1,2}-\d{1,2}\b")
+_TECHNICAL_REFERENCE = re.compile(
+    r"\b(?:standards?(?:\s+(?:number|reference|code))?|specifications?|standard\w*|"
+    r"conforms?\s+to|complies\s+with)\s*[:#]?\s*$", re.IGNORECASE,
 )
 _JOB_TITLE = re.compile(
     r"(?:(?:chief|senior|junior|assistant|deputy)\s+)?"
@@ -68,15 +79,15 @@ _TIME_SUBJECT_FI = (
     r"katselmus|tarkastus|toimitus)"
 )
 _BOUND_DURATION = re.compile(
-    rf"\b{_TIME_SUBJECT_EN}\s+(?:"
+    rf"\b(?P<subject_en>{_TIME_SUBJECT_EN})\s+(?:"
     r"(?:lasts?|lasted|takes?|continues?|runs?)\s+(?:for\s+)?|"
     r"(?:is|was|remains?|stays?)\s+(?:active|available|valid|open|in force)\s+(?:for\s+)?)$|"
     rf"\b{_TIME_SUBJECT_FI}\s+(?:"
     r"(?:kestää|kesti|jatkuu|tapahtuu)\s+|"
-    r"(?:on|oli|pysyy)\s+(?:voimassa|käytössä|lukutilassa)\s+)$|"
-    r"\b(?:on\s+)?varattu\s+(?:aika\s+)?$",
+    r"(?:on|oli|pysyy)\s+(?:voimassa|käytössä|lukutilassa)\s+)$",
     re.IGNORECASE,
 )
+_ALLOCATED_TIME = re.compile(r"\b(?:on\s+)?varattu\s+(?:aika\s+)?$", re.IGNORECASE)
 _HOURS_FIELD = re.compile(r"^(?:hours?|allocated hours|tunnit|työtunnit)\b", re.IGNORECASE)
 
 # This is a class of unnamed facilities, never a list of study place names.
@@ -154,23 +165,46 @@ def filter_context_spans(text: str, spans) -> list:
     facilities = list(_FACILITY.finditer(text))
     result = []
     for span in spans:
-        if span.entity_type == "DATE_TIME":
-            if any(m.start() <= span.start < span.end <= m.end() for m in standards):
+        if span.entity_type in _STANDARD_CANDIDATE_TYPES:
+            for reference in standards:
+                if not reference.start() <= span.start < span.end <= reference.end():
+                    continue
+                left, right = _clause(text, reference.start(), reference.end())
+                context = text[left:right]
+                if span.entity_type == "DATE_TIME" and (
+                        _AGE_CONTEXT.search(context) or (
+                            _CALENDAR_SHAPE.search(reference.group())
+                            and not _TECHNICAL_REFERENCE.search(text[left:reference.start()]))):
+                    # EN can also be a language marker before an actual date.
+                    # Calendar-shaped codes need explicit technical evidence.
+                    continue
+                break
+            else:
+                reference = None
+            if reference is not None:
                 continue
+        if span.entity_type == "DATE_TIME":
             for quantity in quantities:
                 if quantity.start() <= span.start < span.end <= quantity.end():
                     left, right = _clause(text, quantity.start(), quantity.end())
                     context = text[left:right]
                     before = text[left:quantity.start()]
                     hours_field = _HOURS_FIELD.match(quantity.group())
-                    bound_duration = (_DURATION_FIELD.search(before)
-                                      or _BOUND_DURATION.search(before))
+                    binding = _BOUND_DURATION.search(before)
+                    duration_field = (_DURATION_FIELD.search(before)
+                                      or _ALLOCATED_TIME.search(before) or binding)
+                    # Bare service can describe personal employment history.
+                    inanimate_duration = binding and (
+                        (binding.group("subject_en") or "").casefold() != "service")
                     human = (_HUMAN_REFERENCE.search(context) or _JOB_TITLE.search(context)
                              or any(s.entity_type == "PERSON" and s.start < right and s.end > left
                                     for s in spans))
                     # Unknown temporal context stays masked. Positive operational
                     # evidence is required; an age-suffix blacklist alone is unsafe.
-                    if ((hours_field or (bound_duration and not human))
+                    # A reporting person elsewhere does not change the subject
+                    # of a closed phrase such as "the warranty lasts for ...".
+                    # Generic fields still require the broader human guard.
+                    if ((hours_field or inanimate_duration or (duration_field and not human))
                             and not _AGE_CONTEXT.search(context)
                             and not _AGE_SUFFIX.match(text[quantity.end():right])):
                         break
