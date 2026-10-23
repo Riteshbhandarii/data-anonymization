@@ -1,0 +1,327 @@
+{
+  "schema_version": 1,
+  "fixture_sha256": "c5371a6758ada6d23e3155daa8224b27c183f25cd291a24adbfa5e78efde1a31",
+  "scope": "independent sensitive-target annotation; candidate ranges and personal data ranges are distinct",
+  "cases": [
+    {
+      "id": "tc_en_01",
+      "text_sha256": "3ac3d008badec89cdae46084f0e1591bb66c2ea753365faa4f3c38de34386086",
+      "targets": []
+    },
+    {
+      "id": "tc_en_02",
+      "text_sha256": "4bb3579b7809bcb8efda2c32a8fe5ce68084dc929c6dcb5ebaee526e7518945c",
+      "targets": []
+    },
+    {
+      "id": "tc_en_03",
+      "text_sha256": "9acfc6b669cc9cf836a094f6a7272e741354318a24b6dbc5c6708bffe2d4aa62",
+      "targets": []
+    },
+    {
+      "id": "tc_en_04",
+      "text_sha256": "4fac61de0bf1e4a5413fb5e6acc7590a82dd4e92861316c612fe77611005fb15",
+      "targets": []
+    },
+    {
+      "id": "tc_en_05",
+      "text_sha256": "c5c96ed69964d335f10fbd9721e4276a243552fe3ba3d0674905fdb73ec57fa3",
+      "targets": []
+    },
+    {
+      "id": "tc_en_06",
+      "text_sha256": "e2c4f79cc9fe489d349972e4f8b62e5bdb2a94b704b0659ce84c9b2c3264596f",
+      "targets": []
+    },
+    {
+      "id": "tc_en_07",
+      "text_sha256": "b0f671a4f713afa7cff2ea7a9652047919d4874e464c433162ffd5f9a97dd23d",
+      "targets": []
+    },
+    {
+      "id": "tc_en_08",
+      "text_sha256": "2d28dc97e014530cf119856886855f3e0c0db379e348e8edd2841a15574f85b7",
+      "targets": []
+    },
+    {
+      "id": "tc_en_09",
+      "text_sha256": "ecc22fb80fc44b8ff7c8f6769dc0d7ffdb1867fb4e6cd9baaeeb622ac1a723ae",
+      "targets": []
+    },
+    {
+      "id": "tc_en_10",
+      "text_sha256": "41b3051109d174f97da3a1ca467b97cd01edfff5bf0134a7c10955e5f63dcf87",
+      "targets": []
+    },
+    {
+      "id": "tc_en_11",
+      "text_sha256": "25dd803a69107562089312452370cdf813e722a314f8794fcb2b97c714ca8891",
+      "targets": [
+        {
+          "start": 33,
+          "end": 43,
+          "entity_type": "DATE_TIME"
+        }
+      ]
+    },
+    {
+      "id": "tc_en_12",
+      "text_sha256": "72c337bb49dd61cba89254e773a029ee078616e90bb375bf319be8d844bcb754",
+      "targets": [
+        {
+          "start": 59,
+          "end": 69,
+          "entity_type": "DATE_TIME"
+        }
+      ]
+    },
+    {
+      "id": "tc_en_13",
+      "text_sha256": "67dcea240f5822a2ee96f16c30da5c141269791d1143f751e5ac20a2d46a52c7",
+      "targets": [
+        {
+          "start": 29,
+          "end": 37,
+          "entity_type": "US_DRIVER_LICENSE"
+        }
+      ]
+    },
+    {
+      "id": "tc_en_14",
+      "text_sha256": "aa069f8c99613e172f994736003fa22b0d792331e7b836da8958562b4be7aa4c",
+      "targets": [
+        {
+          "start": 38,
+          "end": 46,
+          "entity_type": "US_DRIVER_LICENSE"
+        }
+      ]
+    },
+    {
+      "id": "tc_en_15",
+      "text_sha256": "98b015ecf63cbb3f9a8482cec956152b3193793d6eb5e061e63c01a687555dd4",
+      "targets": [
+        {
+          "start": 41,
+          "end": 53,
+          "entity_type": "PERSON"
+        }
+      ]
+    },
+    {
+      "id": "tc_en_16",
+      "text_sha256": "16f460100bb575526645c6a444d6d0026e975e07354760a980b2ba3e7cc1efde",
+      "targets": [
+        {
+          "start": 20,
+          "end": 34,
+          "entity_type": "PERSON"
+        }
+      ]
+    },
+    {
+      "id": "tc_en_17",
+      "text_sha256": "de1f8c07842719a48d13ca9ceefb40bacdf62bd6522fc33407aa50251126bf1f",
+      "targets": [
+        {
+          "start": 0,
+          "end": 22,
+          "entity_type": "ORGANIZATION"
+        }
+      ]
+    },
+    {
+      "id": "tc_en_18",
+      "text_sha256": "0308eff04c338c984ea2195dd5db5b45b592a133791cd306195e7dd4b766e693",
+      "targets": [
+        {
+          "start": 23,
+          "end": 51,
+          "entity_type": "ORGANIZATION"
+        }
+      ]
+    },
+    {
+      "id": "tc_en_19",
+      "text_sha256": "4e9e476230d5532578bac9f5f9b86dde060837adc5a485d348972d5bb856b96e",
+      "targets": [
+        {
+          "start": 44,
+          "end": 57,
+          "entity_type": "DATE_TIME"
+        }
+      ]
+    },
+    {
+      "id": "tc_en_20",
+      "text_sha256": "8a11d334ba1d39ea186f85e0f2245647f19582ca6ab8484a7e76f5ed2ca90f7d",
+      "targets": [
+        {
+          "start": 38,
+          "end": 46,
+          "entity_type": "US_DRIVER_LICENSE"
+        }
+      ]
+    },
+    {
+      "id": "tc_fi_01",
+      "text_sha256": "387e3e32a6d27a467ca404bc6586ed7321c01962fbf93bc99596a491766b5802",
+      "targets": []
+    },
+    {
+      "id": "tc_fi_02",
+      "text_sha256": "c201dcaaef402e7237e66762f2b451f7c56689af8777cba30223f6abbc98ed88",
+      "targets": []
+    },
+    {
+      "id": "tc_fi_03",
+      "text_sha256": "d40ef4d78f92bf0ec415d1f4cb4c7e0055dc1d5ab0462c5a863989e1387c2efd",
+      "targets": []
+    },
+    {
+      "id": "tc_fi_04",
+      "text_sha256": "657a976cb3ef8cda7818770f9f1f14147876551f4502190366c74823d5ea2f86",
+      "targets": []
+    },
+    {
+      "id": "tc_fi_05",
+      "text_sha256": "b175ee23ba57f4ee2af6c718bb6b0e40180ab1fa873e23de807af41a3f6eb779",
+      "targets": []
+    },
+    {
+      "id": "tc_fi_06",
+      "text_sha256": "05f906d97987fc4daa0534387d04deef5183289793675089efe4aa2a65c87b1c",
+      "targets": []
+    },
+    {
+      "id": "tc_fi_07",
+      "text_sha256": "85ad54ae8be292b1ba04f1978293a5164d819840e3f4329cac67705918a08beb",
+      "targets": []
+    },
+    {
+      "id": "tc_fi_08",
+      "text_sha256": "9514853655154c1ceb9d21b50f310129c2481fe200f437debaa99f51c66facb0",
+      "targets": []
+    },
+    {
+      "id": "tc_fi_09",
+      "text_sha256": "f0fadcfa8ac54c637ef3245ee445f6b180334b456f9a4f33d428b5977ece208e",
+      "targets": []
+    },
+    {
+      "id": "tc_fi_10",
+      "text_sha256": "711fc351f30a704ec713087b351a4cb60a39222a8f7f6f3a116e6f0badd7dee8",
+      "targets": []
+    },
+    {
+      "id": "tc_fi_11",
+      "text_sha256": "c3d04f3c295079147267555dc7abb9bc2ddfac3b23514e8d9ccbc5b70255ac01",
+      "targets": [
+        {
+          "start": 82,
+          "end": 92,
+          "entity_type": "DATE_TIME"
+        }
+      ]
+    },
+    {
+      "id": "tc_fi_12",
+      "text_sha256": "cb7ffed22e462a2623b5ea3f55b38420e35905af223036db230dae840b76dbc8",
+      "targets": [
+        {
+          "start": 65,
+          "end": 75,
+          "entity_type": "DATE_TIME"
+        }
+      ]
+    },
+    {
+      "id": "tc_fi_13",
+      "text_sha256": "c4cb81a455525f59ab26d2cf5d4d4672ed127f13024c32c2a23bbb4e3b7ad723",
+      "targets": [
+        {
+          "start": 22,
+          "end": 30,
+          "entity_type": "US_DRIVER_LICENSE"
+        }
+      ]
+    },
+    {
+      "id": "tc_fi_14",
+      "text_sha256": "7c1f68402949b4417ebe8da4721aa4715fb2101d61157e93e5ea3aa86fdeee9c",
+      "targets": [
+        {
+          "start": 62,
+          "end": 70,
+          "entity_type": "US_DRIVER_LICENSE"
+        }
+      ]
+    },
+    {
+      "id": "tc_fi_15",
+      "text_sha256": "bb9d39501303c8aff294d008ae33738dd6ca8179b76adbf32ef1a0ad15107d9e",
+      "targets": [
+        {
+          "start": 25,
+          "end": 39,
+          "entity_type": "PERSON"
+        }
+      ]
+    },
+    {
+      "id": "tc_fi_16",
+      "text_sha256": "81d29207dd5a10aeb83756e9aac5717a71aabe8f5456baf6ac5c094520bd0bb0",
+      "targets": [
+        {
+          "start": 34,
+          "end": 50,
+          "entity_type": "PERSON"
+        }
+      ]
+    },
+    {
+      "id": "tc_fi_17",
+      "text_sha256": "dfde828e61d0aa0b0ea942a303c2e23dcef4c875f9ba3f15e4a69d8ec1700330",
+      "targets": [
+        {
+          "start": 26,
+          "end": 41,
+          "entity_type": "ORGANIZATION"
+        }
+      ]
+    },
+    {
+      "id": "tc_fi_18",
+      "text_sha256": "18007a2ba31ffbfa1d2d164c0579cdacf1743535e09c4a70ebc6d4cba0c9be62",
+      "targets": [
+        {
+          "start": 14,
+          "end": 37,
+          "entity_type": "ORGANIZATION"
+        }
+      ]
+    },
+    {
+      "id": "tc_fi_19",
+      "text_sha256": "ebca55a36d2d96e8d2918a991420dfc00707f76e62634f4639d5287ff1ea100d",
+      "targets": [
+        {
+          "start": 41,
+          "end": 58,
+          "entity_type": "DATE_TIME"
+        }
+      ]
+    },
+    {
+      "id": "tc_fi_20",
+      "text_sha256": "31f7fa08c262cff9f6d68030d98dfad6e4837d867bc39956fff1560838d71e55",
+      "targets": [
+        {
+          "start": 58,
+          "end": 66,
+          "entity_type": "US_DRIVER_LICENSE"
+        }
+      ]
+    }
+  ]
+}

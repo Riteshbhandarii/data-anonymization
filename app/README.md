@@ -29,6 +29,11 @@ Sidebar: pick a source (upload, the fake corpus, or a public file from
 `corpus/real/`), the language, a detector method from `detect/methods.py`, and
 the replacement style (`[PERSON]` or `[PERSON_1]`), then press Run.
 
+**Keep document metadata** is off by default. Omitted metadata labels are excluded
+from UI coverage counts; the extraction benchmark still audits them. Changing
+this option hides the previous result until rerun. Paste the cleaned text, never
+upload the original file. See the [cookbook](../docs/clean-text-cookbook.md).
+
 | Tab | Shows |
 |---|---|
 | Extract | A rendered document or CSV table, plus a selector for hidden content |

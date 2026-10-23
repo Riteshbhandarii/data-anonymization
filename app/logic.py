@@ -343,7 +343,7 @@ def run_signature(cfg):
     except OSError:
         stamp = (None, None)
     return (str(path.resolve()), *stamp,
-            cfg["lang"], cfg["method"], cfg["mode"])
+            cfg["lang"], cfg["method"], cfg["mode"], cfg.get("include_metadata", False))
 
 
 def score_labels(text, entities, results, source=None):

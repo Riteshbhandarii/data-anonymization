@@ -1,0 +1,882 @@
+{
+  "schema_version": 1,
+  "scope": "Newly authored synthetic reviewer regression probe; not blind holdout or real-world accuracy",
+  "cases": [
+    {
+      "id": "review-admission",
+      "language": "en",
+      "text": "Date of admission (EN 2024-11).",
+      "category": "personal_date",
+      "spans": [
+        {
+          "start": 22,
+          "end": 29,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "date-en-02",
+      "language": "en",
+      "text": "Date of admission (EN 2024/11).",
+      "category": "personal_date",
+      "spans": [
+        {
+          "start": 22,
+          "end": 29,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "date-en-03",
+      "language": "en",
+      "text": "Date of admission (EN 2024.11).",
+      "category": "personal_date",
+      "spans": [
+        {
+          "start": 22,
+          "end": 29,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "date-en-04",
+      "language": "en",
+      "text": "Date of admission (EN 2024-11-03).",
+      "category": "personal_date",
+      "spans": [
+        {
+          "start": 22,
+          "end": 32,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "date-en-05",
+      "language": "en",
+      "text": "Date of admission (English 2024-11).",
+      "category": "personal_date",
+      "spans": [
+        {
+          "start": 27,
+          "end": 34,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "date-en-06",
+      "language": "en",
+      "text": "Patient admission: 11/2024 (EN).",
+      "category": "personal_date",
+      "spans": [
+        {
+          "start": 19,
+          "end": 26,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "date-en-07",
+      "language": "en",
+      "text": "Her date of birth is 2024-11-03.",
+      "category": "personal_date",
+      "spans": [
+        {
+          "start": 21,
+          "end": 31,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "date-en-08",
+      "language": "en",
+      "text": "His admission was recorded in November 2024.",
+      "category": "personal_date",
+      "spans": [
+        {
+          "start": 30,
+          "end": 43,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "date-fi-01",
+      "language": "fi",
+      "text": "Tulopäivä (EN 2024-11).",
+      "category": "personal_date",
+      "spans": [
+        {
+          "start": 14,
+          "end": 21,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "date-fi-02",
+      "language": "fi",
+      "text": "Hoitopäivä (en 2024/11).",
+      "category": "personal_date",
+      "spans": [
+        {
+          "start": 15,
+          "end": 22,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "date-fi-03",
+      "language": "fi",
+      "text": "Syntymäaika (EN 2024.11).",
+      "category": "personal_date",
+      "spans": [
+        {
+          "start": 16,
+          "end": 23,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "date-fi-04",
+      "language": "fi",
+      "text": "Saapumispäivä (EN 2024-11-03).",
+      "category": "personal_date",
+      "spans": [
+        {
+          "start": 18,
+          "end": 28,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "date-fi-05",
+      "language": "fi",
+      "text": "Potilaan tulopäivä: 03.11.2024.",
+      "category": "personal_date",
+      "spans": [
+        {
+          "start": 20,
+          "end": 30,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "date-fi-06",
+      "language": "fi",
+      "text": "Hänen hoitonsa alkoi marraskuussa 2024.",
+      "category": "personal_date",
+      "spans": [
+        {
+          "start": 21,
+          "end": 38,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "date-fi-07",
+      "language": "fi",
+      "text": "Tulopäivä (English 2024-11).",
+      "category": "personal_date",
+      "spans": [
+        {
+          "start": 19,
+          "end": 26,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "date-fi-08",
+      "language": "fi",
+      "text": "Potilaan syntymäkuukausi on 11/2024.",
+      "category": "personal_date",
+      "spans": [
+        {
+          "start": 28,
+          "end": 35,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "review-employment",
+      "language": "en",
+      "text": "Her employment contract lasted 19 years.",
+      "category": "personal_duration",
+      "spans": [
+        {
+          "start": 31,
+          "end": 39,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "duration-en-02",
+      "language": "en",
+      "text": "His employment agreement lasted 21 years.",
+      "category": "personal_duration",
+      "spans": [
+        {
+          "start": 32,
+          "end": 40,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "duration-en-03",
+      "language": "en",
+      "text": "Their employment contract ran for 16 years.",
+      "category": "personal_duration",
+      "spans": [
+        {
+          "start": 34,
+          "end": 42,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "duration-en-04",
+      "language": "en",
+      "text": "My employment agreement remains valid for 8 months.",
+      "category": "personal_duration",
+      "spans": [
+        {
+          "start": 42,
+          "end": 50,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "duration-en-05",
+      "language": "en",
+      "text": "Your service agreement lasted 13 months.",
+      "category": "personal_duration",
+      "spans": [
+        {
+          "start": 30,
+          "end": 39,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "duration-en-06",
+      "language": "en",
+      "text": "She completed 12 years of service.",
+      "category": "personal_duration",
+      "spans": [
+        {
+          "start": 14,
+          "end": 22,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "duration-en-07",
+      "language": "en",
+      "text": "His military service lasted 2 years.",
+      "category": "personal_duration",
+      "spans": [
+        {
+          "start": 28,
+          "end": 35,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "duration-en-08",
+      "language": "en",
+      "text": "They served in the military for 11 months.",
+      "category": "personal_duration",
+      "spans": [
+        {
+          "start": 32,
+          "end": 41,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "duration-en-09",
+      "language": "en",
+      "text": "Anna's employment contract was valid for 7 years.",
+      "category": "personal_duration",
+      "spans": [
+        {
+          "start": 41,
+          "end": 48,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        },
+        {
+          "start": 0,
+          "end": 4,
+          "entity_type": "PERSON",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "duration-en-10",
+      "language": "en",
+      "text": "Mika worked under an employment agreement for 9 years.",
+      "category": "personal_duration",
+      "spans": [
+        {
+          "start": 46,
+          "end": 53,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        },
+        {
+          "start": 0,
+          "end": 4,
+          "entity_type": "PERSON",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "duration-en-11",
+      "language": "en",
+      "text": "The applicant's employment contract lasted 18 months.",
+      "category": "personal_duration",
+      "spans": [
+        {
+          "start": 43,
+          "end": 52,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "duration-en-12",
+      "language": "en",
+      "text": "The employee's service agreement lasted three years.",
+      "category": "personal_duration",
+      "spans": [
+        {
+          "start": 40,
+          "end": 51,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "duration-fi-01",
+      "language": "fi",
+      "text": "Hänen työsopimuksensa kesti 19 vuotta.",
+      "category": "personal_duration",
+      "spans": [
+        {
+          "start": 28,
+          "end": 37,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "duration-fi-02",
+      "language": "fi",
+      "text": "Minun työsopimukseni oli voimassa 8 kuukautta.",
+      "category": "personal_duration",
+      "spans": [
+        {
+          "start": 34,
+          "end": 45,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "duration-fi-03",
+      "language": "fi",
+      "text": "Sinun palvelussopimuksesi kesti 13 kuukautta.",
+      "category": "personal_duration",
+      "spans": [
+        {
+          "start": 32,
+          "end": 44,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "duration-fi-04",
+      "language": "fi",
+      "text": "Heidän työsopimuksensa kesti 16 vuotta.",
+      "category": "personal_duration",
+      "spans": [
+        {
+          "start": 29,
+          "end": 38,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "duration-fi-05",
+      "language": "fi",
+      "text": "Hänen asepalveluksensa kesti 11 kuukautta.",
+      "category": "personal_duration",
+      "spans": [
+        {
+          "start": 29,
+          "end": 41,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "duration-fi-06",
+      "language": "fi",
+      "text": "Hän oli palveluksessa 12 vuotta.",
+      "category": "personal_duration",
+      "spans": [
+        {
+          "start": 22,
+          "end": 31,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "duration-fi-07",
+      "language": "fi",
+      "text": "Annan työsopimus oli voimassa 7 vuotta.",
+      "category": "personal_duration",
+      "spans": [
+        {
+          "start": 30,
+          "end": 38,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        },
+        {
+          "start": 0,
+          "end": 5,
+          "entity_type": "PERSON",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "duration-fi-08",
+      "language": "fi",
+      "text": "Mikan palvelussopimus kesti 9 vuotta.",
+      "category": "personal_duration",
+      "spans": [
+        {
+          "start": 28,
+          "end": 36,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        },
+        {
+          "start": 0,
+          "end": 5,
+          "entity_type": "PERSON",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "duration-fi-09",
+      "language": "fi",
+      "text": "Hakijan työsopimuksen kesto oli 18 kuukautta.",
+      "category": "personal_duration",
+      "spans": [
+        {
+          "start": 32,
+          "end": 44,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "duration-fi-10",
+      "language": "fi",
+      "text": "Työntekijän palvelussopimus kesti kolme vuotta.",
+      "category": "personal_duration",
+      "spans": [
+        {
+          "start": 34,
+          "end": 46,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "duration-fi-11",
+      "language": "fi",
+      "text": "Leenan työsopimusta jatkettiin kahdella vuodella.",
+      "category": "personal_duration",
+      "spans": [
+        {
+          "start": 31,
+          "end": 48,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        },
+        {
+          "start": 0,
+          "end": 6,
+          "entity_type": "PERSON",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "duration-fi-12",
+      "language": "fi",
+      "text": "Olli suoritti 6 kuukauden asepalveluksen.",
+      "category": "personal_duration",
+      "spans": [
+        {
+          "start": 14,
+          "end": 25,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        },
+        {
+          "start": 0,
+          "end": 4,
+          "entity_type": "PERSON",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "work-en-01",
+      "language": "en",
+      "text": "Work hours: 7.5.",
+      "category": "work_hours",
+      "spans": [
+        {
+          "start": 12,
+          "end": 15,
+          "entity_type": "DATE_TIME",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "work-en-02",
+      "language": "en",
+      "text": "Allocated hours 29.",
+      "category": "work_hours",
+      "spans": [
+        {
+          "start": 16,
+          "end": 18,
+          "entity_type": "DATE_TIME",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "work-fi-01",
+      "language": "fi",
+      "text": "Työtunnit: 37.",
+      "category": "work_hours",
+      "spans": [
+        {
+          "start": 11,
+          "end": 13,
+          "entity_type": "DATE_TIME",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "work-fi-02",
+      "language": "fi",
+      "text": "Projektiin on varattu 7 tuntia.",
+      "category": "work_hours",
+      "spans": [
+        {
+          "start": 22,
+          "end": 30,
+          "entity_type": "DATE_TIME",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "business-en-01",
+      "language": "en",
+      "text": "The business contract lasts 18 months.",
+      "category": "business_duration",
+      "spans": [
+        {
+          "start": 28,
+          "end": 37,
+          "entity_type": "DATE_TIME",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "business-en-02",
+      "language": "en",
+      "text": "The service agreement runs for 2 years.",
+      "category": "business_duration",
+      "spans": [
+        {
+          "start": 31,
+          "end": 38,
+          "entity_type": "DATE_TIME",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "business-fi-01",
+      "language": "fi",
+      "text": "Sopimus kestää 18 kuukautta.",
+      "category": "business_duration",
+      "spans": [
+        {
+          "start": 15,
+          "end": 27,
+          "entity_type": "DATE_TIME",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "business-fi-02",
+      "language": "fi",
+      "text": "Sopimuksen kesto on 2 vuotta.",
+      "category": "business_duration",
+      "spans": [
+        {
+          "start": 20,
+          "end": 28,
+          "entity_type": "DATE_TIME",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "warranty-en-01",
+      "language": "en",
+      "text": "The warranty lasts 5 years.",
+      "category": "technical_duration",
+      "spans": [
+        {
+          "start": 19,
+          "end": 26,
+          "entity_type": "DATE_TIME",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "software-en-01",
+      "language": "en",
+      "text": "The software support contract runs for 3 years.",
+      "category": "technical_duration",
+      "spans": [
+        {
+          "start": 39,
+          "end": 46,
+          "entity_type": "DATE_TIME",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "warranty-fi-01",
+      "language": "fi",
+      "text": "Tuotteen takuu on voimassa 5 vuotta.",
+      "category": "technical_duration",
+      "spans": [
+        {
+          "start": 27,
+          "end": 35,
+          "entity_type": "DATE_TIME",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "software-fi-01",
+      "language": "fi",
+      "text": "Ohjelmiston tukisopimus kestää 3 vuotta.",
+      "category": "technical_duration",
+      "spans": [
+        {
+          "start": 31,
+          "end": 39,
+          "entity_type": "DATE_TIME",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "standard-en-01",
+      "language": "en",
+      "text": "Technical standard EN 12345:2024 applies.",
+      "category": "technical_standard",
+      "spans": [
+        {
+          "start": 19,
+          "end": 32,
+          "entity_type": "DATE_TIME",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "standard-en-02",
+      "language": "en",
+      "text": "The technical standard is EN 2024-11.",
+      "category": "technical_standard",
+      "spans": [
+        {
+          "start": 26,
+          "end": 36,
+          "entity_type": "DATE_TIME",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "standard-en-03",
+      "language": "en",
+      "text": "The adopted standard is EN 2024/11.",
+      "category": "technical_standard",
+      "spans": [
+        {
+          "start": 24,
+          "end": 34,
+          "entity_type": "DATE_TIME",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "standard-en-04",
+      "language": "en",
+      "text": "The safety standard ISO 27001:2022 applies.",
+      "category": "technical_standard",
+      "spans": [
+        {
+          "start": 20,
+          "end": 34,
+          "entity_type": "DATE_TIME",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "standard-fi-01",
+      "language": "fi",
+      "text": "Tekninen standardi EN 12345:2024 on käytössä.",
+      "category": "technical_standard",
+      "spans": [
+        {
+          "start": 19,
+          "end": 32,
+          "entity_type": "DATE_TIME",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "standard-fi-02",
+      "language": "fi",
+      "text": "Tekninen standardi on EN 2024-11.",
+      "category": "technical_standard",
+      "spans": [
+        {
+          "start": 22,
+          "end": 32,
+          "entity_type": "DATE_TIME",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "standard-fi-03",
+      "language": "fi",
+      "text": "Sovellettava standardi on EN 2024/11.",
+      "category": "technical_standard",
+      "spans": [
+        {
+          "start": 26,
+          "end": 36,
+          "entity_type": "DATE_TIME",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "standard-fi-04",
+      "language": "fi",
+      "text": "Tietoturvastandardi ISO 27001:2022 on käytössä.",
+      "category": "technical_standard",
+      "spans": [
+        {
+          "start": 20,
+          "end": 34,
+          "entity_type": "DATE_TIME",
+          "expect": "discard_detection"
+        }
+      ]
+    }
+  ]
+}

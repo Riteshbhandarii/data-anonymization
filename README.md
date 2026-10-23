@@ -224,6 +224,11 @@ the real source documents are deliberately not in the repository.
 
 ## Repo map
 
+Release Markdown omits document metadata by default; reviewed retention is
+optional. **Paste the cleaned text, never upload the original file.** See the
+[clean-text cookbook](docs/clean-text-cookbook.md) and the
+[2026-10-20 detector/metadata follow-up](docs/role1-fixes.md).
+
 | Path | Contents |
 |---|---|
 | `pipeline/` | Format detection, extraction and OCR, Markdown output |

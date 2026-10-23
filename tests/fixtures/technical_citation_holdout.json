@@ -1,0 +1,566 @@
+{
+  "schema_version": 1,
+  "scope": "independently authored synthetic targeted standards-format conformance checks, not population accuracy",
+  "cases": [
+    {
+      "id": "tc_en_01",
+      "language": "en",
+      "text": "The bench test plan cites ISO 23874:2021 for the measurement sequence.",
+      "category": "iso_iec_citation",
+      "spans": [
+        {
+          "start": 30,
+          "end": 40,
+          "entity_type": "DATE_TIME",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "tc_en_02",
+      "language": "en",
+      "text": "Use the interface profile in ISO/IEC 29186-3:2024 when exporting the sample report.",
+      "category": "iso_iec_citation",
+      "spans": [
+        {
+          "start": 37,
+          "end": 44,
+          "entity_type": "DATE_TIME",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "tc_en_03",
+      "language": "en",
+      "text": "Our draft acceptance checklist refers to IEC 62945-2:2019.",
+      "category": "iso_iec_citation",
+      "spans": [
+        {
+          "start": 45,
+          "end": 57,
+          "entity_type": "DATE_TIME",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "tc_en_04",
+      "language": "en",
+      "text": "The drawing margin contains the reference SFS-EN ISO 18376-4:2023.",
+      "category": "iso_iec_citation",
+      "spans": [
+        {
+          "start": 53,
+          "end": 60,
+          "entity_type": "DATE_TIME",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "tc_en_05",
+      "language": "en",
+      "text": "For this trial, retain the edition labelled ISO 21468:2016 in the specification register.",
+      "category": "iso_iec_citation",
+      "spans": [
+        {
+          "start": 54,
+          "end": 58,
+          "entity_type": "DATE_TIME",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "tc_en_06",
+      "language": "en",
+      "text": "Apply the procedure cited as ASTM A6732-24 before comparing the metal coupons.",
+      "category": "astm_citation",
+      "spans": [
+        {
+          "start": 34,
+          "end": 42,
+          "entity_type": "US_DRIVER_LICENSE",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "tc_en_07",
+      "language": "en",
+      "text": "The purchase note specifies ASTM B2468M-22 for this fictional material grade.",
+      "category": "astm_citation",
+      "spans": [
+        {
+          "start": 33,
+          "end": 39,
+          "entity_type": "US_DRIVER_LICENSE",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "tc_en_08",
+      "language": "en",
+      "text": "Record the complete combined reference ASTM C8531/C8531M-19 beside the test result.",
+      "category": "astm_citation",
+      "spans": [
+        {
+          "start": 51,
+          "end": 59,
+          "entity_type": "US_DRIVER_LICENSE",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "tc_en_09",
+      "language": "en",
+      "text": "The load model is documented under EN 17482-6-2:2025 in the design appendix.",
+      "category": "en_multipart_citation",
+      "spans": [
+        {
+          "start": 38,
+          "end": 52,
+          "entity_type": "DATE_TIME",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "tc_en_10",
+      "language": "en",
+      "text": "Check the inspection table against SFS-EN 15876-3:2022 before releasing the drawing.",
+      "category": "en_multipart_citation",
+      "spans": [
+        {
+          "start": 42,
+          "end": 49,
+          "entity_type": "DATE_TIME",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "tc_en_11",
+      "language": "en",
+      "text": "The English intake slip shows EN 02-09-1984 in the field labelled date of birth.",
+      "category": "en_marker_personal_date",
+      "spans": [
+        {
+          "start": 33,
+          "end": 43,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "tc_en_12",
+      "language": "en",
+      "text": "Her language and admission date are printed together as EN 1986-07-24.",
+      "category": "en_marker_personal_date",
+      "spans": [
+        {
+          "start": 59,
+          "end": 69,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "tc_en_13",
+      "language": "en",
+      "text": "My driving licence number is B9184206; please use it to locate my application.",
+      "category": "personal_identity_code",
+      "spans": [
+        {
+          "start": 29,
+          "end": 37,
+          "entity_type": "US_DRIVER_LICENSE",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "tc_en_14",
+      "language": "en",
+      "text": "The patient's personal record code is E5729401, as shown on his card.",
+      "category": "personal_identity_code",
+      "spans": [
+        {
+          "start": 38,
+          "end": 46,
+          "entity_type": "US_DRIVER_LICENSE",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "tc_en_15",
+      "language": "en",
+      "text": "The ISO review notes were prepared by Ms Cerys Fenlow.",
+      "category": "named_person",
+      "spans": [
+        {
+          "start": 38,
+          "end": 53,
+          "entity_type": "PERSON",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "tc_en_16",
+      "language": "en",
+      "text": "Our ASTM contact is Niko Sableford, who asked for a callback.",
+      "category": "named_person",
+      "spans": [
+        {
+          "start": 20,
+          "end": 34,
+          "entity_type": "PERSON",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "tc_en_17",
+      "language": "en",
+      "text": "EN Beacon Services Ltd keeps her personnel file at its head office.",
+      "category": "named_organization",
+      "spans": [
+        {
+          "start": 0,
+          "end": 22,
+          "entity_type": "ORGANIZATION",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "tc_en_18",
+      "language": "en",
+      "text": "The consent form names ISO Orchard Care Cooperative as her employer.",
+      "category": "named_organization",
+      "spans": [
+        {
+          "start": 23,
+          "end": 51,
+          "entity_type": "ORGANIZATION",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "tc_en_19",
+      "language": "en",
+      "text": "The margin reads ISO 29174:2024; birth date 16 April 1982, followed by the client's signature.",
+      "category": "crossing_reference_personal",
+      "spans": [
+        {
+          "start": 27,
+          "end": 57,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "tc_en_20",
+      "language": "en",
+      "text": "I copied ASTM A3846-22; my licence is A8173094 onto the same request sheet.",
+      "category": "crossing_reference_personal",
+      "spans": [
+        {
+          "start": 14,
+          "end": 46,
+          "entity_type": "US_DRIVER_LICENSE",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "tc_fi_01",
+      "language": "fi",
+      "text": "Mittausohjeessa viitataan tunnukseen ISO 15743:2025.",
+      "category": "iso_iec_citation",
+      "spans": [
+        {
+          "start": 41,
+          "end": 46,
+          "entity_type": "DATE_TIME",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "tc_fi_02",
+      "language": "fi",
+      "text": "Koestuksen työvaiheet kuvataan viitteellä IEC 62718-5:2020.",
+      "category": "iso_iec_citation",
+      "spans": [
+        {
+          "start": 46,
+          "end": 58,
+          "entity_type": "DATE_TIME",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "tc_fi_03",
+      "language": "fi",
+      "text": "Luonnoksen lähdeluetteloon lisättiin SFS-ISO 22963:2018 ilman muita muutoksia.",
+      "category": "iso_iec_citation",
+      "spans": [
+        {
+          "start": 45,
+          "end": 55,
+          "entity_type": "DATE_TIME",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "tc_fi_04",
+      "language": "fi",
+      "text": "Varmista tiedonsiirtoprofiilin yhteensopivuus viitteen ISO/IEC 30427-6:2022 kanssa.",
+      "category": "iso_iec_citation",
+      "spans": [
+        {
+          "start": 63,
+          "end": 70,
+          "entity_type": "DATE_TIME",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "tc_fi_05",
+      "language": "fi",
+      "text": "Piirustuksen tarkastusruudussa lukee SFS-EN IEC 61579-4:2024.",
+      "category": "iso_iec_citation",
+      "spans": [
+        {
+          "start": 48,
+          "end": 60,
+          "entity_type": "DATE_TIME",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "tc_fi_06",
+      "language": "fi",
+      "text": "Koepalojen valmistuksessa käytetään työohjeen viitettä ASTM D4627-21.",
+      "category": "astm_citation",
+      "spans": [
+        {
+          "start": 60,
+          "end": 68,
+          "entity_type": "US_DRIVER_LICENSE",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "tc_fi_07",
+      "language": "fi",
+      "text": "Kirjaa yhdistetty tunnus ASTM E6184/E6184M-25 kokonaisuudessaan raportin viitekenttään.",
+      "category": "astm_citation",
+      "spans": [
+        {
+          "start": 36,
+          "end": 42,
+          "entity_type": "US_DRIVER_LICENSE",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "tc_fi_08",
+      "language": "fi",
+      "text": "Hankintaluonnos edellyttää kuvitteelliselta tuotteelta viitteen ASTM F7392M-20 mukaista koetta.",
+      "category": "astm_citation",
+      "spans": [
+        {
+          "start": 70,
+          "end": 78,
+          "entity_type": "US_DRIVER_LICENSE",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "tc_fi_09",
+      "language": "fi",
+      "text": "Vanhan koemenetelmän tilalle on merkitty ASTM G2846-23.",
+      "category": "astm_citation",
+      "spans": [
+        {
+          "start": 47,
+          "end": 54,
+          "entity_type": "DATE_TIME",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "tc_fi_10",
+      "language": "fi",
+      "text": "Liitteen laskentamalli perustuu viitteeseen EN 16394-2-5:2021.",
+      "category": "en_multipart_citation",
+      "spans": [
+        {
+          "start": 53,
+          "end": 61,
+          "entity_type": "DATE_TIME",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "tc_fi_11",
+      "language": "fi",
+      "text": "Englanninkielisessä syntymätodistuksessa kieli ja syntymäaika näkyvät muodossa EN 1985-04-23.",
+      "category": "en_marker_personal_date",
+      "spans": [
+        {
+          "start": 82,
+          "end": 92,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "tc_fi_12",
+      "language": "fi",
+      "text": "Hänen esitietolomakkeensa kieli- ja käyntipäiväkentässä lukee EN 25.12.1994.",
+      "category": "en_marker_personal_date",
+      "spans": [
+        {
+          "start": 65,
+          "end": 75,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "tc_fi_13",
+      "language": "fi",
+      "text": "Ajokorttini numero on C6842097, ja pyydän liittämään sen hakemukseeni.",
+      "category": "personal_identity_code",
+      "spans": [
+        {
+          "start": 22,
+          "end": 30,
+          "entity_type": "US_DRIVER_LICENSE",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "tc_fi_14",
+      "language": "fi",
+      "text": "Asiakkaan kortissa henkilökohtaiseksi tunnukseksi on painettu F3927850.",
+      "category": "personal_identity_code",
+      "spans": [
+        {
+          "start": 62,
+          "end": 70,
+          "entity_type": "US_DRIVER_LICENSE",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "tc_fi_15",
+      "language": "fi",
+      "text": "ISO-muistion laati neiti Silja Kuultola ennen tapaamista.",
+      "category": "named_person",
+      "spans": [
+        {
+          "start": 19,
+          "end": 39,
+          "entity_type": "PERSON",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "tc_fi_16",
+      "language": "fi",
+      "text": "ASTM-asioissa yhteyshenkilömme on Petri Hohkavaara.",
+      "category": "named_person",
+      "spans": [
+        {
+          "start": 34,
+          "end": 50,
+          "entity_type": "PERSON",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "tc_fi_17",
+      "language": "fi",
+      "text": "Työnantajaksi on merkitty EN Kuusikajo Oy hakijan allekirjoittamassa selvityksessä.",
+      "category": "named_organization",
+      "spans": [
+        {
+          "start": 26,
+          "end": 41,
+          "entity_type": "ORGANIZATION",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "tc_fi_18",
+      "language": "fi",
+      "text": "Lasku liittyy ISO Hopealehto -säätiön asiakkaaseen ja hänen asiointikäyntiinsä.",
+      "category": "named_organization",
+      "spans": [
+        {
+          "start": 14,
+          "end": 37,
+          "entity_type": "ORGANIZATION",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "tc_fi_19",
+      "language": "fi",
+      "text": "Paperissa lukee IEC 63281:2023, syntynyt 18. elokuuta 1976, minkä jälkeen alkaa hoitokertomus.",
+      "category": "crossing_reference_personal",
+      "spans": [
+        {
+          "start": 26,
+          "end": 58,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "tc_fi_20",
+      "language": "fi",
+      "text": "Kirjasin samalle riville ASTM B5728-18 ja oman tunnukseni D7460382.",
+      "category": "crossing_reference_personal",
+      "spans": [
+        {
+          "start": 30,
+          "end": 66,
+          "entity_type": "US_DRIVER_LICENSE",
+          "expect": "preserve_detection"
+        }
+      ]
+    }
+  ]
+}

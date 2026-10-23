@@ -2,6 +2,10 @@
 
 [Docs index](README.md) › RQ3
 
+The [metadata release policy](role1-fixes.md#metadata-decision) now omits exported
+properties by default. The original R01/R02 ChatGPT linkage re-test is pending;
+the historical results below are unchanged.
+
 Can a free public chat model re-identify people or organisations from text that the `combined` detector has anonymized? This page reports ChatGPT Free answers to the [prepared pack](public-ai-pack.md), collected and scored on 2026-10-19. Every answer, score and reason is in the [aggregate JSON](../eval/baselines/public-ai-results-2026-10-19.json).
 
 ## Key result

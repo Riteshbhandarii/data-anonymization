@@ -69,6 +69,10 @@ Start with the [project README](../README.md) for the overview.
 
 ## Limitations
 
+[Role 1 follow-up](role1-fixes.md) records the 2026-10-20 detector corrections
+and metadata release default; the [cookbook](clean-text-cookbook.md) gives the
+reviewed-text export workflow. Historical research results above are unchanged.
+
 [limitations.md](limitations.md) lists what the evidence does not show and the
 open decisions.
 
