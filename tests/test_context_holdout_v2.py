@@ -12,6 +12,20 @@ from eval.context_model_validation import load_privacy_targets
 
 
 class ContextHoldoutV2Tests(unittest.TestCase):
+    def test_feedback_regressions_preserve_sensitive_candidates_and_plain_controls(self):
+        source = Path(__file__).parent / "fixtures/review_context_regressions.json"
+        fixture = load_fixture(source, expected_sha256=(
+            "e00105713fa2a8e32795e8de7f294710513250acc84b2101d20f7acdd3539254"))
+        policy = load_current_filter()
+        metrics = evaluate_cases(fixture["cases"], policy, policy)["overall"]["current"]
+        self.assertEqual(metrics["preserve_total"], 46)
+        self.assertEqual(metrics["preserve_dropped"], 0)
+        for category in ("work_hours", "business_duration"):
+            cases = [case for case in fixture["cases"] if case["category"] == category]
+            controls = evaluate_cases(cases, policy, policy)["overall"]["current"]
+            self.assertEqual(controls["discard_total"], 4)
+            self.assertEqual(controls["discard_dropped"], 4)
+
     def test_sensitive_candidates_stay_masked_and_prior_utility_is_preserved(self):
         source = Path(__file__).parent / "fixtures/context_holdout_v2.json"
         fixture = load_fixture(source, expected_sha256=(

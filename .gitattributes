@@ -2,4 +2,5 @@ tests/fixtures/context_holdout.json text eol=lf
 tests/fixtures/context_holdout_v2.json text eol=lf
 tests/fixtures/technical_citation_holdout.json text eol=lf
 tests/fixtures/technical_citation_privacy_targets.json text eol=lf
+tests/fixtures/review_context_regressions.json text eol=lf
 detect/context_rules.py text eol=lf

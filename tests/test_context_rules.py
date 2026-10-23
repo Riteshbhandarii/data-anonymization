@@ -49,10 +49,27 @@ class ContextRulesTests(unittest.TestCase):
             with self.subTest(text=text):
                 self.assertEqual([candidate], filter_context_spans(text, [candidate]))
 
+    def test_year_month_dates_need_explicit_technical_evidence(self):
+        for date in ("2024-11", "2019-6", "2031-02", "2024-11-07"):
+            for label in ("Date of admission", "Date of graduation", "Alkamisaika"):
+                text = f"{label} (EN {date})."
+                for value in (f"EN {date}", date, date.split("-")[0]):
+                    for kind in ("DATE_TIME", "US_DRIVER_LICENSE"):
+                        with self.subTest(text=text, value=value, kind=kind):
+                            candidate = span(text, value, kind)
+                            self.assertEqual([candidate], filter_context_spans(text, [candidate]))
+        # A year-month shape is ambiguous even for other standard prefixes.
+        # Explicit technical context, rather than particular numbers, resolves it.
+        for code in ("EN 2024-11", "ISO 1234-12", "SFS-EN 2019-6"):
+            for kind in ("DATE_TIME", "US_DRIVER_LICENSE"):
+                text = f"Technical standard {code}; contact Nessa Sample."
+                candidates = [span(text, code, kind), span(text, "Nessa Sample", "PERSON")]
+                self.assertEqual(candidates[1:], filter_context_spans(text, candidates))
+
     def test_local_inanimate_duration_keeps_reporting_person_masked(self):
         for text, value in (
             ("Nessa Sample confirmed that the warranty remains valid for 19 months.", "19 months"),
-            ("Nessa Sample vahvisti, että sopimus on voimassa 19 kuukautta.", "19 kuukautta"),
+            ("Nessa Sample vahvisti, että takuu on voimassa 19 kuukautta.", "19 kuukautta"),
             ("She confirmed that the software runs for 19 months.", "19 months"),
         ):
             candidates = [span(text, value, "DATE_TIME")]
@@ -64,6 +81,34 @@ class ContextRulesTests(unittest.TestCase):
                      "Her employment duration is 19 years.", "Her prison term is 19 years."):
             candidate = span(text, "19 years", "DATE_TIME")
             self.assertEqual([candidate], filter_context_spans(text, [candidate]))
+
+    def test_personal_contracts_and_service_agreements_keep_duration_masked(self):
+        for owner in ("Her", "His", "My", "Your", "Our", "Their"):
+            for subject in ("employment contract", "employment agreement", "military service",
+                            "military service agreement", "lease", "service"):
+                for years in (7, 19, 32):
+                    text = f"{owner} {subject} lasted {years} years."
+                    for value in (f"{years} years", str(years)):
+                        with self.subTest(text=text, value=value):
+                            candidate = span(text, value, "DATE_TIME")
+                            self.assertEqual([candidate], filter_context_spans(text, [candidate]))
+        for owner in ("Minun", "Sinun", "Hänen", "Meidän", "Teidän", "Heidän"):
+            text = f"{owner} sopimus kesti 13 vuotta."
+            candidate = span(text, "13 vuotta", "DATE_TIME")
+            self.assertEqual([candidate], filter_context_spans(text, [candidate]))
+        text = "Nessa Sample confirmed that the employment contract lasted 8 years."
+        candidates = [span(text, "8 years", "DATE_TIME"), span(text, "Nessa Sample", "PERSON")]
+        self.assertEqual(candidates, filter_context_spans(text, candidates))
+        # A possessive can establish personal context even when the upstream
+        # name detector supplied no PERSON candidate. Do not depend on a name list.
+        for owner in ("A recruit's", "Someone's", "The operator’s", "Nessa’s"):
+            text = f"{owner} service agreement lasted three years."
+            candidate = span(text, "three years", "DATE_TIME")
+            self.assertEqual([candidate], filter_context_spans(text, [candidate]))
+        # Impersonal operational durations remain eligible for correction.
+        for text, value in (("The contract lasted 8 months.", "8 months"),
+                            ("Sopimus on voimassa 13 kuukautta.", "13 kuukautta")):
+            self.assertEqual([], filter_context_spans(text, [span(text, value, "DATE_TIME")]))
 
     def test_finnish_age_inflections_and_birthdays_are_never_business_durations(self):
         for age in (9, 24, 53):

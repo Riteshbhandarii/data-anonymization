@@ -31,7 +31,7 @@ _STANDARDS = re.compile(
 # Never discard PERSON, ORGANIZATION or a business/personal ID merely because
 # another overlapping candidate resembles a standard number.
 _STANDARD_CANDIDATE_TYPES = {"DATE_TIME", "US_DRIVER_LICENSE"}
-_CALENDAR_SHAPE = re.compile(r"\b\d{4}-\d{1,2}-\d{1,2}\b")
+_CALENDAR_SHAPE = re.compile(r"\b\d{4}-\d{1,2}(?:-\d{1,2})?\b")
 _TECHNICAL_REFERENCE = re.compile(
     r"\b(?:standards?(?:\s+(?:number|reference|code))?|specifications?|standard\w*|"
     r"conforms?\s+to|complies\s+with)\s*[:#]?\s*$", re.IGNORECASE,
@@ -59,9 +59,10 @@ _AGE_CONTEXT = re.compile(
 )
 _AGE_SUFFIX = re.compile(r"^[\s-]*(?:old(?:er)?|young(?:er)?|vanh\w*|ikä\w*)\b", re.IGNORECASE)
 _HUMAN_REFERENCE = re.compile(
-    r"\b(?:i|he|she|him|her|we|they|you|hän|hänen|minä|sinä|me|te|heidän|"
+    r"\b(?:i|he|she|him|her|we|they|you|my|mine|your|yours|his|hers|our|ours|"
+    r"their|theirs|us|them|hän|hänen|minä|minun|sinä|sinun|me|meidän|te|teidän|heidän|"
     r"person\w*|woman|man|people|parent\w*|daughter\w*|son|sister\w*|brother\w*|"
-    r"henkilö\w*|tytär\w*|poika\w*|äiti\w*|isä\w*)\b", re.IGNORECASE,
+    r"henkilö\w*|tytär\w*|poika\w*|äiti\w*|isä\w*)\b|['’]s\b", re.IGNORECASE,
 )
 # Positive bindings end immediately before the quantity. An operational word
 # elsewhere in the sentence cannot establish what that quantity describes.
@@ -82,7 +83,7 @@ _BOUND_DURATION = re.compile(
     rf"\b(?P<subject_en>{_TIME_SUBJECT_EN})\s+(?:"
     r"(?:lasts?|lasted|takes?|continues?|runs?)\s+(?:for\s+)?|"
     r"(?:is|was|remains?|stays?)\s+(?:active|available|valid|open|in force)\s+(?:for\s+)?)$|"
-    rf"\b{_TIME_SUBJECT_FI}\s+(?:"
+    rf"\b(?P<subject_fi>{_TIME_SUBJECT_FI})\s+(?:"
     r"(?:kestää|kesti|jatkuu|tapahtuu)\s+|"
     r"(?:on|oli|pysyy)\s+(?:voimassa|käytössä|lukutilassa)\s+)$",
     re.IGNORECASE,
@@ -171,10 +172,9 @@ def filter_context_spans(text: str, spans) -> list:
                     continue
                 left, right = _clause(text, reference.start(), reference.end())
                 context = text[left:right]
-                if span.entity_type == "DATE_TIME" and (
-                        _AGE_CONTEXT.search(context) or (
-                            _CALENDAR_SHAPE.search(reference.group())
-                            and not _TECHNICAL_REFERENCE.search(text[left:reference.start()]))):
+                if ((span.entity_type == "DATE_TIME" and _AGE_CONTEXT.search(context)) or (
+                        _CALENDAR_SHAPE.search(reference.group())
+                        and not _TECHNICAL_REFERENCE.search(text[left:reference.start()]))):
                     # EN can also be a language marker before an actual date.
                     # Calendar-shaped codes need explicit technical evidence.
                     continue
@@ -193,9 +193,14 @@ def filter_context_spans(text: str, spans) -> list:
                     binding = _BOUND_DURATION.search(before)
                     duration_field = (_DURATION_FIELD.search(before)
                                       or _ALLOCATED_TIME.search(before) or binding)
-                    # Bare service can describe personal employment history.
+                    # Contracts, agreements and service can describe personal
+                    # history. Only unambiguous artifact heads bypass the human
+                    # guard when a reporting person appears in the same clause.
                     inanimate_duration = binding and (
-                        (binding.group("subject_en") or "").casefold() != "service")
+                        (binding.group("subject_en") or "").casefold()
+                        in {"warranty", "system", "software"}
+                        or (binding.group("subject_fi") or "").casefold()
+                        in {"takuu", "järjestelmä"})
                     human = (_HUMAN_REFERENCE.search(context) or _JOB_TITLE.search(context)
                              or any(s.entity_type == "PERSON" and s.start < right and s.end > left
                                     for s in spans))
