@@ -100,7 +100,8 @@ What this shows:
   prompt on contextual items (57 vs 48) and over-masks less (2 vs 10 decoys).
   It skips most names and emails because it is told they are already hidden.
   That instruction was written for masked text, yet the merged design runs it
-  on the original text; a variant for original text is the next step.
+  on the original text. An original-text prompt variant was subsequently
+  implemented and evaluated in the follow-up section below.
 - **Merging keeps the strengths of both.** All standard identifiers come from
   `combined`, the contextual ones from Qwen.
 - **Over-masking comes from `combined`.** It hides 21 of 46 decoys: 8 of 11
@@ -128,8 +129,10 @@ dropped and counted.
   the laptop and are not reported for the contextual test.
 - On masked text Qwen sometimes repeated itself until its 2,048-token limit,
   which made the final pass slow and is another reason to prefer merging.
-- Whether merged output resists public-AI re-identification better is not yet
-  tested; that is the next check ([#73](https://github.com/Riteshbhandarii/data-anonymization/issues/73)).
+- A follow-up ChatGPT before/after test was completed on one synthetic
+  document. No identifying categories were recovered after masking under
+  the fixed test question. This is preliminary evidence, not a general
+  guarantee against re-identification (see the follow-up section below).
 
 ## Reproduce
 
@@ -161,3 +164,89 @@ logs and corpus text stay in the Git-ignored `outputs/`.
 - [Residual misses](residual-misses.md): what `combined` misses and why
 - [Public AI results](public-ai-results.md): the Finnish company leak
 - [Limitations](limitations.md)
+
+## Follow-up evaluation: original-text prompt and real UK licences
+
+Additional local testing was carried out in October 2026 using Qwen 3.5 9B
+through LM Studio.
+
+### Original-text contextual prompt
+
+The existing contextual prompt assumes that names, emails and other standard
+identifiers have already been masked. However, the merged detector runs Qwen
+on the original document.
+
+A new prompt, `original_contextual`, was added to test this situation.
+It asks the LLM to detect contextual identifiers in unmasked text.
+
+Both prompts were tested on the same six development documents.
+
+| Configuration | Contextual items fully detected |
+|---|---:|
+| Combined | 8/23 (34.8%) |
+| Qwen, contextual prompt | 20/23 (87.0%) |
+| Qwen, original_contextual prompt | 18/23 (78.3%) |
+| Combined + Qwen, contextual | 21/23 (91.3%) |
+| Combined + Qwen, original_contextual | 19/23 (82.6%) |
+
+The existing contextual prompt performed better on this small development
+set. The original-text variant detected more standard identifiers when
+Qwen was used alone (6/16 versus 3/16). The new prompt was kept for
+comparison rather than changing it to fit the development examples.
+
+### Real UK licence spreadsheet
+
+A public licensed-premises spreadsheet from Leicester City Council was
+used to test licence-number detection on real records.
+
+The spreadsheet contained 1,475 records. A reproducible sample of 30
+different licence numbers was selected, covering four number prefixes.
+
+| Configuration | Licence numbers detected | Recall |
+|---|---:|---:|
+| Combined | 0/30 | 0.0% |
+| Qwen, original_contextual | 30/30 | 100.0% |
+| Combined + Qwen | 30/30 | 100.0% |
+
+Combined detection took 8.12 seconds, while Qwen took 183.51 seconds.
+The sum was 191.63 seconds. These timings exclude model initialization;
+the merged pipeline was not timed as a separate run.
+
+All 177 detected spans from the two individual detectors were reviewed.
+The review marked 174 as correct and 3 as false positives. These are
+span-level review counts, not a document-level false-positive rate.
+
+This test supports the conclusion that the local LLM can find licence
+numbers missed by the existing detector.
+
+There are important limitations. Only 30 records were tested, all from
+one source, and every test sentence explicitly included the label
+"Licence number:". The result does not establish 100% recall on other
+licence formats or on documents without that label. The combined result
+was calculated by merging saved spans from the two detectors.
+
+### ChatGPT before/after identification test
+
+One fictional English memo from the contextual corpus (`en-01.md`) was
+tested before and after anonymization using Combined + Qwen with the
+existing `contextual` prompt.
+
+The same identification question was used in separate ChatGPT chats.
+The question asked for the person, organization, permit reference,
+internal project and internal system, without guessing.
+
+| Result | Before anonymization | After anonymization |
+|---|---:|---:|
+| Identifying categories recovered | 5/5 | 0/5 |
+
+The organization in the original document was inferred from the sender's
+email domain rather than explicitly named. After anonymization, ChatGPT
+could not identify any of the five requested items.
+
+The result is limited to one synthetic document and one fixed question.
+It does not prove that all re-identification attacks would fail.
+The anonymized output also removed some ordinary contextual information,
+showing a trade-off between privacy and document usefulness.
+
+Independent blind-document testing remains outstanding because the
+documents from Issue #75 have not yet been received.
