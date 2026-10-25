@@ -2,6 +2,7 @@
 
 import unittest
 from types import SimpleNamespace
+from unittest.mock import patch
 
 from PIL import Image, ImageDraw, ImageFont
 
@@ -12,7 +13,15 @@ from eval.screenshot_bench import (
     summarize,
     value_state,
 )
-from redact.image import Word, draw_boxes, layout, redact_image, words_in_spans
+from redact.image import (
+    Word,
+    draw_boxes,
+    expand_to_lines,
+    layout,
+    ocr_words,
+    redact_image,
+    words_in_spans,
+)
 
 
 def word(text, left, line=1):
@@ -50,6 +59,70 @@ class LayoutTests(unittest.TestCase):
         _, ranges = layout(WORDS)
         self.assertEqual([0], words_in_spans(ranges, [SimpleNamespace(start=0, end=5)]))
 
+    def test_line_expansion_is_unique_and_preserves_reading_order(self):
+        self.assertEqual([0, 1, 2], expand_to_lines(WORDS, iter([2, 1, 2])))
+        self.assertEqual(list(range(len(WORDS))), expand_to_lines(WORDS, [4, 1]))
+        self.assertEqual([], expand_to_lines(WORDS, []))
+
+    def test_line_numbers_are_scoped_to_their_block_and_paragraph(self):
+        words = [Word("Anna", 0, 0, 40, 8, (1, 1, 1)),
+                 Word("Virtanen", 50, 0, 60, 8, (1, 1, 1)),
+                 Word("Other paragraph", 0, 30, 100, 8, (1, 2, 1)),
+                 Word("Other block", 0, 60, 100, 8, (2, 1, 1))]
+        self.assertEqual([0, 1], expand_to_lines(words, [0]))
+        self.assertEqual([2], expand_to_lines(words, [2]))
+        self.assertEqual([3], expand_to_lines(words, [3]))
+
+    def test_invalid_line_selection_cannot_select_a_different_word(self):
+        for index in (-1, len(WORDS), 1.5, True):
+            with self.subTest(index=index), self.assertRaises(ValueError):
+                expand_to_lines(WORDS, [index])
+
+
+class OcrScaleTests(unittest.TestCase):
+    def setUp(self):
+        self.data = {"text": [" ", " Anna "], "left": [0, 5], "top": [0, 7],
+                     "width": [0, 8], "height": [0, 4], "block_num": [0, 2],
+                     "par_num": [0, 3], "line_num": [0, 4]}
+
+    def test_supported_scales_map_every_edge_outwards_to_the_original(self):
+        image = Image.new("RGBA", (20, 15), (0, 0, 0, 0))
+        original = image.tobytes()
+        for scale, expected_box in ((1, (5, 7, 13, 11)), (2, (2, 3, 7, 6)), (3, (1, 2, 5, 4))):
+            with self.subTest(scale=scale), patch("pytesseract.image_to_data", return_value=self.data) as read:
+                words = ocr_words(image, "fin", scale=scale)
+                self.assertEqual(1, len(words))
+                self.assertEqual("Anna", words[0].text)
+                self.assertEqual((2, 3, 4), words[0].line)
+                self.assertEqual(expected_box, words[0].box)
+                ocr_input = read.call_args.args[0]
+                self.assertEqual((20 * scale, 15 * scale), ocr_input.size)
+                self.assertEqual("RGB", ocr_input.mode)
+                self.assertEqual((255, 255), ocr_input.convert("L").getextrema())
+                self.assertEqual("fin", read.call_args.kwargs["lang"])
+        self.assertEqual(original, image.tobytes())
+        self.assertEqual((20, 15), image.size)
+
+    def test_invalid_scales_fail_before_ocr(self):
+        image = Image.new("RGB", (20, 15), "white")
+        with patch("pytesseract.image_to_data") as read:
+            for scale in (0, -1, 4, 1.5, True, "2", None):
+                with self.subTest(scale=scale), self.assertRaisesRegex(ValueError, "OCR scale"):
+                    ocr_words(image, scale=scale)
+            read.assert_not_called()
+
+    def test_scaled_ocr_boxes_cover_original_pixels_and_keep_output_dimensions(self):
+        image = Image.new("RGB", (20, 15), "white")
+        detector = StubDetector("Anna")
+        with patch("pytesseract.image_to_data", return_value=self.data) as read:
+            redacted, boxes = redact_image(image, detector, ocr_scale=3)
+        self.assertEqual((60, 45), read.call_args.args[0].size)
+        self.assertEqual([(1, 2, 5, 4)], boxes)
+        self.assertEqual(image.size, redacted.size)
+        self.assertEqual((0, 0), redacted.convert("L").crop(boxes[0]).getextrema())
+        self.assertEqual((255, 255, 255), redacted.getpixel((19, 14)))
+        self.assertEqual((255, 255), image.convert("L").getextrema())
+
 
 class DrawingTests(unittest.TestCase):
     def test_boxes_are_filled_with_padding_and_the_input_is_unchanged(self):
@@ -68,6 +141,29 @@ class DrawingTests(unittest.TestCase):
         self.assertEqual([WORDS[1].box, WORDS[2].box], boxes)
         gray = redacted.convert("L")
         self.assertEqual([False, True, True, False, False], [blacked(gray, word.box) for word in WORDS])
+
+    def test_whole_lines_covers_other_words_only_on_the_selected_line(self):
+        image = Image.new("RGB", (200, 40), "white")
+        redacted, boxes = redact_image(image, StubDetector("Anna"), words=WORDS, whole_lines=True)
+        self.assertEqual([entry.box for entry in WORDS[:3]], boxes)
+        gray = redacted.convert("L")
+        self.assertEqual([True, True, True, False, False], [blacked(gray, entry.box) for entry in WORDS])
+        self.assertEqual((255, 255), image.convert("L").getextrema())
+
+    def test_whole_lines_without_detections_preserves_visible_pixels(self):
+        image = Image.new("RGB", (200, 40), "blue")
+        detector = SimpleNamespace(detect=lambda text, language: [])
+        redacted, boxes = redact_image(image, detector, words=WORDS, whole_lines=True)
+        self.assertEqual([], boxes)
+        self.assertEqual(image.tobytes(), redacted.tobytes())
+
+    def test_precomputed_words_are_reused_without_scaling_their_coordinates(self):
+        image = Image.new("RGB", (200, 40), "white")
+        with patch("redact.image.ocr_words") as read:
+            redacted, boxes = redact_image(image, StubDetector("Anna"), words=WORDS, ocr_scale=3)
+        read.assert_not_called()
+        self.assertEqual([WORDS[1].box], boxes)
+        self.assertEqual(image.size, redacted.size)
 
     def test_transparent_hidden_text_is_discarded_instead_of_exposed(self):
         image = Image.new("RGB", (500, 60), "white")

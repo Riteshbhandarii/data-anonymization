@@ -405,6 +405,11 @@ def main():
         .app-header span { display:none; }
       }
     </style><div class="app-header"><strong>Document anonymization</strong><span>Local testbench</span></div>""")
+    output = st.sidebar.selectbox("Output", ["Clean text", "Redacted image"], key="output-kind")
+    if output == "Redacted image":
+        from app.image_mode import render_image_mode
+        render_image_mode(corpus_docs, detector_cached)
+        return
     cfg = sidebar()
     if cfg["run"]:
         with st.spinner("Processing document. The first run loads the detector model."):
