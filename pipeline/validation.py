@@ -117,7 +117,7 @@ def _label_files(root: Path) -> list[Path]:
     index = root / "index.csv"
     if not index.is_file():
         return sorted((root / "labels").glob("*.json"))
-    with index.open(encoding="utf-8", newline="") as handle:
+    with index.open(encoding="utf-8-sig", newline="") as handle:
         records = list(csv.DictReader(handle))
     files = []
     for record in records:

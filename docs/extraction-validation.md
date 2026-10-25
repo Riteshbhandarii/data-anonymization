@@ -81,6 +81,9 @@ Passing this fixture check does not establish OCR accuracy.
 
 ## Reproduce
 
+The extraction evaluator (`python -m pipeline.validation`) accepts `index.csv`
+encoded as UTF-8 with or without a byte-order mark (BOM).
+
 From the repository root:
 
 ```bash
