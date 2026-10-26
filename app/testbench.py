@@ -41,8 +41,10 @@ REAL = ROOT / "corpus" / "real"
 MODES = {"Replace with type": "replace", "Use consistent pseudonyms": "pseudonymize"}
 LLM_URL = "http://127.0.0.1:1234/v1"
 LLM_DEFAULT = "qwen/qwen3.5-9b"  # the model the reported LLM results used
-LLM_PROMPTS = {"Contextual identifiers (licence numbers, project codes)": "contextual",
-               "Standard identifiers (names, emails, phone numbers)": "identifiers"}
+# The contextual prompt tells the model that names, emails and phones are already
+# hidden, so it skips them; the identifier prompt is the one for ordinary text.
+LLM_PROMPTS = {"Identifiers (names, emails, phones, codes)": "identifiers",
+               "Contextual extras only (licence numbers, project codes)": "contextual"}
 PREVIEW_HEIGHT = 520
 
 st.set_page_config(page_title="Document anonymization", layout="wide")
@@ -200,9 +202,12 @@ def run_stages(cfg):
         return res
     if cfg.get("llm"):
         # Same union as detect.local_llm.UnionDetector: both see the original text.
+        # The model's 1.0 is an uncalibrated flag, so score its spans 0.0: where both
+        # detectors overlap the detector's type names the placeholder, and the model
+        # only names what the detector missed.
         added, duration, error = timed("Local LLM step", lambda: [
-            SimpleNamespace(start=s, end=e, entity_type=t, score=score)
-            for s, e, t, score in llm_detect_cached(text, cfg["lang"], *cfg["llm"])])
+            SimpleNamespace(start=s, end=e, entity_type=t, score=0.0)
+            for s, e, t, _ in llm_detect_cached(text, cfg["lang"], *cfg["llm"])])
         res["times"]["llm"] = duration
         if error:
             res["errors"]["detect"] = error + " Check that LM Studio is serving the selected model."
