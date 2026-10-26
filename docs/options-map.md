@@ -147,6 +147,13 @@ option was called during this 2026-10-19 work.
 
 ## Part C: decision flow before pasting
 
+**Paste the cleaned text, never upload the original file.** The pipeline, UI
+and manual public-AI pack now omit `Document metadata` sections by default.
+For a justified comparison, explicitly enable `include_metadata=True`, the UI's
+**Keep document metadata**, or the pack's `--include-metadata` flag. This exports
+reviewed text; it does not sanitize the original Office/PDF container. Follow
+the [clean-text cookbook](clean-text-cookbook.md) for the exact workflow.
+
 1. **Decide whether disclosure is allowed.** Identify the owner and purpose.
    Personal data and confidential business information are separate gates.
    A design, source file, price list or strategy can remain confidential after

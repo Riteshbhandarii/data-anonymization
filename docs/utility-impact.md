@@ -2,6 +2,10 @@
 
 [Docs index](README.md) › RQ4
 
+The [2026-10-20 detector follow-up](role1-fixes.md) restores the twelve hour
+quantities in these six memos. This measures retained text, not new answering-model
+accuracy. The historical answers and tables below remain unchanged.
+
 Does replacing identifiers destroy the task a document was meant to support? The study asks the same question of raw, redacted and pseudonymized versions of the same text. It uses six fictional memos (three English, three Finnish), nine questions per language, and one local answering model. Public-AI re-identification is a separate study ([public-ai-results.md](public-ai-results.md)).
 
 ## Key result

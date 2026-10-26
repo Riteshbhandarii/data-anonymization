@@ -1,0 +1,2246 @@
+{
+  "schema_version": 1,
+  "scope": "independently authored synthetic contract checks, not real-world accuracy",
+  "cases": [
+    {
+      "id": "en_001",
+      "language": "en",
+      "text": "The caller said she was 42 when the symptoms began.",
+      "category": "personal_age",
+      "spans": [
+        {
+          "start": 24,
+          "end": 26,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_002",
+      "language": "en",
+      "text": "At seventy-four, he still lives alone in the flat.",
+      "category": "personal_age",
+      "spans": [
+        {
+          "start": 3,
+          "end": 15,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_003",
+      "language": "en",
+      "text": "Her son is 8 years old and attends the local school.",
+      "category": "personal_age",
+      "spans": [
+        {
+          "start": 11,
+          "end": 22,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_004",
+      "language": "en",
+      "text": "I had just turned 29 before my first hospital stay.",
+      "category": "personal_age",
+      "spans": [
+        {
+          "start": 18,
+          "end": 20,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_005",
+      "language": "en",
+      "text": "The assessment concerns a sixteen-year-old child.",
+      "category": "personal_age",
+      "spans": [
+        {
+          "start": 26,
+          "end": 42,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_006",
+      "language": "en",
+      "text": "He was aged 61 at the time of the divorce.",
+      "category": "personal_age",
+      "spans": [
+        {
+          "start": 7,
+          "end": 14,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_007",
+      "language": "en",
+      "text": "Her date of birth is 14 March 1991.",
+      "category": "birth_date",
+      "spans": [
+        {
+          "start": 21,
+          "end": 34,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_008",
+      "language": "en",
+      "text": "I was born on 03/11/1978, according to my passport.",
+      "category": "birth_date",
+      "spans": [
+        {
+          "start": 11,
+          "end": 24,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_009",
+      "language": "en",
+      "text": "The birth certificate gives 2004-08-19 as his birthday.",
+      "category": "birth_date",
+      "spans": [
+        {
+          "start": 28,
+          "end": 38,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_010",
+      "language": "en",
+      "text": "Mum was born in 1963; the day is missing from this copy.",
+      "category": "birth_date",
+      "spans": [
+        {
+          "start": 16,
+          "end": 20,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_011",
+      "language": "en",
+      "text": "Please correct my birth date to 7 July 1987.",
+      "category": "birth_date",
+      "spans": [
+        {
+          "start": 32,
+          "end": 43,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_012",
+      "language": "en",
+      "text": "She has been out of work for eleven months.",
+      "category": "personal_history",
+      "spans": [
+        {
+          "start": 25,
+          "end": 42,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_013",
+      "language": "en",
+      "text": "I cared for my father for 6 years before he died.",
+      "category": "personal_history",
+      "spans": [
+        {
+          "start": 22,
+          "end": 33,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_014",
+      "language": "en",
+      "text": "His headaches started three weeks ago.",
+      "category": "personal_history",
+      "spans": [
+        {
+          "start": 22,
+          "end": 37,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_015",
+      "language": "en",
+      "text": "We separated in September 2018 after a long marriage.",
+      "category": "personal_history",
+      "spans": [
+        {
+          "start": 13,
+          "end": 30,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_016",
+      "language": "en",
+      "text": "The patient spent 30 minutes unconscious after the fall.",
+      "category": "personal_history",
+      "spans": [
+        {
+          "start": 18,
+          "end": 28,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_017",
+      "language": "en",
+      "text": "She qualified as a nurse in 2009 and later changed careers.",
+      "category": "personal_history",
+      "spans": [
+        {
+          "start": 25,
+          "end": 32,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_018",
+      "language": "en",
+      "text": "He has worked as a caretaker for 18 years.",
+      "category": "personal_history",
+      "spans": [
+        {
+          "start": 29,
+          "end": 41,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_019",
+      "language": "en",
+      "text": "My next counselling appointment is on 21 October 2026.",
+      "category": "calendar_date",
+      "spans": [
+        {
+          "start": 35,
+          "end": 53,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_020",
+      "language": "en",
+      "text": "The interview with her took place on 12.02.2025.",
+      "category": "calendar_date",
+      "spans": [
+        {
+          "start": 37,
+          "end": 47,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_021",
+      "language": "en",
+      "text": "They married on 6 June 2015 in a small ceremony.",
+      "category": "calendar_date",
+      "spans": [
+        {
+          "start": 16,
+          "end": 27,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_022",
+      "language": "en",
+      "text": "The letter records his admission as 2023-11-08.",
+      "category": "calendar_date",
+      "spans": [
+        {
+          "start": 36,
+          "end": 46,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_023",
+      "language": "en",
+      "text": "Her last visit was Friday, 17 January 2025.",
+      "category": "calendar_date",
+      "spans": [
+        {
+          "start": 19,
+          "end": 42,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_024",
+      "language": "en",
+      "text": "Mira Vellanen signed the consent form in blue ink.",
+      "category": "person_name",
+      "spans": [
+        {
+          "start": 0,
+          "end": 13,
+          "entity_type": "PERSON",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_025",
+      "language": "en",
+      "text": "Please address the reply to Mr Rowan Tessel.",
+      "category": "person_name",
+      "spans": [
+        {
+          "start": 28,
+          "end": 43,
+          "entity_type": "PERSON",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_026",
+      "language": "en",
+      "text": "The tenant's sister, Nell Avarby, collected the keys.",
+      "category": "person_name",
+      "spans": [
+        {
+          "start": 21,
+          "end": 32,
+          "entity_type": "PERSON",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_027",
+      "language": "en",
+      "text": "I spoke with Dr Elian Merrow about my medication.",
+      "category": "person_name",
+      "spans": [
+        {
+          "start": 13,
+          "end": 28,
+          "entity_type": "PERSON",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_028",
+      "language": "en",
+      "text": "This paragraph was dictated by Joelle Kestrel.",
+      "category": "person_name",
+      "spans": [
+        {
+          "start": 31,
+          "end": 45,
+          "entity_type": "PERSON",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_029",
+      "language": "en",
+      "text": "The report refers to T. Arvel as the child's guardian.",
+      "category": "person_name",
+      "spans": [
+        {
+          "start": 21,
+          "end": 29,
+          "entity_type": "PERSON",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_030",
+      "language": "en",
+      "text": "According to Mr Pell's account, the journey was uneventful.",
+      "category": "person_name",
+      "spans": [
+        {
+          "start": 13,
+          "end": 22,
+          "entity_type": "PERSON",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_031",
+      "language": "en",
+      "text": "Her treatment continued at Willowglass Clinic.",
+      "category": "named_facility",
+      "spans": [
+        {
+          "start": 24,
+          "end": 45,
+          "entity_type": "LOCATION",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_032",
+      "language": "en",
+      "text": "The child was collected from Little Comet Nursery.",
+      "category": "named_facility",
+      "spans": [
+        {
+          "start": 29,
+          "end": 49,
+          "entity_type": "LOCATION",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_033",
+      "language": "en",
+      "text": "He spent the winter at Bramble Quay Supported Housing.",
+      "category": "named_facility",
+      "spans": [
+        {
+          "start": 23,
+          "end": 53,
+          "entity_type": "LOCATION",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_034",
+      "language": "en",
+      "text": "I meet my support worker inside the Moss Lantern Centre.",
+      "category": "named_facility",
+      "spans": [
+        {
+          "start": 32,
+          "end": 55,
+          "entity_type": "LOCATION",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_035",
+      "language": "en",
+      "text": "She grew up in Elmwick before moving abroad.",
+      "category": "personal_location",
+      "spans": [
+        {
+          "start": 12,
+          "end": 22,
+          "entity_type": "LOCATION",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_036",
+      "language": "en",
+      "text": "His family still owns a cottage beside Lake Fennmere.",
+      "category": "personal_location",
+      "spans": [
+        {
+          "start": 39,
+          "end": 52,
+          "entity_type": "LOCATION",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_037",
+      "language": "en",
+      "text": "My brother lives in the Harrowfen district.",
+      "category": "personal_location",
+      "spans": [
+        {
+          "start": 20,
+          "end": 42,
+          "entity_type": "LOCATION",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_038",
+      "language": "en",
+      "text": "He walks home through Sable Orchard Park every evening.",
+      "category": "personal_location",
+      "spans": [
+        {
+          "start": 22,
+          "end": 40,
+          "entity_type": "LOCATION",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_039",
+      "language": "en",
+      "text": "I stayed with relatives in North Wrenhaven after discharge.",
+      "category": "personal_location",
+      "spans": [
+        {
+          "start": 27,
+          "end": 42,
+          "entity_type": "LOCATION",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_040",
+      "language": "en",
+      "text": "Deliver her documents to 18 Lantern Row, flat 4.",
+      "category": "street_address",
+      "spans": [
+        {
+          "start": 25,
+          "end": 47,
+          "entity_type": "LOCATION",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_041",
+      "language": "en",
+      "text": "The family home is at 7B Alder Crescent.",
+      "category": "street_address",
+      "spans": [
+        {
+          "start": 19,
+          "end": 39,
+          "entity_type": "LOCATION",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_042",
+      "language": "en",
+      "text": "My correspondence address is 203 Briar Lane.",
+      "category": "street_address",
+      "spans": [
+        {
+          "start": 29,
+          "end": 43,
+          "entity_type": "LOCATION",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_043",
+      "language": "en",
+      "text": "He asked us to use 42 Mossbank Road, Apt 6C.",
+      "category": "street_address",
+      "spans": [
+        {
+          "start": 19,
+          "end": 43,
+          "entity_type": "LOCATION",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_044",
+      "language": "en",
+      "text": "The resident everyone calls Captain Juniper asked to speak privately.",
+      "category": "ambiguous_identity",
+      "spans": [
+        {
+          "start": 28,
+          "end": 43,
+          "entity_type": "PERSON",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_045",
+      "language": "en",
+      "text": "She described her home only as the Blue Heron House.",
+      "category": "ambiguous_identity",
+      "spans": [
+        {
+          "start": 31,
+          "end": 51,
+          "entity_type": "LOCATION",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_046",
+      "language": "en",
+      "text": "The electrician checks the wiring before power is restored.",
+      "category": "ordinary_role",
+      "spans": [
+        {
+          "start": 0,
+          "end": 15,
+          "entity_type": "PERSON",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_047",
+      "language": "en",
+      "text": "Ask a duty manager to approve the stock adjustment.",
+      "category": "ordinary_role",
+      "spans": [
+        {
+          "start": 4,
+          "end": 18,
+          "entity_type": "PERSON",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_048",
+      "language": "en",
+      "text": "Operators should wear gloves when handling the trays.",
+      "category": "ordinary_role",
+      "spans": [
+        {
+          "start": 0,
+          "end": 9,
+          "entity_type": "PERSON",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_049",
+      "language": "en",
+      "text": "The invoice needs a supervisor's signature.",
+      "category": "ordinary_role",
+      "spans": [
+        {
+          "start": 18,
+          "end": 32,
+          "entity_type": "PERSON",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_050",
+      "language": "en",
+      "text": "A warehouse clerk records each incoming pallet.",
+      "category": "ordinary_role",
+      "spans": [
+        {
+          "start": 0,
+          "end": 17,
+          "entity_type": "PERSON",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_051",
+      "language": "en",
+      "text": "Technicians' tools belong in the locked cabinet.",
+      "category": "ordinary_role",
+      "spans": [
+        {
+          "start": 0,
+          "end": 12,
+          "entity_type": "PERSON",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_052",
+      "language": "en",
+      "text": "The on-call plumber may isolate the leaking valve.",
+      "category": "ordinary_role",
+      "spans": [
+        {
+          "start": 0,
+          "end": 19,
+          "entity_type": "PERSON",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_053",
+      "language": "en",
+      "text": "Send damaged items to the maintenance team.",
+      "category": "ordinary_role",
+      "spans": [
+        {
+          "start": 22,
+          "end": 42,
+          "entity_type": "PERSON",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_054",
+      "language": "en",
+      "text": "Each cleaner receives a separate set of access instructions.",
+      "category": "ordinary_role",
+      "spans": [
+        {
+          "start": 0,
+          "end": 12,
+          "entity_type": "PERSON",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_055",
+      "language": "en",
+      "text": "The project manager reviews the task list every morning.",
+      "category": "ordinary_role",
+      "spans": [
+        {
+          "start": 0,
+          "end": 19,
+          "entity_type": "PERSON",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_056",
+      "language": "en",
+      "text": "Two drivers are required for the delivery route.",
+      "category": "ordinary_role",
+      "spans": [
+        {
+          "start": 4,
+          "end": 11,
+          "entity_type": "PERSON",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_057",
+      "language": "en",
+      "text": "Questions about leave should go to an HR adviser.",
+      "category": "ordinary_role",
+      "spans": [
+        {
+          "start": 35,
+          "end": 48,
+          "entity_type": "PERSON",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_058",
+      "language": "en",
+      "text": "Allow the sealant to cure for 24 hours before testing.",
+      "category": "service_duration",
+      "spans": [
+        {
+          "start": 26,
+          "end": 38,
+          "entity_type": "DATE_TIME",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_059",
+      "language": "en",
+      "text": "A routine filter change takes about 30 minutes.",
+      "category": "service_duration",
+      "spans": [
+        {
+          "start": 30,
+          "end": 46,
+          "entity_type": "DATE_TIME",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_060",
+      "language": "en",
+      "text": "The support contract covers the equipment for 6 years.",
+      "category": "service_duration",
+      "spans": [
+        {
+          "start": 42,
+          "end": 53,
+          "entity_type": "DATE_TIME",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_061",
+      "language": "en",
+      "text": "Keep each backup for eleven months, then rotate the archive.",
+      "category": "service_duration",
+      "spans": [
+        {
+          "start": 17,
+          "end": 34,
+          "entity_type": "DATE_TIME",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_062",
+      "language": "en",
+      "text": "The safety course lasts two days and includes a drill.",
+      "category": "service_duration",
+      "spans": [
+        {
+          "start": 24,
+          "end": 32,
+          "entity_type": "DATE_TIME",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_063",
+      "language": "en",
+      "text": "Inspect the lifting gear every 12 months.",
+      "category": "service_duration",
+      "spans": [
+        {
+          "start": 25,
+          "end": 40,
+          "entity_type": "DATE_TIME",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_064",
+      "language": "en",
+      "text": "The valve has a design life of 18 years.",
+      "category": "service_duration",
+      "spans": [
+        {
+          "start": 31,
+          "end": 39,
+          "entity_type": "DATE_TIME",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_065",
+      "language": "en",
+      "text": "Pack 42 washers in each small carton.",
+      "category": "work_quantity",
+      "spans": [
+        {
+          "start": 5,
+          "end": 7,
+          "entity_type": "DATE_TIME",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_066",
+      "language": "en",
+      "text": "The daily target is 120 inspected components.",
+      "category": "work_quantity",
+      "spans": [
+        {
+          "start": 20,
+          "end": 23,
+          "entity_type": "DATE_TIME",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_067",
+      "language": "en",
+      "text": "Leave an 8 mm gap between the panels.",
+      "category": "work_quantity",
+      "spans": [
+        {
+          "start": 9,
+          "end": 13,
+          "entity_type": "DATE_TIME",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_068",
+      "language": "en",
+      "text": "The store holds 61 spare fuses for emergency repairs.",
+      "category": "work_quantity",
+      "spans": [
+        {
+          "start": 16,
+          "end": 18,
+          "entity_type": "DATE_TIME",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_069",
+      "language": "en",
+      "text": "A batch contains sixteen sample tubes.",
+      "category": "work_quantity",
+      "spans": [
+        {
+          "start": 17,
+          "end": 24,
+          "entity_type": "DATE_TIME",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_070",
+      "language": "en",
+      "text": "Use a 29 mm socket to loosen the coupling.",
+      "category": "work_quantity",
+      "spans": [
+        {
+          "start": 6,
+          "end": 11,
+          "entity_type": "DATE_TIME",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_071",
+      "language": "en",
+      "text": "The quality manual follows ISO 9001:2015.",
+      "category": "technical_standard",
+      "spans": [
+        {
+          "start": 31,
+          "end": 40,
+          "entity_type": "DATE_TIME",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_072",
+      "language": "en",
+      "text": "Check the heat-loss calculation against EN 12831.",
+      "category": "technical_standard",
+      "spans": [
+        {
+          "start": 43,
+          "end": 48,
+          "entity_type": "DATE_TIME",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_073",
+      "language": "en",
+      "text": "The security controls are mapped to ISO 27001:2022.",
+      "category": "technical_standard",
+      "spans": [
+        {
+          "start": 40,
+          "end": 50,
+          "entity_type": "DATE_TIME",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_074",
+      "language": "en",
+      "text": "Our procedure cites ISO 45001 for occupational safety.",
+      "category": "technical_standard",
+      "spans": [
+        {
+          "start": 24,
+          "end": 29,
+          "entity_type": "DATE_TIME",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_075",
+      "language": "en",
+      "text": "Return empty boxes to the warehouse after unloading.",
+      "category": "common_facility",
+      "spans": [
+        {
+          "start": 22,
+          "end": 35,
+          "entity_type": "LOCATION",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_076",
+      "language": "en",
+      "text": "The staff kitchen must be cleaned at the end of each shift.",
+      "category": "common_facility",
+      "spans": [
+        {
+          "start": 0,
+          "end": 17,
+          "entity_type": "LOCATION",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_077",
+      "language": "en",
+      "text": "Hold the induction in a meeting room with enough chairs.",
+      "category": "common_facility",
+      "spans": [
+        {
+          "start": 22,
+          "end": 36,
+          "entity_type": "LOCATION",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_078",
+      "language": "en",
+      "text": "Take the faulty pump to the workshop for inspection.",
+      "category": "common_facility",
+      "spans": [
+        {
+          "start": 21,
+          "end": 36,
+          "entity_type": "LOCATION",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_079",
+      "language": "en",
+      "text": "Keep the loading bay clear while the vehicle reverses.",
+      "category": "common_facility",
+      "spans": [
+        {
+          "start": 5,
+          "end": 20,
+          "entity_type": "LOCATION",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "en_080",
+      "language": "en",
+      "text": "Spare stationery is available from the office.",
+      "category": "common_facility",
+      "spans": [
+        {
+          "start": 30,
+          "end": 45,
+          "entity_type": "LOCATION",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_001",
+      "language": "fi",
+      "text": "Soittaja kertoi olleensa 42-vuotias oireiden alkaessa.",
+      "category": "personal_age",
+      "spans": [
+        {
+          "start": 25,
+          "end": 35,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_002",
+      "language": "fi",
+      "text": "Hän asuu yksin ja on nyt 74 vuotta vanha.",
+      "category": "personal_age",
+      "spans": [
+        {
+          "start": 25,
+          "end": 34,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_003",
+      "language": "fi",
+      "text": "Poikani täytti viime viikolla kahdeksan vuotta.",
+      "category": "personal_age",
+      "spans": [
+        {
+          "start": 30,
+          "end": 46,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_004",
+      "language": "fi",
+      "text": "Ensimmäisen sairaalajakson aikaan olin 29-vuotias.",
+      "category": "personal_age",
+      "spans": [
+        {
+          "start": 39,
+          "end": 49,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_005",
+      "language": "fi",
+      "text": "Arvio koskee kuusitoistavuotiasta lasta.",
+      "category": "personal_age",
+      "spans": [
+        {
+          "start": 13,
+          "end": 33,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_006",
+      "language": "fi",
+      "text": "Avioeron tullessa voimaan hän oli 61 vuoden ikäinen.",
+      "category": "personal_age",
+      "spans": [
+        {
+          "start": 34,
+          "end": 43,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_007",
+      "language": "fi",
+      "text": "Hänen syntymäaikansa on 14.3.1991.",
+      "category": "birth_date",
+      "spans": [
+        {
+          "start": 24,
+          "end": 33,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_008",
+      "language": "fi",
+      "text": "Passin mukaan olen syntynyt 3. marraskuuta 1978.",
+      "category": "birth_date",
+      "spans": [
+        {
+          "start": 28,
+          "end": 47,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_009",
+      "language": "fi",
+      "text": "Lapsen syntymäpäiväksi on merkitty 19.08.2004.",
+      "category": "birth_date",
+      "spans": [
+        {
+          "start": 35,
+          "end": 45,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_010",
+      "language": "fi",
+      "text": "Äitini on syntynyt vuonna 1963, mutta päivää en muista.",
+      "category": "birth_date",
+      "spans": [
+        {
+          "start": 19,
+          "end": 30,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_011",
+      "language": "fi",
+      "text": "Korjaattehan syntymäajakseni 7. heinäkuuta 1987.",
+      "category": "birth_date",
+      "spans": [
+        {
+          "start": 29,
+          "end": 47,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_012",
+      "language": "fi",
+      "text": "Hän on ollut työttömänä yksitoista kuukautta.",
+      "category": "personal_history",
+      "spans": [
+        {
+          "start": 24,
+          "end": 44,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_013",
+      "language": "fi",
+      "text": "Hoidin isääni kuuden vuoden ajan ennen hänen kuolemaansa.",
+      "category": "personal_history",
+      "spans": [
+        {
+          "start": 14,
+          "end": 32,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_014",
+      "language": "fi",
+      "text": "Päänsärky alkoi kolme viikkoa sitten.",
+      "category": "personal_history",
+      "spans": [
+        {
+          "start": 16,
+          "end": 36,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_015",
+      "language": "fi",
+      "text": "Muutimme erilleen syyskuussa 2018 pitkän avioliiton jälkeen.",
+      "category": "personal_history",
+      "spans": [
+        {
+          "start": 18,
+          "end": 33,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_016",
+      "language": "fi",
+      "text": "Potilas oli kaatumisen jälkeen tajuttomana 30 minuuttia.",
+      "category": "personal_history",
+      "spans": [
+        {
+          "start": 43,
+          "end": 55,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_017",
+      "language": "fi",
+      "text": "Valmistuin sairaanhoitajaksi vuonna 2009 ja vaihdoin myöhemmin alaa.",
+      "category": "personal_history",
+      "spans": [
+        {
+          "start": 29,
+          "end": 40,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_018",
+      "language": "fi",
+      "text": "Hän on työskennellyt talonmiehenä jo 18 vuotta.",
+      "category": "personal_history",
+      "spans": [
+        {
+          "start": 37,
+          "end": 46,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_019",
+      "language": "fi",
+      "text": "Seuraava keskustelukäyntini on 21. lokakuuta 2026.",
+      "category": "calendar_date",
+      "spans": [
+        {
+          "start": 31,
+          "end": 49,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_020",
+      "language": "fi",
+      "text": "Häntä haastateltiin 12.02.2025 tämän selvityksen vuoksi.",
+      "category": "calendar_date",
+      "spans": [
+        {
+          "start": 20,
+          "end": 30,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_021",
+      "language": "fi",
+      "text": "Menimme naimisiin 6.6.2015 pienessä tilaisuudessa.",
+      "category": "calendar_date",
+      "spans": [
+        {
+          "start": 18,
+          "end": 26,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_022",
+      "language": "fi",
+      "text": "Kirjeessä hänen osastolle tulonsa päiväksi annetaan 8.11.2023.",
+      "category": "calendar_date",
+      "spans": [
+        {
+          "start": 52,
+          "end": 61,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_023",
+      "language": "fi",
+      "text": "Viimeinen kotikäynti tehtiin perjantaina 17.1.2025.",
+      "category": "calendar_date",
+      "spans": [
+        {
+          "start": 29,
+          "end": 50,
+          "entity_type": "DATE_TIME",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_024",
+      "language": "fi",
+      "text": "Meri Havulainen allekirjoitti suostumuksen sinisellä kynällä.",
+      "category": "person_name",
+      "spans": [
+        {
+          "start": 0,
+          "end": 15,
+          "entity_type": "PERSON",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_025",
+      "language": "fi",
+      "text": "Vastaus pyydetään osoittamaan herra Aaro Tervelälle.",
+      "category": "person_name",
+      "spans": [
+        {
+          "start": 30,
+          "end": 51,
+          "entity_type": "PERSON",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_026",
+      "language": "fi",
+      "text": "Avaimet haki vuokralaisen sisar, Nella Ruisniemi.",
+      "category": "person_name",
+      "spans": [
+        {
+          "start": 33,
+          "end": 48,
+          "entity_type": "PERSON",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_027",
+      "language": "fi",
+      "text": "Keskustelin lääkityksestäni tohtori Eliel Varhelan kanssa.",
+      "category": "person_name",
+      "spans": [
+        {
+          "start": 28,
+          "end": 50,
+          "entity_type": "PERSON",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_028",
+      "language": "fi",
+      "text": "Tämän kappaleen saneli Joona Keltasalo.",
+      "category": "person_name",
+      "spans": [
+        {
+          "start": 23,
+          "end": 38,
+          "entity_type": "PERSON",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_029",
+      "language": "fi",
+      "text": "Raportissa lapsen huoltajaksi mainitaan T. Auvonen.",
+      "category": "person_name",
+      "spans": [
+        {
+          "start": 40,
+          "end": 50,
+          "entity_type": "PERSON",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_030",
+      "language": "fi",
+      "text": "Rouva Pellervon mukaan matka sujui rauhallisesti.",
+      "category": "person_name",
+      "spans": [
+        {
+          "start": 0,
+          "end": 15,
+          "entity_type": "PERSON",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_031",
+      "language": "fi",
+      "text": "Hänen hoitonsa jatkui Pajukellon klinikalla.",
+      "category": "named_facility",
+      "spans": [
+        {
+          "start": 22,
+          "end": 43,
+          "entity_type": "LOCATION",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_032",
+      "language": "fi",
+      "text": "Lapsi haettiin Pienen Pyrstötähden päiväkodista.",
+      "category": "named_facility",
+      "spans": [
+        {
+          "start": 15,
+          "end": 47,
+          "entity_type": "LOCATION",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_033",
+      "language": "fi",
+      "text": "Hän asui talven ajan Karpalorannan palvelutalossa.",
+      "category": "named_facility",
+      "spans": [
+        {
+          "start": 21,
+          "end": 49,
+          "entity_type": "LOCATION",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_034",
+      "language": "fi",
+      "text": "Tapaan tukihenkilöni Sammallyhdyn keskuksessa.",
+      "category": "named_facility",
+      "spans": [
+        {
+          "start": 21,
+          "end": 45,
+          "entity_type": "LOCATION",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_035",
+      "language": "fi",
+      "text": "Hän varttui Jalavakummussa ennen ulkomaille muuttoa.",
+      "category": "personal_location",
+      "spans": [
+        {
+          "start": 12,
+          "end": 26,
+          "entity_type": "LOCATION",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_036",
+      "language": "fi",
+      "text": "Perheellä on yhä mökki Kaislamuon järven rannalla.",
+      "category": "personal_location",
+      "spans": [
+        {
+          "start": 23,
+          "end": 40,
+          "entity_type": "LOCATION",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_037",
+      "language": "fi",
+      "text": "Veljeni asuu Harjusuon kaupunginosassa.",
+      "category": "personal_location",
+      "spans": [
+        {
+          "start": 13,
+          "end": 38,
+          "entity_type": "LOCATION",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_038",
+      "language": "fi",
+      "text": "Hän kulkee kotiin Naurislehdon puiston läpi joka ilta.",
+      "category": "personal_location",
+      "spans": [
+        {
+          "start": 18,
+          "end": 38,
+          "entity_type": "LOCATION",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_039",
+      "language": "fi",
+      "text": "Kotiutumisen jälkeen olin sukulaisten luona Pohjois-Kerttulassa.",
+      "category": "personal_location",
+      "spans": [
+        {
+          "start": 44,
+          "end": 63,
+          "entity_type": "LOCATION",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_040",
+      "language": "fi",
+      "text": "Toimittakaa hänen asiakirjansa osoitteeseen Lyhtykuja 18 A 4.",
+      "category": "street_address",
+      "spans": [
+        {
+          "start": 44,
+          "end": 60,
+          "entity_type": "LOCATION",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_041",
+      "language": "fi",
+      "text": "Perheen koti sijaitsee osoitteessa Leppäkaari 7 B.",
+      "category": "street_address",
+      "spans": [
+        {
+          "start": 23,
+          "end": 49,
+          "entity_type": "LOCATION",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_042",
+      "language": "fi",
+      "text": "Kirjeeni saa lähettää osoitteeseen Kanervatie 203.",
+      "category": "street_address",
+      "spans": [
+        {
+          "start": 35,
+          "end": 49,
+          "entity_type": "LOCATION",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_043",
+      "language": "fi",
+      "text": "Hän pyysi käyttämään osoitetta Sammalpenger 42 C 6.",
+      "category": "street_address",
+      "spans": [
+        {
+          "start": 31,
+          "end": 50,
+          "entity_type": "LOCATION",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_044",
+      "language": "fi",
+      "text": "Asukas, jota kaikki kutsuvat Kapteeni Katajaksi, halusi puhua kahden kesken.",
+      "category": "ambiguous_identity",
+      "spans": [
+        {
+          "start": 29,
+          "end": 47,
+          "entity_type": "PERSON",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_045",
+      "language": "fi",
+      "text": "Hän kuvasi kotiaan vain nimellä Sinisen Haikaran talo.",
+      "category": "ambiguous_identity",
+      "spans": [
+        {
+          "start": 32,
+          "end": 53,
+          "entity_type": "LOCATION",
+          "expect": "preserve_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_046",
+      "language": "fi",
+      "text": "Sähköasentaja tarkistaa johdot ennen virran kytkemistä.",
+      "category": "ordinary_role",
+      "spans": [
+        {
+          "start": 0,
+          "end": 13,
+          "entity_type": "PERSON",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_047",
+      "language": "fi",
+      "text": "Pyydä vuoropäälliköltä hyväksyntä varastosaldon korjaukseen.",
+      "category": "ordinary_role",
+      "spans": [
+        {
+          "start": 6,
+          "end": 22,
+          "entity_type": "PERSON",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_048",
+      "language": "fi",
+      "text": "Koneenkäyttäjien tulee käyttää käsineitä astioita siirrettäessä.",
+      "category": "ordinary_role",
+      "spans": [
+        {
+          "start": 0,
+          "end": 16,
+          "entity_type": "PERSON",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_049",
+      "language": "fi",
+      "text": "Laskuun tarvitaan esimiehen allekirjoitus.",
+      "category": "ordinary_role",
+      "spans": [
+        {
+          "start": 18,
+          "end": 27,
+          "entity_type": "PERSON",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_050",
+      "language": "fi",
+      "text": "Varastotyöntekijä kirjaa jokaisen saapuvan lavan.",
+      "category": "ordinary_role",
+      "spans": [
+        {
+          "start": 0,
+          "end": 17,
+          "entity_type": "PERSON",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_051",
+      "language": "fi",
+      "text": "Kysy huoltoasentajalta, mihin työkalut palautetaan.",
+      "category": "ordinary_role",
+      "spans": [
+        {
+          "start": 5,
+          "end": 22,
+          "entity_type": "PERSON",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_052",
+      "language": "fi",
+      "text": "Päivystävä putkiasentaja voi sulkea vuotavan venttiilin.",
+      "category": "ordinary_role",
+      "spans": [
+        {
+          "start": 0,
+          "end": 24,
+          "entity_type": "PERSON",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_053",
+      "language": "fi",
+      "text": "Lähetä rikkoutuneista osista ilmoitus huoltomiehelle.",
+      "category": "ordinary_role",
+      "spans": [
+        {
+          "start": 38,
+          "end": 52,
+          "entity_type": "PERSON",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_054",
+      "language": "fi",
+      "text": "Jokaiselle siivoojalle annetaan erillinen kulkuohje.",
+      "category": "ordinary_role",
+      "spans": [
+        {
+          "start": 0,
+          "end": 22,
+          "entity_type": "PERSON",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_055",
+      "language": "fi",
+      "text": "Projektipäällikön tehtäviin kuuluu työlistan tarkistus.",
+      "category": "ordinary_role",
+      "spans": [
+        {
+          "start": 0,
+          "end": 17,
+          "entity_type": "PERSON",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_056",
+      "language": "fi",
+      "text": "Reitille tarvitaan kaksi kuljettajaa.",
+      "category": "ordinary_role",
+      "spans": [
+        {
+          "start": 25,
+          "end": 36,
+          "entity_type": "PERSON",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_057",
+      "language": "fi",
+      "text": "Lomakysymykset voi osoittaa henkilöstöneuvojalle.",
+      "category": "ordinary_role",
+      "spans": [
+        {
+          "start": 28,
+          "end": 48,
+          "entity_type": "PERSON",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_058",
+      "language": "fi",
+      "text": "Anna tiivisteen kovettua 24 tunnin ajan ennen koetta.",
+      "category": "service_duration",
+      "spans": [
+        {
+          "start": 25,
+          "end": 39,
+          "entity_type": "DATE_TIME",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_059",
+      "language": "fi",
+      "text": "Tavalliseen suodattimen vaihtoon kuluu noin 30 minuuttia.",
+      "category": "service_duration",
+      "spans": [
+        {
+          "start": 39,
+          "end": 56,
+          "entity_type": "DATE_TIME",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_060",
+      "language": "fi",
+      "text": "Laitteen huoltosopimus on voimassa kuuden vuoden ajan.",
+      "category": "service_duration",
+      "spans": [
+        {
+          "start": 35,
+          "end": 53,
+          "entity_type": "DATE_TIME",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_061",
+      "language": "fi",
+      "text": "Säilytä varmuuskopiota yksitoista kuukautta ennen kierrätystä.",
+      "category": "service_duration",
+      "spans": [
+        {
+          "start": 23,
+          "end": 43,
+          "entity_type": "DATE_TIME",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_062",
+      "language": "fi",
+      "text": "Turvakoulutus kestää kaksi päivää ja sisältää harjoituksen.",
+      "category": "service_duration",
+      "spans": [
+        {
+          "start": 21,
+          "end": 33,
+          "entity_type": "DATE_TIME",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_063",
+      "language": "fi",
+      "text": "Nostovälineet tarkastetaan 12 kuukauden välein.",
+      "category": "service_duration",
+      "spans": [
+        {
+          "start": 27,
+          "end": 46,
+          "entity_type": "DATE_TIME",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_064",
+      "language": "fi",
+      "text": "Venttiilin suunniteltu käyttöikä on 18 vuotta.",
+      "category": "service_duration",
+      "spans": [
+        {
+          "start": 36,
+          "end": 45,
+          "entity_type": "DATE_TIME",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_065",
+      "language": "fi",
+      "text": "Pakkaa pieneen laatikkoon 42 aluslevyä.",
+      "category": "work_quantity",
+      "spans": [
+        {
+          "start": 26,
+          "end": 28,
+          "entity_type": "DATE_TIME",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_066",
+      "language": "fi",
+      "text": "Päivän tavoite on 120 tarkastettua osaa.",
+      "category": "work_quantity",
+      "spans": [
+        {
+          "start": 18,
+          "end": 21,
+          "entity_type": "DATE_TIME",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_067",
+      "language": "fi",
+      "text": "Jätä levyjen väliin 8 mm rako.",
+      "category": "work_quantity",
+      "spans": [
+        {
+          "start": 20,
+          "end": 24,
+          "entity_type": "DATE_TIME",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_068",
+      "language": "fi",
+      "text": "Varastossa on 61 varasulaketta kiireellisiä korjauksia varten.",
+      "category": "work_quantity",
+      "spans": [
+        {
+          "start": 14,
+          "end": 16,
+          "entity_type": "DATE_TIME",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_069",
+      "language": "fi",
+      "text": "Yhdessä erässä on kuusitoista näyteputkea.",
+      "category": "work_quantity",
+      "spans": [
+        {
+          "start": 18,
+          "end": 29,
+          "entity_type": "DATE_TIME",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_070",
+      "language": "fi",
+      "text": "Irrota liitin 29 mm hylsyllä.",
+      "category": "work_quantity",
+      "spans": [
+        {
+          "start": 14,
+          "end": 19,
+          "entity_type": "DATE_TIME",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_071",
+      "language": "fi",
+      "text": "Laatukäsikirja noudattaa standardia ISO 9001:2015.",
+      "category": "technical_standard",
+      "spans": [
+        {
+          "start": 40,
+          "end": 49,
+          "entity_type": "DATE_TIME",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_072",
+      "language": "fi",
+      "text": "Tarkista lämpöhäviölaskelma standardin EN 12831 mukaan.",
+      "category": "technical_standard",
+      "spans": [
+        {
+          "start": 42,
+          "end": 47,
+          "entity_type": "DATE_TIME",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_073",
+      "language": "fi",
+      "text": "Tietoturvatoimet on sidottu standardiin ISO 27001:2022.",
+      "category": "technical_standard",
+      "spans": [
+        {
+          "start": 44,
+          "end": 54,
+          "entity_type": "DATE_TIME",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_074",
+      "language": "fi",
+      "text": "Menettelyssä viitataan työturvallisuusstandardiin ISO 45001.",
+      "category": "technical_standard",
+      "spans": [
+        {
+          "start": 54,
+          "end": 59,
+          "entity_type": "DATE_TIME",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_075",
+      "language": "fi",
+      "text": "Vie tyhjät laatikot purkamisen jälkeen varastoon.",
+      "category": "common_facility",
+      "spans": [
+        {
+          "start": 39,
+          "end": 48,
+          "entity_type": "LOCATION",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_076",
+      "language": "fi",
+      "text": "Henkilökunnan keittiöstä poistetaan jätteet vuoron lopussa.",
+      "category": "common_facility",
+      "spans": [
+        {
+          "start": 0,
+          "end": 24,
+          "entity_type": "LOCATION",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_077",
+      "language": "fi",
+      "text": "Perehdytys järjestetään riittävän suuressa kokoushuoneessa.",
+      "category": "common_facility",
+      "spans": [
+        {
+          "start": 43,
+          "end": 58,
+          "entity_type": "LOCATION",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_078",
+      "language": "fi",
+      "text": "Hae tarkastettu pumppu korjaamolta iltapäivällä.",
+      "category": "common_facility",
+      "spans": [
+        {
+          "start": 23,
+          "end": 34,
+          "entity_type": "LOCATION",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_079",
+      "language": "fi",
+      "text": "Pidä lastauslaituri vapaana auton peruuttaessa.",
+      "category": "common_facility",
+      "spans": [
+        {
+          "start": 5,
+          "end": 19,
+          "entity_type": "LOCATION",
+          "expect": "discard_detection"
+        }
+      ]
+    },
+    {
+      "id": "fi_080",
+      "language": "fi",
+      "text": "Vie ylimääräiset tuolit toimiston aulaan.",
+      "category": "common_facility",
+      "spans": [
+        {
+          "start": 24,
+          "end": 40,
+          "entity_type": "LOCATION",
+          "expect": "discard_detection"
+        }
+      ]
+    }
+  ]
+}

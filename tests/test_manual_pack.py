@@ -61,7 +61,9 @@ class ManualPackTests(unittest.TestCase):
                     writer.writerow({"filename": f"{stem}.csv", "publisher": "Public publisher", "dataset_title": doc_id})
                     folder = runs / "real-uk" / "test"
                     folder.mkdir(parents=True, exist_ok=True)
-                    (folder / f"{stem}_anonymized.md").write_text("Public sanitized input")
+                    (folder / f"{stem}_anonymized.md").write_text(
+                        "## Document metadata\n- Keywords: shared-template-code\n"
+                        "## Document content\nPublic sanitized input")
             pack = root / "pack"
             with patch("eval.make_pack.REAL_UK", real), \
                     patch("pipeline.extractors.extract_to_markdown", return_value="Fictional raw control"):
@@ -76,6 +78,16 @@ class ManualPackTests(unittest.TestCase):
             self.assertNotIn(truth["F01"]["organisation"], prompt)
             self.assertIn(control_id, (pack / "prompts.md").read_text())
             self.assertIn("not-run", (pack / "README.md").read_text())
+            linkage = (pack / "paste/link-R01-R02.txt").read_text()
+            self.assertNotIn("shared-template-code", linkage)
+            self.assertIn("Public sanitized input", linkage)
+            self.assertIn("Paste the cleaned text, never upload the original file.",
+                          (pack / "prompts.md").read_text())
+            with patch("eval.make_pack.REAL_UK", real), \
+                    patch("pipeline.extractors.extract_to_markdown", return_value="Fictional raw control"):
+                build_pack(runs, root / "pack-with-metadata", include_metadata=True)
+            self.assertIn("shared-template-code",
+                          (root / "pack-with-metadata/paste/link-R01-R02.txt").read_text())
 
 
 if __name__ == "__main__":

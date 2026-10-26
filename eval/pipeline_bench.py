@@ -202,7 +202,10 @@ def evaluate_pipeline(
         anonymizer = PipelineAnonymizer(detector, language=label["language"])
         output_path = None
         try:
-            result = run_pipeline(source, output_dir, extractor=tracked_extractor, anonymizer=anonymizer)
+            # Audit extraction/detection of all labelled locations, including
+            # metadata. Release output intentionally omits metadata by default.
+            result = run_pipeline(source, output_dir, extractor=tracked_extractor,
+                                  anonymizer=anonymizer, include_metadata=True)
             output_path = str(result.output_path)
         except Exception as exc:  # noqa: BLE001 - Keep failed files in full-path results.
             errors.append(f"full_pipeline: {type(exc).__name__}: {exc}")

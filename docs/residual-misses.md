@@ -2,6 +2,10 @@
 
 [Docs index](README.md) › RQ2
 
+**2026-10-20 follow-up:** [Role 1 corrections](role1-fixes.md) record the new
+quantity/title rules, business-identifier patterns and paired results. The
+diagnosis below remains the unchanged 2026-10-19 evidence snapshot.
+
 Why do the remaining misses happen at evidence snapshot `e148240`? This doc diagnoses each one on synthetic corpora and the English utility memos, in English and Finnish. The diagnosis ran locally on 2026-10-19. No detector, reader or redactor fix was made, and the files under `detect/`, `pipeline/` and `corpus/` still match `e148240`.
 
 ## Key result

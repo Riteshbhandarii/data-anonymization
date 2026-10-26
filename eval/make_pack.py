@@ -97,8 +97,10 @@ def fake_values(label_path: Path, kind: str) -> list[str]:
     return sorted({e["value"] for e in labels if e["type"] == kind and e["location"] == "body"})
 
 
-def build_pack(runs: Path, pack: Path, method: str | None = None) -> None:
+def build_pack(runs: Path, pack: Path, method: str | None = None, *,
+               include_metadata: bool = False) -> None:
     from pipeline.extractors import extract_to_markdown
+    from pipeline.metadata import remove_document_metadata
     from pipeline.normalization import normalize_markdown
 
     if pack.exists():
@@ -115,17 +117,23 @@ def build_pack(runs: Path, pack: Path, method: str | None = None) -> None:
 
     docs = {}   # id -> (source, anonymized text)
     truth = []  # ground_truth.csv rows
+
+    def release_text(text):
+        # Strip before truncation: a long property block must not crowd out
+        # the body. Raw fictional ceiling controls below remain raw controls.
+        return truncate_at_line(text if include_metadata else remove_document_metadata(text))
+
     for n, (lang, fmt) in enumerate(FAKE_PICKS, 1):
         stem = nth(lang, fmt, 0)
         text = (runs / "fake" / method / f"{safe_name(stem)}_anonymized.md").read_text(encoding="utf-8")
-        docs[f"F{n:02d}"] = ("fake", truncate_at_line(text))
+        docs[f"F{n:02d}"] = ("fake", release_text(text))
         labels = fake_root / "labels" / f"{stem}.json"
         truth.append({"doc_id": f"F{n:02d}", "source_file": stem, "language": lang,
                       "organisation": "; ".join(fake_values(labels, "COMPANY")),
                       "person": "; ".join(fake_values(labels, "PERSON")),
                       "note": "invented identities; industry is not fixed by the generator"})
     stem = nth(*FAKE_CONTROL[:2], FAKE_CONTROL[2])
-    docs["C01"] = ("fake", truncate_at_line(
+    docs["C01"] = ("fake", release_text(
         (runs / "fake" / method / f"{safe_name(stem)}_anonymized.md").read_text(encoding="utf-8")))
     labels = fake_root / "labels" / f"{stem}.json"
     truth.append({"doc_id": "C01", "source_file": stem, "language": FAKE_CONTROL[0],
@@ -139,7 +147,7 @@ def build_pack(runs: Path, pack: Path, method: str | None = None) -> None:
         if stem.startswith(EXCLUDED_PREFIX):
             raise ValueError("Organogram files must never enter the pack")
         text = (runs / "real-uk" / method / f"{safe_name(stem)}_anonymized.md").read_text(encoding="utf-8")
-        docs[doc_id] = ("real-public", truncate_at_line(text))
+        docs[doc_id] = ("real-public", release_text(text))
         row = manifest[stem]
         truth.append({"doc_id": doc_id, "source_file": row["filename"], "language": "en",
                       "organisation": row["publisher"], "person": "",
@@ -214,6 +222,9 @@ def build_pack(runs: Path, pack: Path, method: str | None = None) -> None:
         writer.writerows(truth)
 
     lines = ["# Prompts", "",
+             "Paste the cleaned text, never upload the original file.", "",
+             (f"Metadata in sanitized documents: {'retained' if include_metadata else 'omitted'}. "
+              "Raw fictional ceiling controls are unchanged."), "",
              (f"Anonymized with method `{method}`. Each prompt below has a ready-to-paste file in "
              "`paste/` named after its prompt id: open it, copy everything, paste it into the "
              "model. Do the same prompts once with web search off and once with it on "
@@ -311,8 +322,10 @@ def main():
     p.add_argument("--runs", required=True)
     p.add_argument("--pack", required=True)
     p.add_argument("--method", help="override the automatically chosen best method")
+    p.add_argument("--include-metadata", action="store_true",
+                   help="Retain properties only for an explicitly reviewed comparison")
     a = p.parse_args()
-    build_pack(Path(a.runs), Path(a.pack), a.method)
+    build_pack(Path(a.runs), Path(a.pack), a.method, include_metadata=a.include_metadata)
 
 
 if __name__ == "__main__":

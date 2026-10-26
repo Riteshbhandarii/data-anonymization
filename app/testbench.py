@@ -32,6 +32,7 @@ from app.logic import (
 )
 from detect.methods import METHODS
 from pipeline.extractors import SUPPORTED_EXTENSIONS, extract_to_markdown
+from pipeline.metadata import remove_document_metadata
 from pipeline.normalization import normalize_markdown
 
 OUT = ROOT / "outputs"
@@ -121,11 +122,13 @@ def sidebar():
     st.sidebar.divider()
     method = st.sidebar.radio("Detector", list(METHODS), format_func=lambda value: METHODS[value]["label"])
     mode = st.sidebar.radio("Replacement", list(MODES))
+    include_metadata = st.sidebar.checkbox("Keep document metadata", value=False)
     run = st.sidebar.button("Run document", type="primary", disabled=path is None, width="stretch")
     if path is None:
         st.sidebar.caption("Choose a document to enable Run.")
     return {"path": path, "labels": labels, "lang": lang, "method": method,
-            "mode": MODES[mode], "is_real": is_real, "stem": stem, "run": run}
+            "mode": MODES[mode], "is_real": is_real, "stem": stem, "run": run,
+            "include_metadata": include_metadata}
 
 
 def run_stages(cfg):
@@ -138,6 +141,9 @@ def run_stages(cfg):
     if error:
         res["errors"]["extract"] = error
         return res
+    if not cfg.get("include_metadata", False):
+        text = remove_document_metadata(text)
+        res["text"] = text
 
     def detect():
         return [SimpleNamespace(start=s, end=e, entity_type=t, score=score)
@@ -149,7 +155,9 @@ def run_stages(cfg):
         res["errors"]["detect"] = error
         return res
     if cfg["labels"] is not None:
-        res["scored"] = score_labels(text, cfg["labels"], results, path)
+        labels = cfg["labels"] if cfg.get("include_metadata", False) else [
+            label for label in cfg["labels"] if label.get("location") != "metadata"]
+        res["scored"] = score_labels(text, labels, results, path)
     cleaned, duration, error = timed(
         "Redaction", lambda: redact(text, validate_spans(text, results), mode=cfg["mode"]),
     )
@@ -269,6 +277,7 @@ def tab_clean(res):
         return
     stage_error(res, "save")
     summary_row(res)
+    st.caption("Paste the cleaned text, never upload the original file.")
     original_intervals, clean_intervals = changed_intervals(res["text"], res["clean"])
     left, right = st.columns(2)
     with left:
