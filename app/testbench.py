@@ -385,8 +385,8 @@ def main():
     st.html("""<style>
       .block-container { padding-top: 1.4rem; }
       .app-header { display:flex; align-items:baseline; gap:1rem; margin-bottom:1rem; }
-      .app-header strong { font-size:1.55rem; color:#183047; }
-      .app-header span { color:#526578; }
+      .app-header strong { font-size:1.55rem; }
+      .app-header span { opacity:.72; }
       .coverage-key { margin-bottom:.6rem; }
       .coverage-key span { padding:3px 10px; border-radius:5px; color:#183047; }
       [data-testid="stMetric"] { padding:.8rem 1rem; }

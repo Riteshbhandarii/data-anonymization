@@ -174,7 +174,7 @@ def highlight_html(text, intervals, colours, title_fn=None):
             out.append('<div style="overflow-x:auto"><table style="border-collapse:collapse;'
                        'width:100%;min-width:40rem;margin:0 0 0.85rem"><thead><tr>')
             for left, right in cells:
-                out.append('<th style="text-align:left;white-space:nowrap;border-bottom:1px solid #d1d5db;'
+                out.append('<th style="text-align:left;white-space:nowrap;border-bottom:1px solid rgba(128,128,128,.45);'
                            'padding:0.45rem 0.65rem">' + inline(left, right, True) + "</th>")
             out.append("</tr></thead><tbody>")
             index += 2
@@ -184,7 +184,7 @@ def highlight_html(text, intervals, colours, title_fn=None):
                     break
                 out.append("<tr>")
                 for left, right in row:
-                    out.append('<td style="border-bottom:1px solid #e5e7eb;'
+                    out.append('<td style="border-bottom:1px solid rgba(128,128,128,.25);'
                                'padding:0.45rem 0.65rem">' + inline(left, right, True) + "</td>")
                 out.append("</tr>")
                 index += 1
@@ -208,7 +208,7 @@ def highlight_html(text, intervals, colours, title_fn=None):
             continue
         elif quote:
             flush_paragraph()
-            out.append('<blockquote style="border-left:3px solid #d1d5db;'
+            out.append('<blockquote style="border-left:3px solid rgba(128,128,128,.45);'
                        'padding-left:0.8rem;margin:0 0 0.85rem">' +
                        inline(start + quote.start(1), end) + "</blockquote>")
         elif _RULE.fullmatch(line):
