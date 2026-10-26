@@ -89,8 +89,9 @@ class AppWorkflowTests(unittest.TestCase):
                 self.model, self.options = model, options
 
             def detect(self, text, language="en"):
-                start = text.index("Contact")
-                return [SimpleNamespace(start=start, end=start + 7, entity_type="IDENTIFIER_CODE", score=1.0)]
+                start, name = text.index("Contact"), text.index("Alice Example")
+                return [SimpleNamespace(start=start, end=start + 7, entity_type="IDENTIFIER_CODE", score=1.0),
+                        SimpleNamespace(start=name, end=name + 13, entity_type="QUASI_IDENTIFIER", score=1.0)]
 
         with patch("detect.local_llm.list_models", side_effect=OSError("connection refused")):
             self.app.run()
@@ -105,9 +106,10 @@ class AppWorkflowTests(unittest.TestCase):
             self.app.sidebar.button[0].click().run()
         self.assertEqual([], list(self.app.exception))
         res = self.app.session_state["res"]
-        self.assertEqual(("local-model", "contextual"), res["cfg"]["llm"])
-        self.assertEqual(1, res["llm_added"])
+        self.assertEqual(("local-model", "identifiers"), res["cfg"]["llm"])
+        self.assertEqual(2, res["llm_added"])
         self.assertNotIn("Contact", res["clean"])
+        self.assertIn("[PERSON]", res["clean"])  # the detector's type wins where both overlap
         self.assertNotIn("Alice Example", res["clean"])
         self.assertTrue(res["saved"].parent.name.endswith("+llm"))
 
