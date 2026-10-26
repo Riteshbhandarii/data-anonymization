@@ -102,6 +102,18 @@ def local_endpoint(base_url):
     return f"http://{authority}{':' + str(port) if port else ''}/v1/chat/completions"
 
 
+def list_models(base_url="http://127.0.0.1:1234/v1", timeout=2):
+    """Chat model identifiers the local server offers, under the same loopback rules."""
+    endpoint = local_endpoint(base_url).removesuffix("/chat/completions") + "/models"
+    with build_opener(ProxyHandler({}), NoRedirect()).open(endpoint, timeout=timeout) as response:
+        result = json.load(response)
+    if not isinstance(result, dict) or not isinstance(result.get("data"), list):
+        raise TypeError("Local model server returned an invalid model list")
+    return sorted(item["id"] for item in result["data"]
+                  if isinstance(item, dict) and isinstance(item.get("id"), str)
+                  and "embed" not in item["id"].casefold())
+
+
 def pieces(text, size=4000, overlap=400):
     """Overlapping windows retain nearby context and repeated identifiers."""
     for start in range(0, len(text), size - overlap):
