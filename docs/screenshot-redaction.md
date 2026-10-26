@@ -211,8 +211,9 @@ name, at a large readability cost on these identifier-dense images. The default
 word policy is retained. All 480 planted values remain accounted for: 20 were
 unreadable to the reference OCR in both modes. Hidden / all planted is 95.2%
 and 95.8%, respectively; the conditional 100% does not establish that every
-visible identifier is hidden. Reports and redacted images are in the `words/`
-and `lines/` directories below.
+visible identifier is hidden. The commands below write reports and redacted
+images to their local `--out` folders, `outputs/screenshot-issue69/words/` and
+`outputs/screenshot-issue69/lines/`. Those generated files are not committed.
 
 Reproduce with Tesseract and its English/Finnish data on `PATH`, the small
 spaCy models installed and GLiNER weights available locally:
@@ -246,9 +247,35 @@ empty native text layers. The real PDF extractor with `eng+fin` OCR recovered
 extracted text. This checks the existing scanned-page extraction route;
 the screenshot UI exports PNG images and does not clean original PDF files.
 
-Local smoke inputs and detailed results are under
-`outputs/screenshot-issue69/`, including `small-text-smoke.json` and
-`scanned-smoke.json`.
+Regenerate both smoke checks from a clean checkout with the validation
+dependencies and Tesseract's `eng+fin` data installed. The samples use fixed
+fictional strings and positions; there is no random generator or seed. The
+original run used Arial. Supply that font file explicitly with `--font` if it
+is not installed in a standard system font directory:
+
+```bash
+python -m pip install -r requirements-validation.txt
+python -m eval.screenshot_smoke --out outputs/screenshot-smoke --font /path/to/arial.ttf
+```
+
+This creates the four small-text PNGs, a three-page image-only PDF, the
+extracted Markdown, `small-text-smoke.json` and `scanned-smoke.json`. It runs
+the real OCR and PDF extractor. The default scan report records detection as
+`not_run`, with `detected: null`. To reproduce the additional 3/3 `combined`
+detection check, install the detector dependencies/models described above and
+run:
+
+```bash
+python -m eval.screenshot_smoke --out outputs/screenshot-smoke --font /path/to/arial.ttf --method combined
+```
+
+The reference Arial font SHA256 is
+`b3658eadae55e682b5f69eb64c439c1ecc8f196c0bb8d4756d145d13bc86476a`.
+The reports include the font hash and rendering/OCR versions. The recorded
+6/8 → 7/8 and 3/3 results depend on those inputs and versions; another font or
+Tesseract version can produce different recognition results. All generated
+smoke inputs and reports remain in the local `--out` folder, which Git ignores
+when it is under `outputs/`.
 
 ## What no text tool covers
 
