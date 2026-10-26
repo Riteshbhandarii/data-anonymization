@@ -10,14 +10,27 @@ from types import SimpleNamespace
 from unittest.mock import patch
 from urllib.error import HTTPError
 
-from detect.local_llm import FinalPassDetector, LocalLLMDetector, local_endpoint, pieces
+from detect.local_llm import (
+    FinalPassDetector,
+    LocalLLMDetector,
+    list_models,
+    local_endpoint,
+    pieces,
+)
 
 
 @contextmanager
-def server(content, *, finish="stop", redirect=None):
+def server(content, *, finish="stop", redirect=None, models=()):
     requests = []
 
     class Handler(BaseHTTPRequestHandler):
+        def do_GET(self):
+            requests.append(self.path)
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps({"data": [{"id": name} for name in models]}).encode())
+
         def do_POST(self):
             requests.append(json.loads(self.rfile.read(int(self.headers["Content-Length"]))))
             if redirect:
@@ -69,6 +82,14 @@ class LocalLLMTests(unittest.TestCase):
         self.assertFalse(requests[0]["chat_template_kwargs"]["enable_thinking"])
         self.assertEqual("json_schema", requests[0]["response_format"]["type"])
         self.assertNotIn("tools", requests[0])
+
+    def test_model_list_skips_embeddings_and_stays_on_loopback(self):
+        with server("", models=["qwen/qwen3.5-9b", "text-embedding-nomic-embed-text-v1.5",
+                                "google/gemma-4-e4b"]) as (url, requests):
+            self.assertEqual(["google/gemma-4-e4b", "qwen/qwen3.5-9b"], list_models(url))
+        self.assertEqual(["/v1/models"], requests)
+        with self.assertRaises(ValueError):
+            list_models("http://example.com/v1")
 
     def test_redirect_is_rejected_before_following(self):
         with server("", redirect="http://remote.invalid/collect") as (url, requests), self.assertRaises(HTTPError):
