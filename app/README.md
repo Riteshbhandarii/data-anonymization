@@ -56,8 +56,8 @@ fetching external resources. Preview formatting never changes the text sent to
 detection, redaction or the downloaded Markdown. Inline mark colours and titles
 are checked in the browser after Streamlit's HTML sanitization.
 
-`.streamlit/config.toml` supplies the shared light theme and minimal local
-toolbar. Summary cards appear before document previews; narrow screens use two
+`.streamlit/config.toml` supplies light and dark themes. The app follows the
+system setting; switch under ⋮ → Settings. Summary cards appear before document previews; narrow screens use two
 cards per row.
 
 Real documents containing people's names must be checked by eye before any
