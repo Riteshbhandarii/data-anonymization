@@ -8,7 +8,6 @@ from pathlib import Path
 
 import pandas as pd
 
-
 SOURCE = Path("outputs/uk-licence/licensed-premises-register.xlsx")
 OUTPUT = Path("outputs/uk-licence/uk_licence_test_30.csv")
 SEED = 42
