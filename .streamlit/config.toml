@@ -2,12 +2,19 @@
 address = "127.0.0.1"
 
 [client]
-toolbarMode = "minimal"
+toolbarMode = "viewer"
 
 [theme]
-base = "light"
 primaryColor = "#087E8B"
+font = "sans-serif"
+
+[theme.light]
 backgroundColor = "#FFFFFF"
 secondaryBackgroundColor = "#F1F5F9"
 textColor = "#183047"
-font = "sans-serif"
+
+[theme.dark]
+primaryColor = "#2DB3C1"
+backgroundColor = "#0F1720"
+secondaryBackgroundColor = "#1A2530"
+textColor = "#E3EAF1"
