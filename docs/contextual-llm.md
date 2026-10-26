@@ -357,5 +357,81 @@ It does not prove that all re-identification attacks would fail.
 The anonymized output also removed some ordinary contextual information,
 showing a trade-off between privacy and document usefulness.
 
-Independent blind-document testing remains outstanding because the
-documents from Issue #75 have not yet been received.
+### Independent blind test (Issue #75)
+
+Eight fictional business documents were provided for blind evaluation:
+four English and four Finnish documents, comprising six DOCX files and
+two PPTX files with speaker notes.
+
+The supplied Excel ground truth contained 50 unique values to mask and
+38 values to keep. Counting repeated appearances in the extracted text
+produced 89 mask occurrences and 42 keep occurrences.
+
+The evaluation used occurrence-based span coverage. All 8 documents
+were assigned to the test split. The existing `original_contextual`
+prompt was used without modification.
+
+#### Overall results
+
+| Method | Covered | Recall | Keep occurrences masked |
+|---|---:|---:|---:|
+| Qwen 3.5 9B alone | 44/89 | 49.4% | 0/42 |
+| Combined alone | 71/89 | 79.8% | 10/42 |
+| Combined + Qwen (Union) | 89/89 | 100.0% | 10/42 |
+
+Union merges independently detected spans from Combined and Qwen on
+the original extracted text. It is not the masked final-pass workflow.
+
+#### Results by language
+
+| Method | English recall | Finnish recall | English keep masked | Finnish keep masked |
+|---|---:|---:|---:|---:|
+| Qwen | 27/47 (57.4%) | 17/42 (40.5%) | 0/22 | 0/20 |
+| Combined | 37/47 (78.7%) | 34/42 (81.0%) | 6/22 | 4/20 |
+| Union | 47/47 (100.0%) | 42/42 (100.0%) | 6/22 | 4/20 |
+
+#### Over-masking
+
+Combined incorrectly masked 10 annotated keep occurrences:
+
+- 8 project-duration values
+- 1 job title (`Project Coordinator`)
+- 1 quality standard (`ISO 9001`)
+
+Union retained these errors because it combines detections rather
+than removing incorrect spans from Combined.
+
+#### Evaluation details
+
+Qwen model: `qwen_qwen3.5-9b`
+Prompt: `original_contextual`
+Temperature: 0
+Reasoning effort: none
+Failed documents: 0
+Dropped entities: 0
+LLM request time: 88.929 seconds
+
+Corpus SHA-256:
+`bd92386900c3ed9307f39497946e8059fd643b9a7a630caacd7d72795232e37f`
+
+The existing pipeline extractor converted DOCX and PPTX files to
+Markdown, including PowerPoint speaker notes. Markdown line endings
+were normalized to LF so ground-truth offsets matched the benchmark.
+
+The three methods were evaluated against the same frozen corpus.
+The 100% Union recall applies only to the 89 annotated occurrences
+in these eight fictional documents. It does not demonstrate perfect
+real-world detection or full-document precision.
+
+The anonymized evaluation reports and source documents are retained
+locally under `outputs/blind-test/` and are not included in this PR.
+Reproducing the results requires the independently supplied blind
+documents and their ground truth.
+
+The PPTX extractor required a local fix to process one supplied slide
+deck. That fix is not included in this PR and requires separate
+regression testing before integration.
+
+The requirement that the blind-test author had not read the LLM
+prompt before preparing the documents should be confirmed with
+the document author before treating the dataset as fully independent.
