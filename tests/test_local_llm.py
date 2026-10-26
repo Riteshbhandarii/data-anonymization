@@ -228,11 +228,14 @@ class ContextualPromptTests(unittest.TestCase):
         entity_types = schema["properties"]["entities"]["items"]["properties"]["entity_type"]["enum"]
 
         self.assertEqual(CONTEXT_TYPES, entity_types)
+        self.assertIn("original, unmasked", SYSTEM_ORIGINAL_CONTEXTUAL)
+        self.assertNotIn("already hidden", SYSTEM_ORIGINAL_CONTEXTUAL)
 
         self.assertEqual(
             [(15, 24, "IDENTIFIER_CODE")],
             [(s.start, s.end, s.entity_type) for s in spans],
         )
+
     def test_unknown_prompt_is_rejected(self):
         with self.assertRaises(ValueError):
             LocalLLMDetector("local", prompt="other")

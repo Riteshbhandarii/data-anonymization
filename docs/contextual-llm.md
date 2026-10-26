@@ -180,19 +180,63 @@ A new prompt, `original_contextual`, was added to test this situation.
 It asks the LLM to detect contextual identifiers in unmasked text.
 
 Both prompts were tested on the same six development documents.
+These documents contain 23 contextual items; the separate 18-document
+test split contains 71 contextual items.
+
+For the Qwen-only rows, the model received the original, unmasked text.
+For the Combined + Qwen rows, both detectors independently processed
+the original text and their saved detection spans were merged (Union).
+This is different from `combined ? Qwen` (Final Pass), where Combined
+masks identifiers before Qwen processes the remaining text.
 
 | Configuration | Contextual items fully detected |
 |---|---:|
 | Combined | 8/23 (34.8%) |
 | Qwen, contextual prompt | 20/23 (87.0%) |
 | Qwen, original_contextual prompt | 18/23 (78.3%) |
-| Combined + Qwen, contextual | 21/23 (91.3%) |
-| Combined + Qwen, original_contextual | 19/23 (82.6%) |
+| Combined + Qwen, contextual (Union) | 21/23 (91.3%) |
+| Combined + Qwen, original_contextual (Union) | 19/23 (82.6%) |
 
 The existing contextual prompt performed better on this small development
 set. The original-text variant detected more standard identifiers when
 Qwen was used alone (6/16 versus 3/16). The new prompt was kept for
 comparison rather than changing it to fit the development examples.
+
+### Full-corpus evaluation of the original-text prompt
+
+To evaluate the new `original_contextual` prompt, Qwen 3.5 9B was
+run alone on all 24 original, unmasked documents. No Combined Detector
+or base masking was used.
+
+The table reports the held-out test split of 18 documents. Both prompt
+results use the same corpus SHA-256.
+
+| Metric | Qwen `contextual` | Qwen `original_contextual` |
+|---|---:|---:|
+| Standard identifiers fully covered | 25/44 (56.8%) | 11/44 (25.0%) |
+| Contextual identifiers fully covered | 57/71 (80.3%) | 56/71 (78.9%) |
+| Decoys wrongly masked | 2/46 | 0/46 |
+| Characters masked outside labels | 0.85% | 0.19% |
+
+The new prompt did not improve standard-identifier coverage.
+It also detected slightly fewer contextual identifiers, although
+it produced less over-masking in this evaluation.
+
+One likely limitation is that `CONTEXT_TYPES` does not include
+dedicated entity types for emails, phone numbers or bank accounts.
+These values may therefore be missed by the contextual detector.
+
+The original-text prompt remains an optional experimental variant.
+The existing `contextual` prompt remains the default for contextual
+LLM evaluation.
+
+The new run had no failed documents and dropped two entities whose
+returned text was absent from the source document. LLM request time
+was 317.454 seconds, excluding model loading.
+
+This evaluation uses the same corpus as the earlier benchmark but was
+run separately. The results should not be interpreted as evidence
+that the new prompt is more accurate overall.
 
 ### Real UK licence spreadsheet
 
@@ -224,6 +268,71 @@ one source, and every test sentence explicitly included the label
 "Licence number:". The result does not establish 100% recall on other
 licence formats or on documents without that label. The combined result
 was calculated by merging saved spans from the two detectors.
+
+#### Reproducing the UK licence sample
+
+Source: Leicester City Council, Licensed Premises Register.
+
+Dataset page:
+https://data.leicester.gov.uk/explore/dataset/licensed-premises-register/
+
+The dataset was listed as updated on 17 June 2026.
+The local XLSX file was created on 23 October 2026.
+This local timestamp is not proof of the exact download date.
+
+Download the XLSX from the dataset page and verify its SHA-256
+against the value below before reproducing the experiment.
+
+Source file SHA-256:
+`5760EBAADEF6B095624D6767E6722F6802E4041B7375080610EF9BF465293319`
+
+The source contains 1,475 unique licence numbers. The 30-record sample
+was generated using stratified sampling by licence prefix with Pandas
+and `random_state=42`.
+
+To reproduce the sample, place the original XLSX file at
+`outputs/uk-licence/licensed-premises-register.xlsx` and run:
+
+    python -m eval.uk_licence_sample
+
+The script writes `outputs/uk-licence/uk_licence_test_30.csv`.
+It does not overwrite an existing file.
+
+The generated sample was compared with the original test CSV and
+matched all 30 rows and every column.
+
+Each test sentence follows this structure:
+
+    Licence number: [LICENCE]. Operating name: [OPERATING_NAME].
+    Licence holder: [LICENCE_HOLDER]. Premises address: [ADDRESS], [TOWN].
+
+The expected identifier is the licence number, labelled `IDENTIFIER_CODE`.
+
+#### Manual span review
+
+The two detectors returned 177 spans across the 30 test sentences:
+
+- Combined Detector: 88 spans
+- Qwen: 89 spans
+
+The detected spans include licence numbers, organization names,
+person names, locations, and other entity types.
+They are not 177 separate licence numbers.
+
+Manual review classified 174 spans as correct and 3 as false positives.
+
+All three false positives were the generic phrase `Off Licence`,
+incorrectly identified as an organization.
+
+A span was marked correct when the detected text represented meaningful
+identifying information in the test sentence. The review also checked
+whether detected licence numbers matched the ground truth.
+
+These are manual judgments of returned spans, not an exhaustive
+evaluation of all possible identifiers in the documents.
+
+Therefore, the 174/177 result should not be interpreted as overall
+precision or recall against fully annotated ground truth.
 
 ### ChatGPT before/after identification test
 
