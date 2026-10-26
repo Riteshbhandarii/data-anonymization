@@ -39,6 +39,12 @@ OUT = ROOT / "outputs"
 CORPUS = OUT / "app-corpus"
 REAL = ROOT / "corpus" / "real"
 MODES = {"Replace with type": "replace", "Use consistent pseudonyms": "pseudonymize"}
+LLM_URL = "http://127.0.0.1:1234/v1"
+LLM_DEFAULT = "qwen/qwen3.5-9b"  # the model the reported LLM results used
+# The contextual prompt tells the model that names, emails and phones are already
+# hidden, so it skips them; the identifier prompt is the one for ordinary text.
+LLM_PROMPTS = {"Identifiers (names, emails, phones, codes)": "identifiers",
+               "Contextual extras only (licence numbers, project codes)": "contextual"}
 PREVIEW_HEIGHT = 520
 
 st.set_page_config(page_title="Document anonymization", layout="wide")
@@ -59,6 +65,42 @@ def detector_cached(method: str):
 def detect_cached(text: str, language: str, method: str):
     results = detector_cached(method).detect(text, language)
     return [(r.start, r.end, r.entity_type, float(r.score)) for r in results]
+
+
+@st.cache_data(ttl=10, show_spinner=False)
+def served_models():
+    from detect.local_llm import list_models
+    return list_models(LLM_URL)
+
+
+def local_models():
+    # Failures are not cached, so a server started a moment later is found on the next rerun.
+    try:
+        return served_models()
+    except Exception:  # noqa: BLE001 - an absent server only disables the optional step
+        return []
+
+
+@st.cache_data(show_spinner=False)
+def llm_detect_cached(text: str, language: str, model: str, prompt: str):
+    from detect.local_llm import LocalLLMDetector
+    # Spans whose text is not in the document are dropped rather than failing the run.
+    results = LocalLLMDetector(model, base_url=LLM_URL, prompt=prompt, strict=False).detect(text, language)
+    return [(r.start, r.end, r.entity_type, float(r.score)) for r in results]
+
+
+def llm_settings():
+    """Optional local model run on the original text; its spans join the detector's."""
+    models = local_models()
+    if not models:
+        st.sidebar.warning("No local model found. Start the LM Studio server on "
+                           "127.0.0.1:1234 and load a model, or turn this step off.")
+        return None
+    model = st.sidebar.selectbox("Local model", models, index=models.index(LLM_DEFAULT) if LLM_DEFAULT in models else 0)
+    prompt = st.sidebar.radio("The model looks for", list(LLM_PROMPTS))
+    st.sidebar.caption("Text goes only to the model server on this machine. "
+                       "Running a model next to the detector needs free memory.")
+    return (model, LLM_PROMPTS[prompt])
 
 
 def ensure_corpus():
@@ -123,12 +165,16 @@ def sidebar():
     method = st.sidebar.radio("Detector", list(METHODS), format_func=lambda value: METHODS[value]["label"])
     mode = st.sidebar.radio("Replacement", list(MODES))
     include_metadata = st.sidebar.checkbox("Keep document metadata", value=False)
-    run = st.sidebar.button("Run document", type="primary", disabled=path is None, width="stretch")
+    st.sidebar.divider()
+    want_llm = st.sidebar.checkbox("Add a local LLM step (optional)", value=False)
+    llm = llm_settings() if want_llm else None
+    run = st.sidebar.button("Run document", type="primary", disabled=path is None or (want_llm and llm is None),
+                            width="stretch")
     if path is None:
         st.sidebar.caption("Choose a document to enable Run.")
     return {"path": path, "labels": labels, "lang": lang, "method": method,
             "mode": MODES[mode], "is_real": is_real, "stem": stem, "run": run,
-            "include_metadata": include_metadata}
+            "include_metadata": include_metadata, "llm": llm}
 
 
 def run_stages(cfg):
@@ -154,6 +200,20 @@ def run_stages(cfg):
     if error:
         res["errors"]["detect"] = error
         return res
+    if cfg.get("llm"):
+        # Same union as detect.local_llm.UnionDetector: both see the original text.
+        # The model's 1.0 is an uncalibrated flag, so score its spans 0.0: where both
+        # detectors overlap the detector's type names the placeholder, and the model
+        # only names what the detector missed.
+        added, duration, error = timed("Local LLM step", lambda: [
+            SimpleNamespace(start=s, end=e, entity_type=t, score=0.0)
+            for s, e, t, _ in llm_detect_cached(text, cfg["lang"], *cfg["llm"])])
+        res["times"]["llm"] = duration
+        if error:
+            res["errors"]["detect"] = error + " Check that LM Studio is serving the selected model."
+            return res
+        res["llm_added"] = len(added)
+        res["results"] = results = results + added
     if cfg["labels"] is not None:
         labels = cfg["labels"] if cfg.get("include_metadata", False) else [
             label for label in cfg["labels"] if label.get("location") != "metadata"]
@@ -167,7 +227,7 @@ def run_stages(cfg):
         return res
     def save():
         from pipeline.core import _save_markdown
-        folder = OUT / "app-runs" / cfg["method"]
+        folder = OUT / "app-runs" / (cfg["method"] + ("+llm" if cfg.get("llm") else ""))
         folder.mkdir(parents=True, exist_ok=True)
         return _save_markdown(folder, path.name, cleaned)
 
@@ -237,6 +297,10 @@ def tab_detect(res):
     if stage_error(res, "detect"):
         return
     summary_row(res)
+    if res["cfg"].get("llm"):
+        model, prompt = res["cfg"]["llm"]
+        st.caption(f"Local LLM step: {model} ({prompt} prompt) added {res['llm_added']} spans "
+                   f"in {res['times']['llm']:.1f} s.")
     results, scored = res["results"], res.get("scored")
     counts = Counter(item.entity_type for item in results)
     mode = st.segmented_control("Highlight", ["By entity type", "By coverage"],
@@ -416,7 +480,8 @@ def main():
     if res is not None:
         actual = res["cfg"]
         st.html('<div class="run-context">' + html.escape(
-            f"{Path(actual['path']).name} · {METHODS[actual['method']]['label']} · "
+            f"{Path(actual['path']).name} · {METHODS[actual['method']]['label']}"
+            f"{' + ' + actual['llm'][0] if actual.get('llm') else ''} · "
             f"{'Finnish' if actual['lang'] == 'fi' else 'English'}"
         ) + "</div>")
         if actual["is_real"]:
