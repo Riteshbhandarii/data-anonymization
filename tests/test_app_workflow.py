@@ -83,6 +83,34 @@ class AppWorkflowTests(unittest.TestCase):
             self.app.sidebar.button[0].click().run()
         self.assertIn("Shared-template-code", self.app.session_state["res"]["clean"])
 
+    def test_optional_llm_step_adds_its_spans_and_needs_a_model(self):
+        class FixtureLLM:
+            def __init__(self, model, **options):
+                self.model, self.options = model, options
+
+            def detect(self, text, language="en"):
+                start = text.index("Contact")
+                return [SimpleNamespace(start=start, end=start + 7, entity_type="IDENTIFIER_CODE", score=1.0)]
+
+        with patch("detect.local_llm.list_models", side_effect=OSError("connection refused")):
+            self.app.run()
+            self.app.sidebar.radio[0].set_value("Synthetic corpus").run()
+            self.app.sidebar.checkbox[1].check().run()
+        self.assertTrue(self.app.sidebar.button[0].disabled)
+        self.assertTrue(any("No local model found" in item.value for item in self.app.sidebar.warning))
+        with patch("detect.local_llm.list_models", return_value=["local-model"]), \
+                patch("detect.local_llm.LocalLLMDetector", FixtureLLM), \
+                patch("detect.methods.get_detector", return_value=FixtureDetector()):
+            self.app.run()
+            self.app.sidebar.button[0].click().run()
+        self.assertEqual([], list(self.app.exception))
+        res = self.app.session_state["res"]
+        self.assertEqual(("local-model", "contextual"), res["cfg"]["llm"])
+        self.assertEqual(1, res["llm_added"])
+        self.assertNotIn("Contact", res["clean"])
+        self.assertNotIn("Alice Example", res["clean"])
+        self.assertTrue(res["saved"].parent.name.endswith("+llm"))
+
     def test_save_failure_is_visible_without_crashing_the_clean_preview(self):
         with patch("pipeline.core._save_markdown", side_effect=OSError("disk full")):
             self.run_document()
