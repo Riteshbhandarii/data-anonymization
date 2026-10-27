@@ -22,6 +22,16 @@
    paths, attachments and unsupported content. Cleaned original-format files
    require a separate agreed implementation; this export does not provide them.
 
+For screenshots and snips, **paste reviewed cleaned text by default**. When the
+visual layout itself is needed, select **Output → Redacted image** in the local
+UI. Crop away identifying letterheads/window titles, run the detector, and click
+the OCR word boxes to add or remove masks. Try 2× OCR for small text; whole-line
+masking can cover the remaining words of a partly detected address, but also
+removes useful text. Inspect the final preview and download the flattened PNG.
+Share only that reviewed image, never the original. OCR can miss text, and this
+mode does not detect logos, faces, signatures or QR codes. Multi-page PDFs stay
+in the cleaned-text flow; the image editor exports one screenshot at a time.
+
 For Python integration, `run_pipeline(..., anonymizer=..., include_metadata=False)`
 is the default. Set `include_metadata=True` only when the properties themselves
 are needed and reviewed. `extract_to_markdown()` intentionally retains all

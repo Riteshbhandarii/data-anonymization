@@ -29,6 +29,19 @@ Sidebar: pick a source (upload, the fake corpus, or a public file from
 `corpus/real/`), the language, a detector method from `detect/methods.py`, and
 the replacement style (`[PERSON]` or `[PERSON_1]`), then press Run.
 
+For a screenshot, select **Output → Redacted image**. Upload a single-frame
+image or choose a synthetic screenshot, crop away the top if needed, and select
+**Run image**. **OCR scale** can enlarge small text for recognition without
+changing the export dimensions. **Mask whole OCR lines** initially selects every
+word on a detected line; review the extra masking before sharing.
+
+Click outlined words to add or remove masks (keyboard Tab/Enter also works).
+The adjacent preview and **Download redacted PNG** use the same solid black
+pixel masks. The export is a new RGB PNG named `anonymized.png`, without source
+metadata. Changing the image, crop or detection settings hides the old result
+until rerun. OCR can miss words, and logos, signatures, faces and QR codes still
+need visual review; crop them out or use cleaned text instead.
+
 **Keep document metadata** is off by default. Omitted metadata labels are excluded
 from UI coverage counts; the extraction benchmark still audits them. Changing
 this option hides the previous result until rerun. Paste the cleaned text, never

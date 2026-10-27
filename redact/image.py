@@ -35,17 +35,33 @@ class Word:
         return self.left, self.top, self.left + self.width, self.top + self.height
 
 
-def ocr_words(image: Image.Image, language: str = "eng+fin") -> list[Word]:
-    """Read the words of an image with their boxes, in reading order."""
+def ocr_words(image: Image.Image, language: str = "eng+fin", *, scale: int = 1) -> list[Word]:
+    """Read words in reading order, with boxes in the original image coordinates.
+
+    ``scale`` can enlarge small text by 2 or 3 for OCR. Box edges are rounded
+    outwards when mapped back, so a fractional edge does not leave a pixel
+    uncovered. The source image and the dimensions used for redaction stay
+    unchanged.
+    """
+    if type(scale) is not int or scale not in (1, 2, 3):
+        raise ValueError("OCR scale must be 1, 2, or 3")
     import pytesseract
 
-    data = pytesseract.image_to_data(_visible_rgb(image), lang=language,
+    visible = _visible_rgb(image)
+    if scale != 1:
+        visible = visible.resize((image.width * scale, image.height * scale), Image.Resampling.LANCZOS)
+    data = pytesseract.image_to_data(visible, lang=language,
                                    output_type=pytesseract.Output.DICT)
-    return [
-        Word(text.strip(), data["left"][i], data["top"][i], data["width"][i], data["height"][i],
-             (data["block_num"][i], data["par_num"][i], data["line_num"][i]))
-        for i, text in enumerate(data["text"]) if text.strip()
-    ]
+    words = []
+    for index, text in enumerate(data["text"]):
+        if not text.strip():
+            continue
+        left, top = data["left"][index] // scale, data["top"][index] // scale
+        right = (data["left"][index] + data["width"][index] + scale - 1) // scale
+        bottom = (data["top"][index] + data["height"][index] + scale - 1) // scale
+        words.append(Word(text.strip(), left, top, right - left, bottom - top,
+                          (data["block_num"][index], data["par_num"][index], data["line_num"][index])))
+    return words
 
 
 def layout(words: Sequence[Word]) -> tuple[str, list[tuple[int, int]]]:
@@ -72,6 +88,20 @@ def words_in_spans(ranges: Sequence[tuple[int, int]], spans: Iterable) -> list[i
             if any(span.start < end and span.end > start for span in spans)]
 
 
+def expand_to_lines(words: Sequence[Word], indices: Iterable[int]) -> list[int]:
+    """Select every OCR word sharing a selected word's block, paragraph and line.
+
+    Results are unique and in reading order. Line numbers alone are not unique
+    across Tesseract paragraphs or blocks.
+    """
+    lines = set()
+    for index in indices:
+        if type(index) is not int or not 0 <= index < len(words):
+            raise ValueError("Word index is outside the OCR word list")
+        lines.add(words[index].line)
+    return [index for index, word in enumerate(words) if word.line in lines]
+
+
 def draw_boxes(image: Image.Image, boxes: Iterable[tuple[int, int, int, int]],
                padding: int = PADDING) -> Image.Image:
     """Return an RGB copy with every box filled black; the input is not changed."""
@@ -96,15 +126,22 @@ def _visible_rgb(image: Image.Image) -> Image.Image:
 
 
 def redact_image(image: Image.Image, detector, *, language: str = "en", ocr_language: str = "eng+fin",
-                 words: Sequence[Word] | None = None) -> tuple[Image.Image, list[tuple[int, int, int, int]]]:
+                 words: Sequence[Word] | None = None, whole_lines: bool = False,
+                 ocr_scale: int = 1) -> tuple[Image.Image, list[tuple[int, int, int, int]]]:
     """Detect identifiers in the image text and black them out.
 
     ``detector`` is any object with ``detect(text, language=...)`` returning
     spans, as in ``detect.methods``. Pass ``words`` to reuse an earlier OCR
-    result. Returns the redacted copy and the word boxes that were filled.
+    result in original image coordinates. ``whole_lines`` additionally covers
+    all OCR words on any detected word's line. ``ocr_scale`` optionally enlarges
+    the image for OCR when ``words`` are not supplied. Returns the redacted copy
+    at its original size and the word boxes that were filled.
     """
-    words = ocr_words(image, ocr_language) if words is None else words
+    words = ocr_words(image, ocr_language, scale=ocr_scale) if words is None else words
     text, ranges = layout(words)
     spans = validate_spans(text, detector.detect(text, language=language))
-    boxes = [words[index].box for index in words_in_spans(ranges, spans)]
+    indices = words_in_spans(ranges, spans)
+    if whole_lines:
+        indices = expand_to_lines(words, indices)
+    boxes = [words[index].box for index in indices]
     return draw_boxes(image, boxes), boxes

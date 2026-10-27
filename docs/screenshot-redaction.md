@@ -2,11 +2,14 @@
 
 [Docs index](README.md) › RQ1
 
-Which tools clean a screenshot before it goes into a public chat model, and how well does automatic redaction work? A pasted snip has no file metadata to clean, but every visible name, number and address is still there as pixels, with logos, letterheads, signatures and stamps (issue #30). This doc lists the tools and measures six automatic methods on 40 synthetic PNGs in English and Finnish.
+Which tools clean a screenshot before it goes into a public chat model, and how well does automatic redaction work? A pasted snip has no file metadata to clean, but every visible name, number and address is still there as pixels, with logos, letterheads, signatures and stamps (issue #30). This doc records an earlier six-method comparison on 40 synthetic PNGs and a separate `combined` follow-up for issue #69.
 
 ## Key result
 
-- Best image recall is `gliner` at 90.4% (hidden / readable before). `rules` reaches 87.4% and `basic` 76.4%.
+- In the separate #69 follow-up, `combined` hid 457/460 OCR-readable values.
+  Whole-line masking hid all 460, but increased non-label words blacked out
+  from 6.6% to 97.3%. It remains an optional, manually reviewed policy.
+- In the earlier six-method run, best image recall was `gliner` at 90.4% (hidden / readable before). `rules` reached 87.4% and `basic` 76.4%.
 - `gliner` also blacks out the fewest non-label words (1.5%), but 33 IBANs leak whole.
 - Presidio-based methods leave most addresses partly visible (38 partial).
 - Once OCR has read a value, detection is the limit, not the image step. OCR misreads cost about two points.
@@ -57,6 +60,12 @@ third of the word's height, at least 3 pixels: Tesseract's boxes sometimes cut
 the first or last glyph, and with this margin no word in the corpus had ink
 left or right of its box.
 
+Optional whole-line masking covers every OCR word with the same Tesseract
+block, paragraph and line as a detected word. It can hide an address remainder
+but also removes ordinary words on that line. It does not join separate OCR
+lines or detect text that OCR missed. Optional 2× or 3× OCR enlargement maps
+word boxes back to the original image; the output keeps its original dimensions.
+
 `eval/screenshot_bench.py` scores each method on every PNG:
 
 1. OCR the original as an attacker would. A labelled value is readable before
@@ -90,6 +99,8 @@ the same analyzer and threshold as `basic` and `rules`, with `eng+fin` OCR and
 the document's language, so only the OCR handling and box drawing differ.
 
 ## Results
+
+The earlier six-method comparison:
 
 40 PNGs from `corpus/generate.py --n 10 --seed 42` (corpus fingerprint
 `334a5819…6acdaed`): 10 English and 10 Finnish documents, each at clean
@@ -156,8 +167,8 @@ What this shows:
   Real screenshots at 100% scaling have smaller text; that was not tested.
 - **The families fail in opposite places, as on text.** Presidio's methods
   leave most addresses partly visible; GLiNER hides addresses but leaves IBANs
-  whole. Neither reaches the full set, so combining them is the next step for
-  images too.
+  whole. Neither reached the full set. That run did not include `combined`;
+  the follow-up below measures it separately.
 - **Presidio Image Redactor matches `redact/image.py` on recall but blacks out more.**
   With the same analyzer, recall is 87.2% against 87.4%, but 9.3% of
   non-identifier words are blacked out against 6.4%. It joins every OCR word
@@ -174,6 +185,97 @@ application window around the text. Dark mode, coloured backgrounds, tables,
 small UI text and photographed screens are untested. Coverage is judged on
 Tesseract's word boxes of the original, so ink outside those boxes would not be
 counted; on this corpus no word had ink beyond the margin to either side.
+
+## Issue #69 follow-up, 2026-10-25
+
+### Combined detector and whole-line masking
+
+This separate Windows CPU run generated 40 PNGs with `--n 10 --seed 42`,
+Faker 40.39.0 and corpus fingerprint
+`444fe9d12753f2af0cb493b6dec9387f7f37b4ceda06282b57f3deaed8df6429`.
+It used the current `combined` detector, GLiNER 0.2.29
+(`urchade/gliner_multi_pii-v1`, threshold 0.4), Presidio 2.2.364,
+PyTorch 2.14.1, spaCy 3.8.16 with English/Finnish small models 3.8.0,
+Tesseract 5.5.0.20241111 and `eng+fin`. Both masking policies use the same
+images and model configuration. All OCR was 1×. The earlier Mac run differs
+in corpus fingerprint, detector revision and runtime, so its percentages are
+not a before/after comparison for this change.
+
+| Masking policy | Hidden / readable before | Partial values | Partial addresses | Whole-value leaks | Non-label words blacked |
+|---|---:|---:|---:|---:|---:|
+| Detected words | 457/460 (99.3%) | 3 | 2 | 0 | 50/754 (6.6%) |
+| Whole OCR lines | 460/460 (100.0%) | 0 | 0 | 0 | 734/754 (97.3%) |
+
+Whole-line masking removed the two partial addresses and one partial company
+name, at a large readability cost on these identifier-dense images. The default
+word policy is retained. All 480 planted values remain accounted for: 20 were
+unreadable to the reference OCR in both modes. Hidden / all planted is 95.2%
+and 95.8%, respectively; the conditional 100% does not establish that every
+visible identifier is hidden. The commands below write reports and redacted
+images to their local `--out` folders, `outputs/screenshot-issue69/words/` and
+`outputs/screenshot-issue69/lines/`. Those generated files are not committed.
+
+Reproduce with Tesseract and its English/Finnish data on `PATH`, the small
+spaCy models installed and GLiNER weights available locally:
+
+```bash
+python corpus/generate.py --out outputs/screenshot-issue69/corpus --n 10 --seed 42
+python -m eval.screenshot_bench outputs/screenshot-issue69/corpus --out outputs/screenshot-issue69/words --methods combined
+python -m eval.screenshot_bench outputs/screenshot-issue69/corpus --out outputs/screenshot-issue69/lines --methods combined --whole-lines
+```
+
+The recorded run was offline, used four PyTorch CPU threads and reused a
+prewarmed detector across both policies. Timings exclude cold model loading
+and overlap other local validation work; they are not used to compare policy
+speed or the earlier Mac timings.
+
+### Small text and scanned-page smoke checks
+
+Tesseract 5.5.0.20241111 with `eng+fin` was run on four synthetic 640×140 images
+at their native pixel dimensions: English and Finnish contact blocks in Arial,
+12 px and 14 px, black on white. Each contains a fictional name and email,
+giving eight exact-match targets. OCR recovered 6/8 at 1× and 7/8 at 2×.
+The 12 px Finnish email was still misread after enlargement. This supports
+offering an enlargement control, not a guarantee that it repairs small text.
+These are synthetic samples, not captured application screenshots or a general
+accuracy estimate for 100% display scaling.
+
+A separate three-page image-only PDF used one fictional email per page,
+Arial 32 px on 1000×300 images placed on 500×150 pt pages. All three pages had
+empty native text layers. The real PDF extractor with `eng+fin` OCR recovered
+3/3 email values, and the same `combined` detector covered all 3/3 in the
+extracted text. This checks the existing scanned-page extraction route;
+the screenshot UI exports PNG images and does not clean original PDF files.
+
+Regenerate both smoke checks from a clean checkout with the validation
+dependencies and Tesseract's `eng+fin` data installed. The samples use fixed
+fictional strings and positions; there is no random generator or seed. The
+original run used Arial. Supply that font file explicitly with `--font` if it
+is not installed in a standard system font directory:
+
+```bash
+python -m pip install -r requirements-validation.txt
+python -m eval.screenshot_smoke --out outputs/screenshot-smoke --font /path/to/arial.ttf
+```
+
+This creates the four small-text PNGs, a three-page image-only PDF, the
+extracted Markdown, `small-text-smoke.json` and `scanned-smoke.json`. It runs
+the real OCR and PDF extractor. The default scan report records detection as
+`not_run`, with `detected: null`. To reproduce the additional 3/3 `combined`
+detection check, install the detector dependencies/models described above and
+run:
+
+```bash
+python -m eval.screenshot_smoke --out outputs/screenshot-smoke --font /path/to/arial.ttf --method combined
+```
+
+The reference Arial font SHA256 is
+`b3658eadae55e682b5f69eb64c439c1ecc8f196c0bb8d4756d145d13bc86476a`.
+The reports include the font hash and rendering/OCR versions. The recorded
+6/8 → 7/8 and 3/3 results depend on those inputs and versions; another font or
+Tesseract version can produce different recognition results. All generated
+smoke inputs and reports remain in the local `--out` folder, which Git ignores
+when it is under `outputs/`.
 
 ## What no text tool covers
 
@@ -209,6 +311,12 @@ python -m eval.screenshot_bench outputs/screenshot/corpus --out outputs/screensh
 `summary.csv`, `by_method.csv`, `values.csv` (state of every labelled value),
 `details.json` and the redacted PNGs under `redacted/<method>/`. Everything
 stays under `outputs/`, which git ignores; only synthetic images are used.
+
+`--whole-lines` enables the line policy and `--ocr-scale 2` or `3` enlarges the
+redactor's OCR input. Both options apply to the repository redactor, so select
+methods explicitly without the third-party `presidio-image` variants. Reports
+record the settings. Reference and post-redaction scoring OCR always remain at
+1× to keep the comparison denominator unchanged.
 
 To redact one image:
 

@@ -120,6 +120,21 @@ class ValidationTests(unittest.TestCase):
         report = evaluate_corpus(self.root)
         self.assertEqual(1, len(report["documents"]))
 
+    def test_utf8_bom_index_preserves_results_and_cli_success(self) -> None:
+        self.add_document("Väinö Mäkinen", [
+            {"type": "PERSON", "value": "Väinö Mäkinen", "location": "body"},
+        ])
+        manifest = "file,format,language,entities\nexample.txt,txt,en,1\n"
+        index = self.root / "index.csv"
+        index.write_text(manifest, encoding="utf-8")
+        expected = evaluate_corpus(self.root)
+
+        index.write_text(manifest, encoding="utf-8-sig")
+        (self.root / "labels" / "stale.json").write_text("invalid JSON", encoding="utf-8")
+        self.assertEqual(expected, evaluate_corpus(self.root))
+        completed = self.run_cli()
+        self.assertEqual(0, completed.returncode, completed.stderr)
+
     def run_cli(self, *arguments: str) -> subprocess.CompletedProcess:
         return subprocess.run(
             [sys.executable, "-m", "pipeline.validation", str(self.root),

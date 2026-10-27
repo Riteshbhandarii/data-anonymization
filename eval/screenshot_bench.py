@@ -125,11 +125,13 @@ def summarize(documents: list[dict], keys: tuple[str, ...]) -> list[dict]:
     return rows
 
 
-def make_redactor(method: str):
+def make_redactor(method: str, *, whole_lines: bool = False, ocr_scale: int = 1):
     """Return the method's text detector and redact(image, language) -> redacted image.
 
     Both kinds of redactor run their own OCR, so the timings are comparable.
     """
+    if method in IMAGE_REDACTOR and (whole_lines or ocr_scale != 1):
+        raise ValueError("Whole-line masking and OCR scaling require a repository image redactor")
     detector = get_method(IMAGE_REDACTOR.get(method, method))
     if method in IMAGE_REDACTOR:
         from presidio_image_redactor import ImageAnalyzerEngine, ImageRedactorEngine
@@ -141,14 +143,18 @@ def make_redactor(method: str):
             image, ocr_kwargs={"lang": OCR_LANGUAGE}, language=language,
             score_threshold=detector.score_threshold)
     return detector, lambda image, language: redact_image(
-        image, detector, language=language, ocr_language=OCR_LANGUAGE)[0]
+        image, detector, language=language, ocr_language=OCR_LANGUAGE,
+        whole_lines=whole_lines, ocr_scale=ocr_scale)[0]
 
 
-def evaluate(corpus_root: Path, methods: list[str], image_dir: Path | None = None) -> list[dict]:
+def evaluate(corpus_root: Path, methods: list[str], image_dir: Path | None = None, *,
+             whole_lines: bool = False, ocr_scale: int = 1) -> list[dict]:
     """Score every method on every image, and its detector on the same text.
 
     The text score uses the generator's saved text for the image and counts a
     value when detections cover all of it, of any type, as a box would.
+    Reference and post-redaction OCR remain at 1x for comparable denominators;
+    ``ocr_scale`` changes only the redactor's OCR.
     """
     root = Path(corpus_root).resolve()
     originals = []
@@ -160,7 +166,7 @@ def evaluate(corpus_root: Path, methods: list[str], image_dir: Path | None = Non
     documents = []
     for method in methods:
         print(f"== {method}", flush=True)
-        detector, redactor = make_redactor(method)
+        detector, redactor = make_redactor(method, whole_lines=whole_lines, ocr_scale=ocr_scale)
         for case, image, words, text in originals:
             started = time.perf_counter()
             after = redactor(image, case["language"])
@@ -197,8 +203,11 @@ def write_csv(path: Path, rows: list[dict]) -> None:
         writer.writerows(rows)
 
 
-def format_summary(by_group: list[dict], by_method: list[dict], used: dict) -> str:
+def format_summary(by_group: list[dict], by_method: list[dict], used: dict, *,
+                   whole_lines: bool = False, ocr_scale: int = 1) -> str:
     lines = ["# Screenshot redaction benchmark", "",
+             (f"Masking: {'whole OCR lines' if whole_lines else 'detected words'}. "
+              f"Redactor OCR: {ocr_scale}x. Reference and output OCR: 1x."), "",
              ("| Method | Language | Quality | Readable / planted | Hidden | Partial | Leaked | Image recall | "
               "Hidden / planted | Text recall | Words blacked | Non-label words blacked | Seconds / image |"),
              "|---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|"]
@@ -221,10 +230,17 @@ def main() -> int:
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--methods", nargs="+", default=METHODS, choices=METHODS)
     parser.add_argument("--no-images", action="store_true", help="do not save the redacted PNGs")
+    parser.add_argument("--whole-lines", action="store_true",
+                        help="mask every OCR word on a line containing a detection")
+    parser.add_argument("--ocr-scale", type=int, choices=(1, 2, 3), default=1,
+                        help="upscale only the redactor's OCR; scoring OCR stays at 1x")
     args = parser.parse_args()
+    if (args.whole_lines or args.ocr_scale != 1) and any(m in IMAGE_REDACTOR for m in args.methods):
+        parser.error("--whole-lines/--ocr-scale require --methods without presidio-image variants")
     args.out.mkdir(parents=True, exist_ok=True)
     try:
-        documents = evaluate(args.corpus, args.methods, None if args.no_images else args.out / "redacted")
+        documents = evaluate(args.corpus, args.methods, None if args.no_images else args.out / "redacted",
+                             whole_lines=args.whole_lines, ocr_scale=args.ocr_scale)
     except (OSError, ValueError, ImportError) as exc:
         parser.exit(2, f"Screenshot benchmark could not run: {exc}\n")
     by_group = summarize(documents, ("method", "language", "quality"))
@@ -234,9 +250,13 @@ def main() -> int:
     write_csv(args.out / "by_method.csv", by_method)
     write_csv(args.out / "values.csv", [{"method": d["method"], "file": d["file"], **entity}
                                         for d in documents for entity in d["entities"]])
-    (args.out / "details.json").write_text(json.dumps({"versions": used, "documents": documents},
+    configuration = {"whole_lines": args.whole_lines, "ocr_scale": args.ocr_scale,
+                     "scoring_ocr_scale": 1}
+    (args.out / "details.json").write_text(json.dumps({"versions": used, "configuration": configuration,
+                                                      "documents": documents},
                                                       ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    summary = format_summary(by_group, by_method, used)
+    summary = format_summary(by_group, by_method, used,
+                             whole_lines=args.whole_lines, ocr_scale=args.ocr_scale)
     (args.out / "summary.md").write_text(summary, encoding="utf-8")
     print(summary)
     return 0
