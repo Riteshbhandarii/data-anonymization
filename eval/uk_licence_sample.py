@@ -1,4 +1,4 @@
-﻿"""Recreate the 30-record UK licence sample used in the RQ2 evaluation.
+"""Recreate the 30-record UK licence sample used in the RQ2 evaluation.
 
 Source: Leicester City Council licensed premises register.
 Place the downloaded XLSX at outputs/uk-licence/licensed-premises-register.xlsx.

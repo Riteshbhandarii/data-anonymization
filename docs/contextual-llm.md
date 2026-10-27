@@ -186,7 +186,7 @@ test split contains 71 contextual items.
 For the Qwen-only rows, the model received the original, unmasked text.
 For the Combined + Qwen rows, both detectors independently processed
 the original text and their saved detection spans were merged (Union).
-This is different from `combined ? Qwen` (Final Pass), where Combined
+This is different from `combined → Qwen` (Final Pass), where Combined
 masks identifiers before Qwen processes the remaining text.
 
 | Configuration | Contextual items fully detected |
