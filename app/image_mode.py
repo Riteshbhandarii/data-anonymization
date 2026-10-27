@@ -163,6 +163,10 @@ def render_image_mode(corpus_docs, detector_factory):
                                            "This can also hide useful text; review the result.")
     run = st.sidebar.button("Run image", type="primary", disabled=image is None, key="run-image")
     st.caption("Paste cleaned text by default. Use a redacted image when its visual layout matters.")
+    # Deciding what belongs in the image is a human step; OCR cannot judge a logo or a window title.
+    st.info("Crop by hand before uploading: take a new screenshot of only the document area, without "
+            "window titles, browser tabs, user names, avatars or logos. Do not crop an existing "
+            "screenshot in an editor that may keep the cut pixels in the file; take a fresh one.")
     if image is None:
         st.info("Choose a screenshot, then select Run image.")
         return
