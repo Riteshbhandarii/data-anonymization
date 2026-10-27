@@ -164,6 +164,10 @@ render_image_mode(lambda: {}, lambda method: SimpleNamespace(detect=detect))
             self.assertEqual((255, 255, 255), output.getpixel((55, 16)))
             self.assertEqual({}, output.info)
 
+    def test_manual_crop_guidance_is_shown_before_running(self):
+        self.app.run()
+        self.assertTrue(any("Crop by hand before uploading" in item.value for item in self.app.info))
+
     def test_crop_change_hides_download_until_rerun_then_removes_top_pixels(self):
         self.run_image()
         self.download_mock.reset_mock()
