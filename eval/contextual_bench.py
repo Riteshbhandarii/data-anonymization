@@ -214,7 +214,11 @@ def main(argv=None):
     llm.add_argument("corpus", type=Path)
     llm.add_argument("--base", type=Path, help="Frozen base spans to mask first; omit for the LLM alone")
     llm.add_argument("--model", required=True, help="Identifier already loaded in LM Studio")
-    llm.add_argument("--prompt", choices=["identifiers", "contextual"], default="contextual")
+    llm.add_argument(
+        "--prompt",
+        choices=["identifiers", "contextual", "original_contextual"],
+        default="contextual",
+    )
     llm.add_argument("--base-url", default="http://127.0.0.1:1234/v1")
     llm.add_argument("--out", type=Path, required=True)
     llm.add_argument("--spans-out", type=Path)

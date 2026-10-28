@@ -214,6 +214,49 @@ class ContextualPromptTests(unittest.TestCase):
         with server(content) as (url, _), self.assertRaises(ValueError):
             LocalLLMDetector("local", base_url=url, prompt="contextual").detect("Project Kestrel")
 
+    def test_original_contextual_prompt_and_types(self):
+        from detect.local_llm import (
+            CONTEXT_TYPES,
+            SYSTEM_ORIGINAL_CONTEXTUAL,
+        )
+
+        content = json.dumps({
+            "entities": [
+                {
+                    "text": "UK-839201",
+                    "entity_type": "IDENTIFIER_CODE",
+                }
+            ]
+        })
+
+        with server(content) as (url, requests):
+            detector = LocalLLMDetector(
+                "local",
+                base_url=url,
+                prompt="original_contextual",
+            )
+            spans = detector.detect(
+                "Licence number UK-839201 belongs to John Smith.",
+                "en",
+            )
+
+        self.assertEqual(
+            SYSTEM_ORIGINAL_CONTEXTUAL,
+            requests[0]["messages"][0]["content"],
+        )
+
+        schema = requests[0]["response_format"]["json_schema"]["schema"]
+        entity_types = schema["properties"]["entities"]["items"]["properties"]["entity_type"]["enum"]
+
+        self.assertEqual(CONTEXT_TYPES, entity_types)
+        self.assertIn("original, unmasked", SYSTEM_ORIGINAL_CONTEXTUAL)
+        self.assertNotIn("already hidden", SYSTEM_ORIGINAL_CONTEXTUAL)
+
+        self.assertEqual(
+            [(15, 24, "IDENTIFIER_CODE")],
+            [(s.start, s.end, s.entity_type) for s in spans],
+        )
+
     def test_unknown_prompt_is_rejected(self):
         with self.assertRaises(ValueError):
             LocalLLMDetector("local", prompt="other")
