@@ -6,6 +6,8 @@ The existing readers are in `pipeline/extractors.py`. A custom reader can be pas
 
 The built-in document readers include core metadata, Word headers and footers, review comments and authors, tracked changes, slide speaker notes, and hidden worksheets in the returned Markdown. Embedded pictures in slides (including grouped pictures) and mixed PDF pages go through OCR. XLSX formula cells use saved computed values; a missing or erroneous formula cache raises an extraction error with the sheet and cell to recalculate.
 
+PPTX pictures without a standard embedded image, including linked and SVG-only pictures, produce an `Image not extracted` review notice instead of stopping the whole file. External images are never fetched. Review those pictures in the original presentation; their contents have not been OCRed. Normal embedded pictures and filled picture placeholders still go through OCR.
+
 See [the pipeline integration guide](../docs/pipeline.md#connect-another-extraction-module) for an example, format dispatch instructions, and the OCR replacement point.
 
 See [extraction validation](../docs/extraction-validation.md) for the labelled-corpus checks to run when changing a reader.

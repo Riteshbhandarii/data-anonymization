@@ -277,6 +277,60 @@ class ExtractionGapTests(unittest.TestCase):
         self.assertIn("Body Contact", sections["body"])
         self.assertIn("Notes Contact", sections["notes"])
 
+    def test_pptx_unembedded_picture_keeps_text_notes_and_other_images(self):
+        from PIL import Image
+        from pptx import Presentation
+        from pptx.opc.constants import RELATIONSHIP_TYPE as RT
+        from pptx.oxml.ns import qn
+        from pptx.util import Inches
+
+        pixels = BytesIO()
+        Image.new("RGB", (200, 80), "white").save(pixels, format="PNG")
+        for linked in (False, True):
+            with self.subTest(linked=linked):
+                presentation = Presentation()
+                slide = presentation.slides.add_slide(presentation.slide_layouts[5])
+                slide.shapes.title.text = "Body Contact"
+                slide.shapes.add_textbox(0, 0, Inches(4), Inches(1)).text = "Slide content"
+                picture = slide.shapes.add_picture(pixels, 0, Inches(1))
+                blip = picture._pic.blipFill.blip
+                del blip.attrib[qn("r:embed")]
+                if linked:
+                    relation = slide.part.relate_to(
+                        "https://example.invalid/image.png", RT.IMAGE, is_external=True
+                    )
+                    blip.set(qn("r:link"), relation)
+                slide.shapes.add_picture(pixels, 0, Inches(2))
+                slide.notes_slide.notes_text_frame.text = "Notes Contact"
+                path = self.root / "unembedded.pptx"
+                presentation.save(path)
+
+                with patch("pipeline.extractors._ocr_image_bytes", return_value="Image Contact") as ocr:
+                    markdown = extract_to_markdown(path, "eng+fin")
+                ocr.assert_called_once()
+                self.assertEqual("eng+fin", ocr.call_args.args[1])
+                for value in ("Body Contact", "Slide content", "Notes Contact", "Image Contact"):
+                    self.assertIn(value, markdown)
+                self.assertIn("Image not extracted", markdown)
+
+    def test_pptx_picture_placeholder_still_uses_ocr(self):
+        from PIL import Image
+        from pptx import Presentation
+
+        pixels = BytesIO()
+        Image.new("RGB", (200, 80), "white").save(pixels, format="PNG")
+        presentation = Presentation()
+        slide = presentation.slides.add_slide(presentation.slide_layouts[8])
+        slide.placeholders[1].insert_picture(pixels)
+        path = self.root / "picture-placeholder.pptx"
+        presentation.save(path)
+
+        with patch("pipeline.extractors._ocr_image_bytes", return_value="Placeholder Contact") as ocr:
+            markdown = extract_to_markdown(path)
+        ocr.assert_called_once()
+        self.assertIn("Placeholder Contact", markdown)
+        self.assertNotIn("Image not extracted", markdown)
+
     def test_standalone_image_routes_pixels_to_ocr(self):
         from PIL import Image
 
