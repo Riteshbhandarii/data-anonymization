@@ -332,6 +332,7 @@ def _extract_xlsx(path: Path) -> str:
 
 def _extract_pptx(path: Path, ocr_language: str) -> str:
     from pptx import Presentation
+    from pptx.shapes.picture import Picture
 
     presentation = Presentation(path)
     parts = _office_metadata(presentation.core_properties)
@@ -355,8 +356,17 @@ def _extract_pptx(path: Path, ocr_language: str) -> str:
                 text = shape.text.strip()
                 if text:
                     parts.append(text)
-            elif hasattr(shape, "image"):
-                image_texts.append(_ocr_image_bytes(shape.image.blob, ocr_language))
+            elif isinstance(shape, Picture):
+                try:
+                    image = shape.image
+                except ValueError:
+                    # Linked and SVG-only pictures can lack a standard embedded image.
+                    image_texts.append(
+                        "_Image not extracted: no supported embedded image. "
+                        "Review this slide in the original presentation._"
+                    )
+                    continue
+                image_texts.append(_ocr_image_bytes(image.blob, ocr_language))
 
         if image_texts:
             parts.extend(["### Embedded image text", *image_texts])
