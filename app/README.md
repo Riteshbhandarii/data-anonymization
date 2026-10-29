@@ -29,10 +29,14 @@ Sidebar: pick a source (upload, the fake corpus, or a public file from
 `corpus/real/`), the language, a detector method from `detect/methods.py`, and
 the replacement style (`[PERSON]` or `[PERSON_1]`), then press Run.
 
-For a screenshot, select **Output → Redacted image**. Upload a single-frame
-image or choose a synthetic screenshot, crop away the top if needed, and select
-**Run image**. **OCR scale** can enlarge small text for recognition without
-changing the export dimensions. **Mask whole OCR lines** initially selects every
+Before uploading a screenshot, take a fresh snip of only the necessary document
+area, without logos, window titles, browser tabs, user names or avatars. Avoid
+cropping an old screenshot in an editor that may retain the cut pixels. For
+image output, select **Output → Redacted image**. Upload the single-frame image
+or choose a synthetic screenshot, optionally reduce it further with
+**Crop from top (pixels)**, and select **Run image**. **OCR scale** can enlarge
+small text for recognition without changing the export dimensions.
+**Mask whole OCR lines** initially selects every
 word on a detected line; review the extra masking before sharing.
 
 Click outlined words to add or remove masks (keyboard Tab/Enter also works).
