@@ -244,5 +244,132 @@ class ScoringTests(unittest.TestCase):
         self.assertAlmostEqual(1 / 6, row["other_words_redacted"])
 
 
+class ChunkedDetectorTests(unittest.TestCase):
+    def test_complete_line_recovers_entity_lost_in_chunk(self):
+        from types import SimpleNamespace
+        from unittest.mock import patch
+        from detect.combined import CombinedKeepOrgChunkedDetector
+
+        target = "Väänänen"
+        text = (
+            "Neljännesvuosikatsaus\n"
+            "Sisäinen muistio, laatija Juho Kärkkäinen-Haavisto "
+            "(marihietala@example.org), Väänänen\n"
+            "Suora numero 0869131035. Postiosoite: Tukkisillantie 4"
+        )
+
+        class FakeModel:
+            def detect(self, chunk, language="en"):
+                if "Sisäinen muistio, laatija" not in chunk:
+                    return []
+
+                start = chunk.find(target)
+                if start < 0:
+                    return []
+
+                return [
+                    SimpleNamespace(
+                        start=start,
+                        end=start + len(target),
+                        entity_type="LOCATION",
+                        score=0.9,
+                    )
+                ]
+
+        detector = CombinedKeepOrgChunkedDetector(
+            SimpleNamespace(detect=lambda text, language="en": []),
+            FakeModel(),
+        )
+
+        with patch(
+            "detect.combined.CombinedKeepOrgDetector.detect",
+            return_value=[],
+        ):
+            spans = detector.detect(text, language="fi")
+
+        self.assertTrue(
+            any(text[span.start:span.end] == target for span in spans),
+            "Complete-line detection should recover Väänänen",
+        )
+
+    def test_company_name_with_and_is_fully_covered(self):
+        from types import SimpleNamespace
+        from unittest.mock import patch
+        from detect.combined import CombinedKeepOrgChunkedDetector
+
+        text = (
+            "Internal memo prepared by Carol Bradley "
+            "(connietran@example.org) of Shaw, Wilson and Shaw."
+        )
+        company = "Shaw, Wilson and Shaw"
+
+        class FakeModel:
+            def detect(self, chunk, language="en"):
+                result = []
+                for name in ("Shaw", "Wilson"):
+                    start = 0
+                    while (start := chunk.find(name, start)) >= 0:
+                        result.append(
+                            SimpleNamespace(
+                                start=start,
+                                end=start + len(name),
+                                entity_type="ORGANIZATION",
+                                score=0.85,
+                            )
+                        )
+                        start += len(name)
+                return result
+
+        detector = CombinedKeepOrgChunkedDetector(
+            SimpleNamespace(detect=lambda text, language="en": []),
+            FakeModel(),
+        )
+
+        with patch(
+            "detect.combined.CombinedKeepOrgDetector.detect",
+            return_value=[],
+        ):
+            spans = detector.detect(text)
+
+        start = text.index(company)
+        end = start + len(company)
+
+        self.assertTrue(
+            any(
+                span.start <= start and span.end >= end
+                for span in spans
+            ),
+            "The complete company name, including 'and', must be covered",
+        )
+
+    def test_unrelated_organizations_are_not_joined(self):
+        from types import SimpleNamespace
+        from detect.combined import join_organization_spans
+
+        text = "Shaw met Wilson yesterday. Shaw sent the report."
+
+        spans = []
+        for name in ("Shaw", "Wilson"):
+            start = 0
+            while (start := text.find(name, start)) >= 0:
+                spans.append(
+                    SimpleNamespace(
+                        start=start,
+                        end=start + len(name),
+                        entity_type="ORGANIZATION",
+                        score=0.85,
+                    )
+                )
+                start += len(name)
+
+        result = join_organization_spans(text, spans)
+
+        self.assertEqual(
+            len(result),
+            len(spans),
+            "Unrelated organizations must not be joined",
+        )
+
+
 if __name__ == "__main__":
     unittest.main()
