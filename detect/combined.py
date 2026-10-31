@@ -49,3 +49,129 @@ class CombinedDetector:
     def detect(self, text: str, language: str = "en") -> list:
         spans = route(self.presidio.detect(text, language), self.model.detect(text, language))
         return filter_context_spans(text, spans) + business_spans(text, self.organization_terms)
+
+
+def route_keep_org(presidio_spans, model_spans) -> list:
+    """Keep Presidio organizations alongside all GLiNER spans."""
+    excluded = {"PERSON", "LOCATION"}
+
+    return [
+        span for span in presidio_spans
+        if span.entity_type not in excluded
+    ] + list(model_spans)
+
+
+class CombinedKeepOrgDetector(CombinedDetector):
+    """Combine GLiNER with Presidio while retaining organizations."""
+
+    def detect(self, text: str, language: str = "en") -> list:
+        spans = route_keep_org(
+            self.presidio.detect(text, language),
+            self.model.detect(text, language),
+        )
+        return (
+            filter_context_spans(text, spans)
+            + business_spans(text, self.organization_terms)
+        )
+
+def join_organization_spans(text: str, spans: list) -> list:
+    """Join organization names separated by commas and 'and'."""
+    import re
+    from types import SimpleNamespace
+
+    organizations = sorted(
+        (span for span in spans if span.entity_type == "ORGANIZATION"),
+        key=lambda span: (span.start, span.end),
+    )
+
+    additions = []
+    index = 0
+
+    while index < len(organizations):
+        group = [organizations[index]]
+        next_index = index + 1
+
+        while next_index < len(organizations):
+            previous = group[-1]
+            current = organizations[next_index]
+            separator = text[previous.end:current.start]
+
+            if not re.fullmatch(r"\s*,\s*|\s+and\s+|\s*,\s*and\s+", separator):
+                break
+
+            group.append(current)
+            next_index += 1
+
+        # Require a comma-separated company-name structure.
+        if len(group) >= 3:
+            fragment = text[group[0].start:group[-1].end]
+
+            if "," in fragment and re.search(r"\band\b", fragment):
+                additions.append(
+                    SimpleNamespace(
+                        start=group[0].start,
+                        end=group[-1].end,
+                        entity_type="ORGANIZATION",
+                        score=max(span.score for span in group),
+                    )
+                )
+
+        index = max(next_index, index + 1)
+
+    return spans + additions
+
+
+class CombinedKeepOrgChunkedDetector(CombinedKeepOrgDetector):
+    """Keep-org detector with chunk and complete-line GLiNER passes."""
+
+    def detect(self, text: str, language: str = "en") -> list:
+        from detect.gliner_detector import windows
+        from types import SimpleNamespace
+
+        spans = super().detect(text, language)
+        extra = []
+
+        # Detect entities in overlapping text chunks.
+        for offset, chunk in windows(text, size=100, overlap=30):
+            for span in self.model.detect(chunk, language):
+                extra.append(
+                    SimpleNamespace(
+                        start=offset + span.start,
+                        end=offset + span.end,
+                        entity_type=span.entity_type,
+                        score=span.score,
+                    )
+                )
+
+        # Detect entities using complete lines to preserve context.
+        offset = 0
+
+        for line in text.splitlines(keepends=True):
+            line_text = line.rstrip("\r\n")
+
+            if line_text.strip():
+                for span in self.model.detect(line_text, language):
+                    extra.append(
+                        SimpleNamespace(
+                            start=offset + span.start,
+                            end=offset + span.end,
+                            entity_type=span.entity_type,
+                            score=span.score,
+                        )
+                    )
+
+            offset += len(line)
+
+        # Preserve the team's context filtering for extra detections.
+        extra = filter_context_spans(text, extra)
+
+        # Remove exact duplicates, keeping the highest score.
+        unique = {}
+
+        for span in spans + extra:
+            key = (span.start, span.end, span.entity_type)
+
+            if key not in unique or span.score > unique[key].score:
+                unique[key] = span
+
+        return join_organization_spans(text, list(unique.values()))

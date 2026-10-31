@@ -42,6 +42,14 @@ METHODS = {
         "good": "GLiNER's names and addresses with Presidio's IBAN, email, dates and "
                 "ID numbers.",
         "weak": "As slow as GLiNER, and more detections to review than either part."},
+    "combined-keep-org-chunked": {
+        "label": "Combined + chunk and line detection",
+        "family": "Rules + transformer",
+        "about": "Keeps Presidio organizations and adds overlapping chunk "
+                 "and complete-line GLiNER detection.",
+        "good": "Designed to recover identifiers missed when chunks lose context.",
+        "weak": "Requires additional model passes, so detection may be slower.",
+    },
     "privacy-filter": {
         "label": "OpenAI Privacy Filter + patterns", "family": "Token classifier",
         "about": "openai/privacy-filter, a 1.5B mixture of experts (50M active), "
@@ -84,12 +92,22 @@ def _combined():
     return CombinedDetector(get_detector("rules"), get_detector("gliner"))
 
 
+def _combined_keep_org_chunked():
+    from detect.combined import CombinedKeepOrgChunkedDetector
+
+    return CombinedKeepOrgChunkedDetector(
+        get_detector("rules"),
+        get_detector("gliner"),
+    )
+
+
 BUILDERS = {
     "basic": lambda: _presidio("sm", False),
     "rules": lambda: _presidio("sm", True),
     "rules-lg": lambda: _presidio("lg", True),
     "gliner": _gliner,
     "combined": _combined,
+    "combined-keep-org-chunked": _combined_keep_org_chunked,
     "privacy-filter": _privacy_filter,
     "gliner2": _gliner2,
 }
